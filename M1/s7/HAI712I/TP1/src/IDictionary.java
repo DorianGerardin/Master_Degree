@@ -1,7 +1,7 @@
 public interface IDictionary {
 
     //Return la valeur associée à key dans le receveur
-    Object get(Object key);
+    Object get(Object key) throws Exception;
 
     //Entre un nouveau couple clé-valeur dans le receveur et le return
     IDictionary put(Object key, Object value);

@@ -1,22 +1,27 @@
 public abstract class AbstractDictionary implements IDictionary{
 
-    Object[] keys;
-    Object[] values;
+    protected Object[] keys;
+    protected Object[] values;
 
-    public AbstractDictionary(Object[] keys, Object[] values) {
-        this.keys = keys;
-        this.values = values;
+    public AbstractDictionary() {
+        this.keys = new Object[0];
+        this.values = new Object[0];
     }
 
-    public Object get(Object key) {
-        return !containsKey(key) || isEmpty() ? null : values[indexOf(key)];
+    public Object get(Object key) throws Exception {
+        if (!containsKey(key) || isEmpty()) {
+            throw new Exception("Cette clé n'est pas dans le dictionnaire");
+        } else {
+            return values[this.indexOf(key)];
+        }
     }
 
     public IDictionary put(Object key, Object value) {
-        if (containsKey(key)) {
-            values[indexOf(key)] = value;
+        int index = this.indexOf(key);
+        if (index != -1) {
+            values[index] = value;
         } else {
-            int newIndex = newIndexOf(key);
+            int newIndex = this.newIndexOf(key);
             keys[newIndex] = key;
             values[newIndex] = value;
         }
@@ -24,16 +29,16 @@ public abstract class AbstractDictionary implements IDictionary{
     }
 
     public boolean isEmpty() {
-        return size() == 0;
+        return this.size() == 0;
     }
 
     public boolean containsKey(Object key) {
-        return indexOf(key) == -1;
+        return this.indexOf(key) != -1;
     }
 
     public abstract int size();
 
-    abstract int indexOf(Object key);
-    abstract int newIndexOf(Object key);
+    public abstract int indexOf(Object key);
+    public abstract int newIndexOf(Object key);
 
 }
