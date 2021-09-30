@@ -121,6 +121,8 @@ struct Mesh {
 
                 std::cout << "ANGLE" << std::endl;
 
+                e_10.normalize();
+                e_20.normalize();
                 cos = Vec3::dot(e_10, e_20);
                 weight = acos(cos);
 
