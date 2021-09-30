@@ -28,14 +28,14 @@ public:
     float length() const { return sqrt( squareLength() ); }
     void normalize() { float L = length(); mVals[0] /= L; mVals[1] /= L; mVals[2] /= L; }
     static float dot( Vec3 const & a , Vec3 const & b ) {
-        float res = a[0]*b[0]+a[1]*b[2]+a[2]*b[2];
+        float res = a[0]*b[0]+a[1]*b[1]+a[2]*b[2];
         return res;
     }
     static Vec3 cross( Vec3 const & a , Vec3 const & b ) {
         Vec3 res;
         res[0] = a[1]*b[2] - a[2]*b[1];
         res[1] = a[2]*b[0] - a[0]*b[2];
-        res[3] = a[0]*b[1] - a[1]*b[0];
+        res[2] = a[0]*b[1] - a[1]*b[0];
         return res;
     }
     void operator += (Vec3 const & other) {

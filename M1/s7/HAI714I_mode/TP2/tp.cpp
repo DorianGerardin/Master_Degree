@@ -25,6 +25,7 @@
 #include <algorithm>
 #include <GL/glut.h>
 #include <float.h>
+#include <math.h> 
 #include "src/Vec3.h"
 #include "src/Camera.h"
 
@@ -97,30 +98,44 @@ struct Mesh {
         normals.resize(vertices.size(), Vec3(0., 0., 0.));
         //Initializer le vecteur normals taille vertices.size() avec Vec3(0., 0., 0.)
 
-        float w = 1.0;
-        float norme, aireTriangle;
+        float weight = 1.0;
+        float norme, cos;
         Vec3 e_10, e_20, n;
         for (unsigned int i = 0; i < triangles.size(); ++i)
         {
+            e_10 = vertices[triangles[i][1]] - vertices[triangles[i][0]];
+            e_20 = vertices[triangles[i][2]] - vertices[triangles[i][0]];
+
             switch(weight_type) {
                 case 1:
 
-                e_10 = vertices[triangles[i][1]] - vertices[triangles[i][0]];
-                e_20 = vertices[triangles[i][2]] - vertices[triangles[i][0]];
+                std::cout << "AIRE" << std::endl;
+
                 n = Vec3::cross(e_10, e_20);
-                n.normalize();
                 norme = n.length();
-                aireTriangle = norme/2;
+                weight = norme/2;
+
+                break;
 
                 case 2:
 
-                
+                std::cout << "ANGLE" << std::endl;
 
-                default:
-                normals[triangles[i][0]] += w*triangle_normals[i]; 
-                normals[triangles[i][1]] += w*triangle_normals[i]; 
-                normals[triangles[i][2]] += w*triangle_normals[i];
+                cos = Vec3::dot(e_10, e_20);
+                weight = acos(cos);
+
+                break;
+
+                case 0:
+
+                std::cout << "UNIFORME" << std::endl;
+
+                break;
             }
+
+            normals[triangles[i][0]] += weight*triangle_normals[i]; 
+            normals[triangles[i][1]] += weight*triangle_normals[i]; 
+            normals[triangles[i][2]] += weight*triangle_normals[i];
         }
 
         for (int unsigned i = 0; i < normals.size(); ++i)
@@ -666,7 +681,7 @@ void key (unsigned char keyPressed, int x, int y) {
 
     case '+': //Changes weight type: 0 uniforme, 1 aire des triangles, 2 angle du triangle
         weight_type ++;
-        if(weight_type == 2) weight_type = 0;
+        if(weight_type == 3) weight_type = 0;
         mesh.computeVerticesNormals(); //recalcul des normales avec le type de poids choisi
         break;
 

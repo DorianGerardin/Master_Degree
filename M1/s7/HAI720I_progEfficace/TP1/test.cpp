@@ -67,6 +67,11 @@ int polyEvalHorner(std::vector<int> coeffs) {
 }
 
 
+//---------------------------------EX 7---------------------------------//
+
+    
+
+
 int main (int argc, char *argv[]){
 
 
