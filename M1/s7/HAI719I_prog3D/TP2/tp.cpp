@@ -77,21 +77,21 @@ struct TriangleVArray {
 
         // Creer un premier buffer contenant les positions
         // a mettre dans le layout 0
-        // Utiliser
-        // glGenBuffers(...);
-        // glBindBuffer(...);
-        // glBufferData(...);
+        
+        glGenBuffers(1, &vertexbuffer);
+        glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
+        glBufferData(GL_ARRAY_BUFFER, sizeof(g_vertex_buffer_data), g_vertex_buffer_data, GL_STATIC_DRAW);
 
+        glGenBuffers(1, &colorbuffer);
+        glBindBuffer(GL_ARRAY_BUFFER, colorbuffer);
+        glBufferData(GL_ARRAY_BUFFER, sizeof(g_color_buffer_data), g_color_buffer_data, GL_STATIC_DRAW);
         // Creer un deuxieme buffer contenant les couleurs
         // a mettre dans le layout 1
-        // Utiliser
-        // glGenBuffers(...);
-        // glBindBuffer(...);
-        // glBufferData(...);
     }
 
     void clearBuffers(){
-        //Liberer la memoire, utiliser glDeleteBuffers
+        glDeleteBuffers(1, &vertexbuffer);
+        glDeleteBuffers(1, &colorbuffer);
 
     }
 
@@ -100,15 +100,33 @@ struct TriangleVArray {
         //A faire
         //Utiliser glVertexAttribPointer
 
+        glEnableVertexAttribArray(0);
+        glEnableVertexAttribArray(1);
+
+        glVertexAttribPointer(0,
+                              3,
+                              GL_FLOAT,
+                              GL_FALSE,
+                              3 * sizeof(float), 
+                              0);
+
         //Ajouter un attribut dans un color buffer à envoyé au GPU
         //Utiliser glVertexAttribPointer
         // 2nd attribute buffer : normals
 
+        glVertexAttribPointer(1,
+                              3,
+                              GL_FLOAT,
+                              GL_FALSE,
+                              3 * sizeof(float), 
+                              0);
 
         // Draw the triangle !
         // Utiliser glDrawArrays
+        glDrawArrays(GL_TRIANGLES, 0, 3);
 
-        //Pensez à desactive les AttributArray
+        glDisableVertexAttribArray(0);
+        glDisableVertexAttribArray(1);
     }
 };
 
@@ -123,14 +141,14 @@ struct Mesh {
     void initTriangleMesh(){
         std::vector<Vec3> g_vertex_buffer_data {
             Vec3(-1.0f, -1.0f, 0.0f),
-                    Vec3(1.0f, -1.0f, 0.0f),
-                    Vec3(1.0f,  1.0f, 0.0f),
+            Vec3(1.0f, -1.0f, 0.0f),
+            Vec3(1.0f,  1.0f, 0.0f),
         };
 
         std::vector<Vec3> g_color_buffer_data {
             Vec3(1.0f, 0.0f, 0.0f),
-                    Vec3(0.0f, 1.0f, 0.0f),
-                    Vec3(0.0f, 0.0f, 1.0f),
+            Vec3(0.0f, 1.0f, 0.0f),
+            Vec3(0.0f, 0.0f, 1.0f),
         };
 
         vertices = g_vertex_buffer_data;
@@ -146,20 +164,29 @@ struct Mesh {
         // Creer un premier buffer contenant les positions
         // a mettre dans le layout 0
         // Utiliser
-        // glGenBuffers(...);
-        // glBindBuffer(...);
-        // glBufferData(...);
+        glGenBuffers(1, &vertexbuffer);
+        glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
+        glBufferData(GL_ARRAY_BUFFER, sizeof(Vec3) * vertices.size(), &vertices[0], GL_STATIC_DRAW);
 
         // Creer un deuxieme buffer contenant les couleurs
         // a mettre dans le layout 1
-        // Utiliser
-        // glGenBuffers(...);
-        // glBindBuffer(...);
-        // glBufferData(...);
+
+        glGenBuffers(1, &colorbuffer);
+        glBindBuffer(GL_ARRAY_BUFFER, colorbuffer);
+        glBufferData(GL_ARRAY_BUFFER, sizeof(Vec3) * normals.size(), &normals[0], GL_STATIC_DRAW);
+
         // Piste : utiliser sizeof(Vec3)
 
         //Remplir indices avec la liste des indices des triangles concatenes
         std::vector<unsigned int> indices;
+
+        for (Triangle t: triangles)
+        {
+            for (int i = 0; i < 2; ++i)
+            {
+                indices.push_back(t[i]);
+            }
+        }
 
         // Creer un element buffer contenant les indices des sommets
         // Utiliser
@@ -167,11 +194,17 @@ struct Mesh {
         // glBindBuffer(...);
         // glBufferData(...);
 
+        glGenBuffers(1, &elementbuffer);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementbuffer);
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(uint) * indices.size(), &indices[0], GL_STATIC_DRAW);
+
 
     }
 
     void clearBuffers(){
-        //Liberer la memoire, utiliser glDeleteBuffers
+        glDeleteBuffers(1, &vertexbuffer);
+        glDeleteBuffers(1, &colorbuffer);
+        glDeleteBuffers(1, &elementbuffer);
     }
 
     void draw (){
@@ -179,18 +212,38 @@ struct Mesh {
         //A faire
         //Utiliser glVertexAttribPointer
 
+        glEnableVertexAttribArray(0);
+        glEnableVertexAttribArray(1);
+
+        glVertexAttribPointer(0,
+                              3,
+                              GL_FLOAT,
+                              GL_FALSE,
+                              3 * sizeof(float), 
+                              0);
+
         //Ajouter un attribut dans un color buffer à envoyé au GPU
         //Utiliser glVertexAttribPointer
         // 2nd attribute buffer : normals
+
+        glVertexAttribPointer(1,
+                              3,
+                              GL_FLOAT,
+                              GL_FALSE,
+                              3 * sizeof(float), 
+                              0);
 
 
         // Draw the triangles !
         // Utiliser l'index buffer
         // glBindBuffer
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementbuffer);
+        glDrawElements(GL_TRIANGLES, triangles.size() * 3, GL_UNSIGNED_INT, &elementbuffer);
         // glDrawElements
 
         //Pensez à desactive les AttributArray
-
+        glDisableVertexAttribArray(0);
+        glDisableVertexAttribArray(1);
     }
 };
 
@@ -402,9 +455,19 @@ void draw () {
 
     // Definition des parametre pour le rendu : uniforms etc...
     // ajouter une variable uniform pour tous les sommets de type float permettant la mise à l'échelle
+    
+    GLint loc = glGetUniformLocation(programID, "scale");
+
     // Utiliser glGetUniformLocation pour récuperer l'identifiant GLuint
     // Ensuite glUniform1f( id_recuperer , valeur );
+
+    glUniform1f(loc, scale);
+
     // ajouter une variable uniform pour tous les sommets de type vec3 permettant d'appliquer une translation au modèle
+
+    GLint loc2 = glGetUniformLocation(programID, "translate");
+
+    glUniform3fv(loc2, 1, &translate[0]);
 
     // Ajouter une translation en envoyant un vec3
 
@@ -470,27 +533,27 @@ void key (unsigned char keyPressed, int x, int y) {
 
 
     case '+': //Press + key to increase scale
-        //Completer augmenter la valeur de la variable scale e.g. +0.005
+        scale += 0.005;
         break;
 
     case '-': //Press - key to decrease scale
-        //Completer
+        scale -= 0.005;
         break;
 
     case 'd': //Press d key to translate on x positive
-        //Completer : mettre à jour le x du Vec3 translate
+        translate[0] += 0.005;
         break;
 
     case 'q': //Press q key to translate on x negative
-        //Completer : mettre à jour le y du Vec3 translate
+        translate[0] -= 0.005;
         break;
 
     case 'z': //Press z key to translate on y positive
-        //Completer : mettre à jour le y du Vec3 translate
+        translate[1] += 0.005;
         break;
 
     case 's': //Press s key to translate on y negative
-        //Completer : mettre à jour le y du Vec3 translate
+        translate[1] -= 0.005;
         break;
 
     case '1': //Toggle loaded mesh display
