@@ -91,5 +91,3 @@ int main(int argc, char **argv) {
 	printf("result reduce SIMD 8 : %i\n", reduce8SIMD(v2));
 }
 
-
-
