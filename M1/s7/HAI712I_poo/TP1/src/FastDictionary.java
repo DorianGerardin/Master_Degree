@@ -1,16 +1,16 @@
-class FastDictionary implements IDictionary{
+class FastDictionary extends AbstractDictionary{
 
 	public FastDictionary() {
-        keys = new Obejct[20];
-        values = new Obejct[20];
+        keys = new Object[4];
+        values = new Object[4];
     }
 
     public int indexOf(Object key) {
-        int hash = key.hashCode();
-        int index = hash%this.size();
-        if(this.keys[index].equals(key)) return index;
+        int hash = Math.abs(key.hashCode());
+        int index = hash%this.keys.length;
+        if(this.keys[index] != null && this.keys[index].equals(key)) return index;
         else {
-        	for (int i = index;i < this.size(); i++) {
+        	for (int i = index;i < this.keys.length; i++) {
 	            if(this.keys[i] == key) {
 	                return i;
 	            }
@@ -20,28 +20,29 @@ class FastDictionary implements IDictionary{
 
     public int newIndexOf(Object key) {
         int hash = key.hashCode();
-        int index = hash%this.size();
-    	while(!this.keys[index].equals(null)) {
-    		(index++)%this.key.length;
+        int index = Math.abs(hash%this.keys.length);
+    	while(this.keys[index] != null) {
+            index = (index+1)%this.keys.length;
     	}
     	return index;
    		
     }
 
     public boolean mustGrow() {
-    	return this.keys.length*0.75 < this.size();
+    	return this.keys.length*0.75 <= this.size();
     }
 
     public void grow() {
-    	int size = this.key.length;
+        System.out.println("Growing ...");
+    	int size = this.keys.length;
         Object[] newKeys = new Object[size*2];
         Object[] newValues = new Object[size*2];
     	for (int i = 0; i < size; i++) {
-    		if(!this.keys[i].equals(null)) {
-	    		int hash = key[i].hashCode();
-	        	int index = hash%this.size();
-	        	while(!this.keys[index].equals(null) & index < this.keys.length) {
-		    		index++;
+    		if(this.keys[i] != null) {
+	    		int hash = Math.abs(this.keys[i].hashCode());
+	        	int index = hash%newKeys.length;
+	        	while(newKeys[index] != null) {
+		    		index = (index+1)%newKeys.length;
 		    	} 
 		    	newKeys[index] = this.keys[i];
 		    	newValues[index] = this.values[i];
@@ -49,6 +50,11 @@ class FastDictionary implements IDictionary{
     	}
     	this.keys = newKeys;
         this.values = newValues;
+    }
+
+    public IDictionary put(Object key, Object value) {
+        if (this.mustGrow()) this.grow();
+        return super.put(key, value);
     }
 
     public int size() {
