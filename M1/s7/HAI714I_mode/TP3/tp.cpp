@@ -37,6 +37,8 @@ bool display_mesh;
 bool display_basis;
 DisplayMode displayMode;
 
+std::vector<Vec3> buildingPoints;
+
 static GLint window;
 static unsigned int SCREENWIDTH = 1600;
 static unsigned int SCREENHEIGHT = 900;
@@ -92,6 +94,18 @@ void DrawCurve(std::vector<Vec3> TabPointsOfCurve, long nbPoints) {
 	glEnd();
 }
 
+void drawPoints(std::vector<Vec3> TabPointsOfCurve, long nbPoints) {
+
+    glBegin(GL_POINTS);
+    for (long i = 0; i < nbPoints; ++i)
+    {
+        glVertex3f(TabPointsOfCurve[i][0],
+                   TabPointsOfCurve[i][1],
+                   TabPointsOfCurve[i][2]);
+    }
+    glEnd();
+}
+
 std::vector<Vec3> HermiteCubicCurve(Vec3 P0, Vec3 P1, Vec3 v0, Vec3 v1, long nbU) {
 
 	std::vector<Vec3> points;
@@ -128,14 +142,13 @@ int fact(int n) {
 std::vector<Vec3> BezierCurveByBernstein(std::vector<Vec3> TabControlPoint, long nbControlPoint, long nbU) {
 
 	std::vector<Vec3> points;
+    int n = nbControlPoint - 1;
 
 	for (long i = 0; i < nbU; ++i)
 	{
 		float u = ((float)i)/(nbU-1);
 
 		Vec3 B = Vec3(0., 0., 0.);
-
-		int n = nbControlPoint - 1;
 
 		for (int j = 0; j < nbControlPoint; ++j)
 		{
@@ -150,6 +163,39 @@ std::vector<Vec3> BezierCurveByBernstein(std::vector<Vec3> TabControlPoint, long
 		points.push_back(B);
 	}
 	return points;
+
+}
+
+Vec3 BezierCurveByCasteljauAux(std::vector<Vec3> TabControlPoint, int k, int i, float u) {
+
+    if(k == 0) {
+        return TabControlPoint[i];
+    } else {
+        Vec3 p1 = BezierCurveByCasteljauAux(TabControlPoint, k-1, i, u);
+        Vec3 p2 = BezierCurveByCasteljauAux(TabControlPoint, k-1, i+1, u);
+        Vec3 p = ((1-u) * p1) + (u * p2);
+        buildingPoints.push_back(p);
+        return p;
+    }
+
+}
+
+std::vector<Vec3> BezierCurveByCasteljau(std::vector<Vec3> TabControlPoint, long nbControlPoint, long nbU) {
+
+    std::vector<Vec3> points;
+    int n = nbControlPoint - 1;
+
+    for (long i = 0; i < nbU; ++i)
+    {
+        float u = ((float)i)/(nbU-1);
+
+        Vec3 B = Vec3(0., 0., 0.);
+        
+        B = BezierCurveByCasteljauAux(TabControlPoint, n, 0, u);
+        points.push_back(B);
+        
+    }
+    return points;
 
 }
 
@@ -193,54 +239,23 @@ void draw () {
 	P1 = Vec3(2., 0., 0.);
 	v0 = Vec3(1., 1., 0.);
 	v1 = Vec3(1., -1., 0.);
-	long nbU = 20;*/
-	//DrawCurve(HermiteCubicCurve(P0, P1, v0, v1, nbU), nbU);
+	long nbU = 20;
+	DrawCurve(HermiteCubicCurve(P0, P1, v0, v1, nbU), nbU);*/
 
 	std::vector<Vec3> TabControlPoint;
-	std::vector<Vec3> TabControlPoint2;
-	Vec3 v1 = Vec3(-2.,2.,0.);
-	Vec3 v11 = Vec3(-1.,2.,0.);
-	Vec3 v2 = Vec3(0.,2.,0.);
-	Vec3 v12 = Vec3(0.,1.,0.);
-	Vec3 v3 = Vec3(0.,0.,0.);
-    Vec3 v13 = Vec3(0.,-1.,0.);
-	Vec3 v4 = Vec3(0.,-2.,0.);
-    Vec3 v14 = Vec3(1.,-2.,0.);
-	Vec3 v5 = Vec3(2.,-2.,0.);
+	Vec3 v1 = Vec3(0.,0.,0.);
+	Vec3 v2 = Vec3(2.,0.,0.);
+	Vec3 v3 = Vec3(2.,2.,0.);
+    Vec3 v4 = Vec3(0.,2.,0.);
 
-
-	Vec3 v6 = Vec3(-2.,-2.,0.);
-    Vec3 v15 = Vec3(-2.,-1.,0.);
-	Vec3 v7 = Vec3(-2.,0.,0.);
-    Vec3 v16 = Vec3(-1.,0.,0.);
-	Vec3 v8 = Vec3(0.,0.,0.);
-    Vec3 v17 = Vec3(1.,0.,0.);
-	Vec3 v9 = Vec3(2.,0.,0.);
-    Vec3 v18 = Vec3(2.,1.,0.);
-	Vec3 v10 = Vec3(2.,2.,0.);
 	TabControlPoint.push_back(v1);
-    TabControlPoint.push_back(v11);
     TabControlPoint.push_back(v2);
-    TabControlPoint.push_back(v12);
     TabControlPoint.push_back(v3);
-	TabControlPoint.push_back(v13);
-	TabControlPoint.push_back(v4);
-	TabControlPoint.push_back(v14);
-	TabControlPoint.push_back(v5);
-
-	TabControlPoint2.push_back(v6);
-	TabControlPoint2.push_back(v15);
-	TabControlPoint2.push_back(v7);
-	TabControlPoint2.push_back(v16);
-	TabControlPoint2.push_back(v8);
-    TabControlPoint2.push_back(v17);
-    TabControlPoint2.push_back(v9);
-    TabControlPoint2.push_back(v18);
-    TabControlPoint2.push_back(v10);
-	DrawCurve(BezierCurveByBernstein(TabControlPoint, 9, 50), 50);
-	DrawCurve(BezierCurveByBernstein(TabControlPoint2, 9, 50), 50);
-	DrawCurve(TabControlPoint, 9);
-	DrawCurve(TabControlPoint2, 9);
+    TabControlPoint.push_back(v4);
+	//DrawCurve(BezierCurveByBernstein(TabControlPoint, 4, 50), 50);
+    DrawCurve(BezierCurveByCasteljau(TabControlPoint, 4, 20), 20);
+	DrawCurve(TabControlPoint, 4);
+    drawPoints(buildingPoints, buildingPoints.size());
 }
 
 void changeDisplayMode(){
