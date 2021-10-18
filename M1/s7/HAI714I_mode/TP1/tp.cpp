@@ -17,6 +17,7 @@
 #include <iostream>
 #include <fstream>
 #include <vector>
+#include <string>
 #include <algorithm>
 #include <string>
 #include <cstdio>
@@ -68,6 +69,10 @@ Mesh unit_sphere;
 bool display_normals;
 bool display_loaded_mesh;
 bool display_unit_sphere;
+bool display_vertices;
+
+int nX = 20;
+int nY = 20;
 
 // -------------------------------------------
 // OpenGL/GLUT application code.
@@ -84,14 +89,14 @@ static int lastX=0, lastY=0, lastZoom=0;
 static bool fullScreen = false;
 
 //To complete
-void setUnitSphere( Mesh & o_mesh, int nX=20, int nY=20 )
+void setUnitSphere( Mesh & o_mesh, int nX=nX, int nY=nY )
 {
 
     double TWO_PI = M_PI*2;
-
-    for (double i = 0; i < TWO_PI; i+= TWO_PI/nX)
+    
+    for (double j = -M_PI_2; j <= M_PI_2; j+= M_PI/nY)
     {
-        for (double j = -M_PI_2; j < M_PI_2; j+= TWO_PI/nY)
+        for (double i = 0; i <= TWO_PI; i+= TWO_PI/nX)
         {
             double x = cos(i) * cos(j);
             double y = sin(i) * cos(j);
@@ -99,16 +104,48 @@ void setUnitSphere( Mesh & o_mesh, int nX=20, int nY=20 )
 
             o_mesh.vertices.push_back(Vec3(x,y,z));
             o_mesh.normals.push_back(Vec3(x,y,z));
-
         }
     }
 
-    for (int i = 0; i < nX*nY; ++i)
-    {
+    // for (int i = 0; i < nX; ++i) {
 
-        o_mesh.triangles.push_back(Triangle(i, i+nX, i+nX+1));
+    //     for (int j = 0; j < nY; j++){
+
+    //         double teta = i*TWO_PI/nX;
+    //         double phi = (j*(M_PI/nY))-M_PI_2;
+    //         double x = cos(teta) * cos(phi);
+    //         double y = sin(teta) * cos(phi);
+    //         double z = sin(phi);
+
+    //         o_mesh.vertices.push_back(Vec3(x,y,z));
+    //         o_mesh.normals.push_back(Vec3(x,y,z));
+    //     }
+    // }
+
+
+    for (int i = 0; i < o_mesh.vertices.size()-nX-2; ++i)
+    {
+        o_mesh.triangles.push_back(Triangle(i, i+1, i+nX+1));
+        o_mesh.triangles.push_back(Triangle(i+nX+1, i+1, i+nX+2));
     }
 
+}
+
+void drawVertices(Mesh const & i_mesh) {
+    glBegin(GL_POINTS);
+
+    // std::cout << "Drawing [" << i_mesh.vertices.size() << "] points" << std::endl;
+
+    for(unsigned int vId=0; vId < i_mesh.vertices.size(); ++vId) {
+        Vec3 p = i_mesh.vertices[vId];
+
+        glVertex3f(
+            p[0],
+            p[1],
+            p[2]
+        );
+    }
+    glEnd();
 }
 
 
@@ -247,6 +284,7 @@ void init () {
 
     display_normals = false;
     display_unit_sphere = false;
+    display_vertices = false;
     display_loaded_mesh = true;
 }
 
@@ -303,8 +341,13 @@ void drawTriangleMesh( Mesh const & i_mesh ) {
 void draw () {
 
     if( display_unit_sphere ){
-        glColor3f(0.8,1,0.8);
+        glColor3f(1,1,1);
         drawTriangleMesh(unit_sphere);
+    }
+
+    if( display_vertices ){
+        glColor3f(1,1,1);
+        drawVertices(unit_sphere);
     }
 
     if( display_loaded_mesh ){
@@ -363,6 +406,28 @@ void key (unsigned char keyPressed, int x, int y) {
     case '2': //Toggle unit sphere mesh display
         display_unit_sphere = !display_unit_sphere;
         break;
+
+    case '3':
+        display_vertices = !display_vertices;
+    break;
+
+    case '+':
+        unit_sphere.normals.clear();
+        unit_sphere.vertices.clear();
+        unit_sphere.triangles.clear();
+        nX++;
+        nY++;
+        setUnitSphere(unit_sphere);
+    break;
+
+    case '-': 
+        unit_sphere.normals.clear();
+        unit_sphere.vertices.clear();
+        unit_sphere.triangles.clear();
+        nX--;
+        nY--;
+        setUnitSphere(unit_sphere);
+    break;
 
     default:
         break;
@@ -446,6 +511,7 @@ int main (int argc, char ** argv) {
     //openOFF("data/elephant_n.off", mesh.vertices, mesh.normals, mesh.triangles);
 
     setUnitSphere( unit_sphere );
+    drawVertices( unit_sphere );
 
     glutMainLoop ();
     return EXIT_SUCCESS;

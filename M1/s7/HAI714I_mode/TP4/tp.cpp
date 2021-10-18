@@ -37,8 +37,8 @@ bool display_mesh;
 bool display_basis;
 DisplayMode displayMode;
 
-int nbU = 50;
-int nbV = 5;
+int nbU = 20;
+int nbV = 20;
 
 std::vector<Vec3> TabControlPoint;
 
@@ -228,8 +228,9 @@ std::vector<std::vector<Vec3>> surfaceReglee(std::vector<Vec3> BezierCurve1, std
     std::vector<Vec3> courbe;
 
     for (size_t i = 0; i < BezierCurve1.size(); ++i) {
+        courbe.clear();
         for (long k = 0; k < nbV; ++k) {
-            float v = ((float)i)/(nbV-1);
+            float v = ((float)k)/(nbV-1);
             courbe.push_back((1-v)*BezierCurve1[i] + v*BezierCurve2[i]);
         }
         ensembleCourbes.push_back(courbe);
@@ -240,23 +241,65 @@ std::vector<std::vector<Vec3>> surfaceReglee(std::vector<Vec3> BezierCurve1, std
 }
 
 
+std::vector<std::vector<Vec3>> BezierSurfaceByBernstein(std::vector<std::vector<Vec3>> GrilleControlPoint, long nbControlPointU, long nbControlPointV, long nbU, long nbV) {
 
-void drawSurface(std::vector<std::vector<Vec3>> ensembleDroites, int nbV) {
+    std::vector<std::vector<Vec3>> ensembleCourbes;
+    std::vector<Vec3> courbe;
 
-    for (size_t i = 0; i < ensembleDroites.size(); ++i)
+    int n = nbControlPointU - 1;
+    int m = nbControlPointV - 1;
+
+    for (int k = 0; k < nbU; ++k) {
+
+        courbe.clear();
+        float u = ((float)k)/(nbU-1);
+
+        for (int l = 0; l < nbV; ++l) {
+
+            float v = ((float)l)/(nbV-1);
+            Vec3 B = Vec3(0., 0., 0.);
+
+            for (int i = 0; i < nbControlPointU; ++i)
+            {
+                for (int j = 0; j < nbControlPointV; ++j)
+                {
+
+                    float polynomeI = fact(n) / (fact(i)*fact((n-i))) *
+                            pow(u, i) * pow((1-u), (n-i));
+
+                    float polynomeJ = fact(m) / (fact(j)*fact((m-j))) *
+                            pow(v, j) * pow((1-v), (m-j));
+
+                    B += polynomeI * polynomeJ * GrilleControlPoint[i][j]; 
+                }
+            }
+            courbe.push_back(B);
+        }
+        ensembleCourbes.push_back(courbe);
+    }
+    return ensembleCourbes;
+}
+
+
+void drawSurface(std::vector<std::vector<Vec3>> ensembleDroites) {
+
+    size_t m = ensembleDroites[0].size();
+    unsigned int size = ensembleDroites.size();
+
+    for (size_t i = 0; i < size; ++i)
     {
-        DrawCurve(ensembleDroites[i], nbV);
+        DrawCurve(ensembleDroites[i], m);
     }
 
-    std::vector<Vec3> BezierCurvesLines;
+    std::vector<Vec3> curves;
 
-    for (int i = 0; i < nbV; ++i)
+    for (size_t i = 0; i < m; ++i)
     {
-        BezierCurvesLines.clear();
-        for (size_t j = 0; j < ensembleDroites.size(); ++j){
-            BezierCurvesLines.push_back(ensembleDroites[j][i]);
+        curves.clear();
+        for (size_t j = 0; j < size; ++j){
+            curves.push_back(ensembleDroites[j][i]);
         }
-        DrawCurve(BezierCurvesLines, ensembleDroites.size());
+        DrawCurve(curves, size);
     } 
 
 }
@@ -318,19 +361,6 @@ void draw () {
     glDisable(GL_LIGHTING);
     glEnable(GL_LIGHTING);
 
-	/*Vec3 P0, P1, v0, v1;
-	P0 = Vec3(0., 0., 0.);
-	P1 = Vec3(2., 0., 0.);
-	v0 = Vec3(1., 1., 0.);
-	v1 = Vec3(1., -1., 0.);
-	long nbU = 20;
-	DrawCurve(HermiteCubicCurve(P0, P1, v0, v1, nbU), nbU);*/
-
-	//DrawCurve(BezierCurveByBernstein(TabControlPoint, 4, 50), 50);
-    //DrawCurve(BezierCurveByCasteljau(TabControlPoint, 4, 20), 20);
-    //DrawCurve(TabControlPoint, 4);
-    //drawPoints(buildingPoints, buildingPoints.size());
-
     initTabControlPoint();
 
     std::vector<Vec3> BezierCurve = BezierCurveByBernstein(TabControlPoint, 7, nbU);
@@ -341,21 +371,21 @@ void draw () {
 
     std::vector<std::vector<Vec3>> ensembleDroites = surfaceCylindrique(BezierCurve, vDroite, nbV);
 
-    DrawCurve(TabControlPoint, 7);
+    //DrawCurve(TabControlPoint, 7);
 
-    drawSurface(ensembleDroites, nbV);
+    drawSurface(ensembleDroites);
 
     //---------Question 2----------
 
-  /*  std::vector<Vec3> TabControlPoint2;
+/*    std::vector<Vec3> TabControlPoint2;
 
     Vec3 v1 = Vec3(0.,0.,0.);
-    Vec3 v2 = Vec3(1.,0.,1.);
-    Vec3 v3 = Vec3(1.,1.,2.);
-    Vec3 v4 = Vec3(0.,2.,1.);
-    Vec3 v5 = Vec3(-4.,3.,-2.);
+    Vec3 v2 = Vec3(1.,3.,1.);
+    Vec3 v3 = Vec3(3.,1.,2.);
+    Vec3 v4 = Vec3(-2.,2.,3.);
+    Vec3 v5 = Vec3(-4.,1.,-3.);
     Vec3 v6 = Vec3(-1.,2.,-1.);
-    Vec3 v7 = Vec3(0.,3.,-1.);
+    Vec3 v7 = Vec3(-2.,1.,-1.);
 
     TabControlPoint2.push_back(v1);
     TabControlPoint2.push_back(v2);
@@ -370,8 +400,41 @@ void draw () {
 
     std::vector<std::vector<Vec3>> ensembleDroites = surfaceReglee(BezierCurve1, BezierCurve2, nbV);
 
-    drawSurface(ensembleDroites, nbV);*/
+    drawSurface(ensembleDroites);*/
 
+    //---------Question 3----------
+
+/*    std::vector <std::vector<Vec3>> points =
+                {
+                        {
+                                Vec3(0, 1, 0),
+                                Vec3(0, 0, 1),
+                                Vec3(0, 0, 2),
+                                Vec3(0, 1, 3),
+                        },
+                        {
+                                Vec3(1, 0, 0),
+                                Vec3(1, 1, 1),
+                                Vec3(1, 1, 2),
+                                Vec3(1, 0, 3),
+                        },
+                        {
+                                Vec3(1, 0, 0),
+                                Vec3(1, 1, 1),
+                                Vec3(1, 1, 2),
+                                Vec3(1, 0, 3),
+                        },
+                        {
+                                Vec3(2, 1, 0),
+                                Vec3(2, 0, 1),
+                                Vec3(2, 0, 2),
+                                Vec3(2, 1, 3),
+                        }
+                };
+
+    std::vector <std::vector<Vec3>> ensembleCourbes = BezierSurfaceByBernstein(points, 4, 4, nbU, nbV);         
+    //drawSurface(points);
+    drawSurface(ensembleCourbes);*/
 }
 
 void changeDisplayMode(){
@@ -420,46 +483,18 @@ void key (unsigned char keyPressed, int x, int y) {
 
     case 'U': //Augmente u
         nbU++;
-        ensembleDroites.clear();
-        BezierCurve = BezierCurveByBernstein(TabControlPoint, 7, nbU);
-        p1D = Vec3(-1.,0.,1.);
-        p2D = Vec3(-1.,0.,-1.);
-        vDroite = p2D - p1D;
-        ensembleDroites = surfaceCylindrique(BezierCurve, vDroite, nbV);
-        drawSurface(ensembleDroites, nbV);
         break;
 
     case 'V': //Augmente v
         nbV++;
-        ensembleDroites.clear();
-        BezierCurve = BezierCurveByBernstein(TabControlPoint, 7, nbU);
-        p1D = Vec3(-1.,0.,1.);
-        p2D = Vec3(-1.,0.,-1.);
-        vDroite = p2D - p1D;
-        ensembleDroites = surfaceCylindrique(BezierCurve, vDroite, nbV);
-        drawSurface(ensembleDroites, nbV);
         break;
 
     case 'u': //Diminue u
         nbU--;
-        ensembleDroites.clear();
-        BezierCurve = BezierCurveByBernstein(TabControlPoint, 7, nbU);
-        p1D = Vec3(-1.,0.,1.);
-        p2D = Vec3(-1.,0.,-1.);
-        vDroite = p2D - p1D;
-        ensembleDroites = surfaceCylindrique(BezierCurve, vDroite, nbV);
-        drawSurface(ensembleDroites, nbV);
         break;
 
     case 'v': //Diminue v
         nbV--;
-        ensembleDroites.clear();
-        BezierCurve = BezierCurveByBernstein(TabControlPoint, 7, nbU);
-        p1D = Vec3(-1.,0.,1.);
-        p2D = Vec3(-1.,0.,-1.);
-        vDroite = p2D - p1D;
-        ensembleDroites = surfaceCylindrique(BezierCurve, vDroite, nbV);
-        drawSurface(ensembleDroites, nbV);
         break;
 
     default:
