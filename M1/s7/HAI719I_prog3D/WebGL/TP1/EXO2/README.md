@@ -3,7 +3,7 @@
 Parmi les transformations proposées, celles utilisées dans le programme sont la projection perspective en faisant :
 <strong>mat4.perspective(projection, Math.PI/10, canvas.width/canvas.height, 1, 10);</strong> <br>
 ainsi qu'une transformation de l'objet ou de modélisation (je n'ai pas bien compris la différence entre ces dernières), notamment une translation en faisant : <br>
-<strong>mat4.fromTranslation(modelview, vec3.fromValues(0,0,-5));<srong>
+<strong>mat4.fromTranslation(modelview, vec3.fromValues(0,0,-5));</strong>
 
 ## Question 3 :
 
