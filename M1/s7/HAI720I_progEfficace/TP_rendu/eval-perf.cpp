@@ -3,8 +3,6 @@
 #include <string>
 #include <vector>
 
-int N = 100000;
-
 using namespace std;
 
 uint64_t rdtsc(){
