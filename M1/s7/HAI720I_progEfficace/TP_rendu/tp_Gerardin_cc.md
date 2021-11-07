@@ -13,8 +13,6 @@ Sachant que M est la taille maximale du cache et que dans le meilleur des cas il
 MT(n) = O(n²) si 2 < M/B <= n
 Ici, dans le pire des cas, on ne peut pas prétendre garder B mots par lignes du caches. Sachant que nous stockons deux matrices de taille n², on obtient la complexité ci-dessus. On se retrouve dans le pire des cas lorsque M/B <= n car on ne peut pas stocker suffisamment de colonnes des matrices dans le cache et nous sommes obligés de le surcharger lorsque celui-ci est rempli.
 
-### 3.
-
 
 ### 4.
 _Voir dans le code_
@@ -161,13 +159,9 @@ _Voir dans le code_
 _Voir dans le code_
 
 
-### 3.
-
-
-### 4.
-
-
 ### 5.
+
+_Voir dans le code_
 
 
 ### 6.
@@ -190,34 +184,29 @@ MT(n) =
 ```python
 def merge(T1, T2):								
 	n = len(T1) + len(T2)
-	T = [0]*n  									⌈n/B⌉ + 1
-	i1, i2, k = 0, 0, 0							⌈⌉
-	while(i1 < len(T1) and i2 < len(T2)):
-		if(T1[i1] < T2[i2]):
-			T[k] = T1[i1]
-			i1 += i1
+	T = [0]*n  								⌈n/B⌉ + 1
+	i1, i2, k = 0, 0, 0						⌈3/B⌉ + 1
+	while(i1 < len(T1) and i2 < len(T2)):	
+		if(T1[i1] < T2[i2]):				
+			T[k] = T1[i1]					
+			i1 += 1							
 		else :
 			T[k] = T2[i2]
-			i2 += 1
-		k += 1
+			i2 += i1						
+		k += 1								
 	while(i1 < len(T1)):
-		T[k] = T1[i1]
-		i1 += 1
-		k += 1
+		T[k] = T1[i1]						
+		i1 += 1								
+		k += 1  							
 	while(i2 < len(T2)):
-		T[k] = T2[i2]
-		i2 += 1
-		k += 1
+		T[k] = T2[i2]						
+		i2 += 1 							
+		k += 1                              
 	print(T1, T2, T)
 	return T
 ```
-### 8.
 
 
-### 9.
-
-
-#### 10.
 
 
 
