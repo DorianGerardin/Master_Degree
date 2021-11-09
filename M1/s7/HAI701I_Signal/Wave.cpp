@@ -321,7 +321,7 @@ void Wave::read(char* fileName) {
   fclose(fd);      
 }    
 
-void Wave::write(char* fileName) {
+void Wave::write(const char* fileName) {
 
   cout <<"Wave::write(char* fileName)\n";
   

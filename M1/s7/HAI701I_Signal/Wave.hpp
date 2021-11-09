@@ -42,7 +42,7 @@ public :
   void modifData8(unsigned char* data); // Tableau de donées lorsque l'on est sur des données 8 bits
 
   void read(char* fileName);   //Lecture d'un fichier wave
-  void write(char* fileName);
+  void write(const char* fileName);
        
   Wave();
   ~Wave();
