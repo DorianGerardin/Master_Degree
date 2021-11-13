@@ -36,7 +36,9 @@ int weight_type = 0;
 std::vector<Vec3> cubePoints;
 std::vector<std::vector<std::vector<Vec3>>> gridPoints;
 
-unsigned int resolution = 20;
+std::vector<unsigned int> valences;
+
+unsigned int resolution = 16;
 
 enum DisplayMode{ WIRE=0, SOLID=1, LIGHTED_WIRE=2, LIGHTED=3 };
 
@@ -954,6 +956,7 @@ void idle () {
 // ------------------------------------
 //Keyboard event
 void key (unsigned char keyPressed, int x, int y) {
+    unsigned int max = 0;
     switch (keyPressed) {
     case 'f':
         if (fullScreen == true) {
@@ -1001,13 +1004,20 @@ void key (unsigned char keyPressed, int x, int y) {
         } else {
             mesh.simplify(resolution);
         }
+        compute_vertex_valences(mesh.vertices, mesh.triangles, valences);
+            for (unsigned int i = 0; i < valences.size(); ++i)
+            {
+                if (valences[i] > max) {
+                    max = valences[i];
+                }
+            }
+            mesh_valence_field.clear();
+            mesh_valence_field.resize(valences.size());
+             for (unsigned int i = 0; i < valences.size(); ++i)
+            {
+                mesh_valence_field[i] = (float)valences[i]/(float)max;
+            }
         break;
-
-    /*case '+': //Changes weight type: 0 uniforme, 1 aire des triangles, 2 angle du triangle
-        weight_type ++;
-        if(weight_type == 3) weight_type = 0;
-        mesh.computeVerticesNormals(); //recalcul des normales avec le type de poids choisi
-        break;*/
 
     default:
         break;
@@ -1099,14 +1109,11 @@ int main (int argc, char ** argv) {
     float scale = 0.1;
     cubePoints = mesh.computeCube(scale);
     gridPoints = mesh.computeGrid(resolution);
-
-    cout << cubePoints.size() << endl;
-    cout << gridPoints.size() << endl;
     //mesh.simplify(resolution);
 
     // A faire : completer la fonction compute_vertex_valences pour calculer les valences
     //***********************************************//
-    std::vector<unsigned int> valences;
+    
     // TODO : Question 1 le calcul des valence pour chaques sommets (vertices) remplir le vector valences
     //          Le nombre de sommets voisin au sommet donné ( partage une arête )
     //          TODO : collect_one_ring() [ Permet de collecter le 1-voisinage ]
