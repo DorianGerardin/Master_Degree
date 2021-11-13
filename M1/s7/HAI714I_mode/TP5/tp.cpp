@@ -36,7 +36,7 @@ int weight_type = 0;
 std::vector<Vec3> cubePoints;
 std::vector<std::vector<std::vector<Vec3>>> gridPoints;
 
-unsigned int resolution = 32;
+unsigned int resolution = 20;
 
 enum DisplayMode{ WIRE=0, SOLID=1, LIGHTED_WIRE=2, LIGHTED=3 };
 
@@ -502,7 +502,7 @@ void DrawCube(std::vector<Vec3> TabPoints, long nbPoints) {
 
 void DrawGrid(std::vector<std::vector<std::vector<Vec3>>> points, long nbPoints) {
     glEnable (GL_POINT_SMOOTH);
-    glPointSize(5);
+    glPointSize(3);
     glBegin(GL_POINTS);
     glColor3f(0.7, 0., 0.);
     for (unsigned int i = 0; i < points.size(); ++i)
@@ -715,6 +715,7 @@ void init () {
     display_basis = false;
     display_cube = false;
     display_grid = false;
+    display_simplifyMesh = false;
 }
 
 
@@ -980,21 +981,8 @@ void key (unsigned char keyPressed, int x, int y) {
 
     case 'c': 
         display_cube = !display_cube;
-        break;
-
-    case 'S': 
-        /*display_simplifyMesh = !display_simplifyMesh;
-        if(!display_simplifyMesh) {
-            mesh.vertices = verticesGlobal;
-            mesh.normals = normalsGlobal;
-            mesh.triangles = trianglesGlobal;
-            mesh.triangle_normals = trianglesNormalsGlobal;
-            mesh.computeNormals();
-        } else {
-            mesh.simplify(resolution);
-        }*/
-        break;
-
+        break; 
+        
     case 'n': //Press n key to display normals
         display_normals = !display_normals;
         break;
@@ -1003,15 +991,23 @@ void key (unsigned char keyPressed, int x, int y) {
         display_mesh = !display_mesh;
         break;
 
-    case 's': //Switches between face normals and vertices normals
-        display_smooth_normals = !display_smooth_normals;
+    case 's':
+        display_simplifyMesh = !display_simplifyMesh;
+        if(!display_simplifyMesh) {
+            mesh.vertices = verticesGlobal;
+            mesh.normals = normalsGlobal;
+            mesh.triangles = trianglesGlobal;
+            mesh.triangle_normals = trianglesNormalsGlobal;
+        } else {
+            mesh.simplify(resolution);
+        }
         break;
 
-    case '+': //Changes weight type: 0 uniforme, 1 aire des triangles, 2 angle du triangle
+    /*case '+': //Changes weight type: 0 uniforme, 1 aire des triangles, 2 angle du triangle
         weight_type ++;
         if(weight_type == 3) weight_type = 0;
         mesh.computeVerticesNormals(); //recalcul des normales avec le type de poids choisi
-        break;
+        break;*/
 
     default:
         break;
@@ -1103,7 +1099,10 @@ int main (int argc, char ** argv) {
     float scale = 0.1;
     cubePoints = mesh.computeCube(scale);
     gridPoints = mesh.computeGrid(resolution);
-    mesh.simplify(resolution);
+
+    cout << cubePoints.size() << endl;
+    cout << gridPoints.size() << endl;
+    //mesh.simplify(resolution);
 
     // A faire : completer la fonction compute_vertex_valences pour calculer les valences
     //***********************************************//
