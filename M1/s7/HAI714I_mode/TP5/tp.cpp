@@ -30,9 +30,13 @@
 //#include "src/Maillage.h"
 #include "src/Camera.h"
 
+using namespace std;
+
 int weight_type = 0;
 std::vector<Vec3> cubePoints;
 std::vector<std::vector<std::vector<Vec3>>> gridPoints;
+
+unsigned int resolution = 32;
 
 enum DisplayMode{ WIRE=0, SOLID=1, LIGHTED_WIRE=2, LIGHTED=3 };
 
@@ -56,6 +60,11 @@ struct Triangle {
     // membres indices des sommets du triangle:
     unsigned int v[3];
 };
+
+std::vector< Vec3 > verticesGlobal; //array of mesh vertices positions
+std::vector< Vec3 > normalsGlobal; //array of vertices normals useful for the display
+std::vector< Triangle > trianglesGlobal;
+std::vector< Vec3 > trianglesNormalsGlobal;
 
 
 struct Mesh {
@@ -218,29 +227,118 @@ struct Mesh {
     }
 
     std::vector<std::vector<std::vector<Vec3>>> computeGrid(unsigned int resolution) {
-        std::vector<Vec3> cubePoints = computeCube(0.1);
         std::vector<std::vector<std::vector<Vec3>>> result;
         std::vector<std::vector<Vec3>> grid2D;
         std::vector<Vec3> line;
 
-        for (unsigned int i = 0; i < resolution; ++i)
+        Vec3 extremTopPoint = cubePoints[5];
+        Vec3 extremBottomPoint = cubePoints[0];
+
+        float dx = extremTopPoint[0] - extremBottomPoint[0];
+        float dy = extremTopPoint[1] - extremBottomPoint[1];
+        float dz = extremTopPoint[2] - extremBottomPoint[2];
+
+        for (unsigned int i = 0; i < resolution+1; ++i)
          {
             grid2D.clear();
-            for (unsigned int j = 0; j < resolution; ++j)
+            for (unsigned int j = 0; j < resolution+1; ++j)
              {
                 line.clear();
-                for (unsigned int k = 0; k < resolution; ++k)
+                for (unsigned int k = 0; k < resolution+1; ++k)
                  {
-                    line.push_back((cubePoints[1] - cubePoints[0]) + int(resolution / j)); 
+                    Vec3 vecToAdd = Vec3(dx/(resolution)*k, 
+                                         dy/(resolution)*j, 
+                                         dz/(resolution)*i);
+                    line.push_back(extremBottomPoint + vecToAdd); 
                  }
                  grid2D.push_back(line);
              }
              result.push_back(grid2D);
          } 
+         return result;
     }
 
     void simplify(unsigned int resolution) {
 
+        std::vector<Vec3> newVertices; 
+        std::vector<Vec3> newNormals; 
+        std::vector<unsigned int> nbVerticesPerCell;
+
+        std::vector<std::vector<unsigned int>> oldVertices;
+        std::vector<unsigned int> listVerticesPerCell;
+
+        int nbVertices = 0;
+
+        Vec3 position;
+        Vec3 normal;
+
+        for (unsigned int i = 0; i < gridPoints.size()-1; ++i)
+         {
+            for (unsigned int j = 0; j < gridPoints[i].size()-1; ++j)
+             {
+                for (unsigned int k = 0; k < gridPoints[j].size()-1; ++k)
+                 {
+                    position = Vec3(0., 0., 0.);
+                    normal = Vec3(0., 0., 0.);
+                    nbVertices = 0;
+                    listVerticesPerCell.clear();
+                    for (unsigned int v = 0; v < vertices.size(); ++v)
+                    {
+                        if (vertices[v][0] >= gridPoints[i][j][k][0] && vertices[v][0] <= gridPoints[i+1][j+1][k+1][0]) {
+                            if (vertices[v][1] >= gridPoints[i][j][k][1] && vertices[v][1] <= gridPoints[i+1][j+1][k+1][1]) {
+                                if (vertices[v][2] >= gridPoints[i][j][k][2] && vertices[v][2] <= gridPoints[i+1][j+1][k+1][2]) {
+                                    position += vertices[v];
+                                    normal += normals[v];
+                                    nbVertices++;
+                                    listVerticesPerCell.push_back(v);
+                                }
+                            }
+                        }
+                    }
+                    oldVertices.push_back(listVerticesPerCell);
+                    newVertices.push_back(position);
+                    newNormals.push_back(normal);
+                    nbVerticesPerCell.push_back(nbVertices);
+                 }
+            }
+        }
+
+        vertices = newVertices;
+        normals = newNormals;
+
+        for (unsigned int i = 0; i < vertices.size(); ++i)
+        {
+            vertices[i] /= (float)nbVerticesPerCell[i];
+            normals[i].normalize();
+        }
+
+        std::vector<Triangle> newTriangles;
+
+        for (unsigned int i = 0; i < triangles.size(); ++i)
+        {
+            unsigned int r0 = 0, r1 = 0, r2 = 0;
+            for (unsigned int j = 0; j < oldVertices.size(); ++j)
+            {
+                for (unsigned int k = 0; k < oldVertices[j].size(); ++k)
+                {
+                    if(triangles[i][0] == oldVertices[j][k]) {
+                        r0 = j;
+                    }
+                    if(triangles[i][1] == oldVertices[j][k]) {
+                        r1 = j;
+                    }
+                    if(triangles[i][2] == oldVertices[j][k]) {
+                        r2 = j;
+                    }
+                }
+            } 
+            if (r0 != r1 && r1 != r2 && r2 != r0)
+            {
+                newTriangles.push_back(Triangle(r0,r1,r2));
+            }
+        }
+
+        triangles = newTriangles;
     }
 };
 
@@ -403,6 +501,8 @@ void DrawCube(std::vector<Vec3> TabPoints, long nbPoints) {
 }
 
 void DrawGrid(std::vector<std::vector<std::vector<Vec3>>> points, long nbPoints) {
+    glEnable (GL_POINT_SMOOTH);
+    glPointSize(5);
     glBegin(GL_POINTS);
     glColor3f(0.7, 0., 0.);
     for (unsigned int i = 0; i < points.size(); ++i)
@@ -417,7 +517,7 @@ void DrawGrid(std::vector<std::vector<std::vector<Vec3>>> points, long nbPoints)
             }
         }
     }
-
+    glDisable (GL_POINT_SMOOTH);
     glEnd();
 }
 
@@ -431,6 +531,9 @@ bool display_normals;
 bool display_smooth_normals;
 bool display_mesh;
 bool display_basis;
+bool display_cube;
+bool display_grid;
+bool display_simplifyMesh;
 DisplayMode displayMode;
 
 // -------------------------------------------
@@ -569,6 +672,11 @@ void openOFF( std::string const & filename,
         }
     }
 
+    verticesGlobal = o_vertices;
+    normalsGlobal = o_normals;
+    trianglesGlobal = o_triangles;
+    trianglesNormalsGlobal = o_triangle_normals;
+
 }
 
 // ------------------------------------
@@ -605,6 +713,8 @@ void init () {
     display_smooth_normals = true;
     displayMode = LIGHTED;
     display_basis = false;
+    display_cube = false;
+    display_grid = false;
 }
 
 
@@ -805,9 +915,13 @@ void draw () {
     }
     glEnable(GL_LIGHTING);
 
-    DrawCube(cubePoints, cubePoints.size());
-    DrawGrid(gridPoints, gridPoints.size());
+    if(display_cube){
+        DrawCube(cubePoints, cubePoints.size());
+    }
 
+    if(display_grid){
+        DrawGrid(gridPoints, gridPoints.size());
+    }
 }
 
 void changeDisplayMode(){
@@ -858,6 +972,27 @@ void key (unsigned char keyPressed, int x, int y) {
 
     case 'b': //Toggle basis display
         display_basis = !display_basis;
+        break;
+
+    case 'g': 
+        display_grid = !display_grid;
+        break;
+
+    case 'c': 
+        display_cube = !display_cube;
+        break;
+
+    case 'S': 
+        /*display_simplifyMesh = !display_simplifyMesh;
+        if(!display_simplifyMesh) {
+            mesh.vertices = verticesGlobal;
+            mesh.normals = normalsGlobal;
+            mesh.triangles = trianglesGlobal;
+            mesh.triangle_normals = trianglesNormalsGlobal;
+            mesh.computeNormals();
+        } else {
+            mesh.simplify(resolution);
+        }*/
         break;
 
     case 'n': //Press n key to display normals
@@ -965,8 +1100,10 @@ int main (int argc, char ** argv) {
 
     basis = Basis();
 
-    cubePoints = mesh.computeCube(0.1);
-    gridPoints = mesh.computeGrid(10);
+    float scale = 0.1;
+    cubePoints = mesh.computeCube(scale);
+    gridPoints = mesh.computeGrid(resolution);
+    mesh.simplify(resolution);
 
     // A faire : completer la fonction compute_vertex_valences pour calculer les valences
     //***********************************************//
