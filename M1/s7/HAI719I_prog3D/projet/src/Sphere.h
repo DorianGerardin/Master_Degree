@@ -2,13 +2,16 @@
 #define Sphere_H
 #include "Vec3.h"
 #include <vector>
+#include <stdio.h>
 #include "Mesh.h"
 #include <cmath>
 
+using namespace std;
+
 struct RaySphereIntersection{
     bool intersectionExists;
-    float t; // pour faire un tri
-    float theta,phi; // coordonnées sphériqus pour mettre des textures 
+    float t;
+    float theta,phi;
     Vec3 intersection;
     Vec3 secondintersection;
     Vec3 normal;
@@ -87,10 +90,14 @@ public:
         //TODO calcul l'intersection rayon sphere
         Vec3 o = ray.origin();
         Vec3 d = ray.direction();
-        Vec3 c = this->m_center;
+        Vec3 ce = this->m_center;
         float r = this->m_radius;
 
-        float delta = pow(2*Vec3::dot(d,(o-c)), 2) - (4 * (Vec3::dot(d,d)) * (pow((o-c).norm(), 2) - pow(r, 2)));
+        float a = Vec3::dot(d,d);
+        float b = 2 * Vec3::dot(d,(o-ce));
+        float c = (o-ce).squareNorm() - pow(r, 2);
+
+        float delta = pow(b, 2) - 4 * a * c;
 
         if (delta < 0) {
 
@@ -100,24 +107,31 @@ public:
 
             intersection.intersectionExists = true;
 
-            float t1 = (-(2*Vec3::dot(d,(o-c))) + sqrt(delta)) / 2*(Vec3::dot(d,d));
-            float t2 = (-(2*Vec3::dot(d,(o-c))) - sqrt(delta)) / 2*(Vec3::dot(d,d));
+            float t1 = ((-b) + sqrt(delta)) / (2*a);
+            float t2 = ((-b) - sqrt(delta)) / (2*a);
             float t_min = fminf(t1, t2);
             float t_max = fmaxf(t1, t2);
             intersection.t = t_min;
             Vec3 intersection1 = o + t_min * d;
             Vec3 intersection2 = o + t_max * d;
 
+            Vec3 sCoordinates = EuclideanCoordinatesToSpherical(intersection1);
+
+            intersection.theta = sCoordinates[0];
+            intersection.phi = sCoordinates[1];
+
+            Vec3 normal = (intersection1 + (intersection1 - ce));
+            normal.normalize();
+
             intersection.intersection = intersection1;
-            intersection.secondintersection = intersection2;
+            intersection.secondintersection = intersection2; 
 
-            intersection1.normalize(); 
-
-            intersection.normal = intersection1;
+            intersection.normal = normal;
 
         }
 
         return intersection;
     }
+    
 };
 #endif

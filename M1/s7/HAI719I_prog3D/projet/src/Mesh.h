@@ -112,10 +112,59 @@ public:
 
     virtual
     void build_arrays() {
+        recomputeNormals();
         build_positions_array();
         build_normals_array();
         build_UVs_array();
         build_triangles_array();
+    }
+
+
+    void translate( Vec3 const & translation ){
+        for( unsigned int v = 0 ; v < vertices.size() ; ++v ) {
+            vertices[v].position += translation;
+        }
+    }
+
+    void apply_transformation_matrix( Mat3 transform ){
+        for( unsigned int v = 0 ; v < vertices.size() ; ++v ) {
+            vertices[v].position = transform*vertices[v].position;
+        }
+
+        //        recomputeNormals();
+        //        build_positions_array();
+        //        build_normals_array();
+    }
+
+    void scale( Vec3 const & scale ){
+        Mat3 scale_matrix(scale[0], 0., 0.,
+                0., scale[1], 0.,
+                0., 0., scale[2]); //Matrice de transformation de mise à l'échelle
+        apply_transformation_matrix( scale_matrix );
+    }
+
+    void rotate_x ( float angle ){
+        float x_angle = angle * M_PI / 180.;
+        Mat3 x_rotation(1., 0., 0.,
+                        0., cos(x_angle), -sin(x_angle),
+                        0., sin(x_angle), cos(x_angle));
+        apply_transformation_matrix( x_rotation );
+    }
+
+    void rotate_y ( float angle ){
+        float y_angle = angle * M_PI / 180.;
+        Mat3 y_rotation(cos(y_angle), 0., sin(y_angle),
+                        0., 1., 0.,
+                        -sin(y_angle), 0., cos(y_angle));
+        apply_transformation_matrix( y_rotation );
+    }
+
+    void rotate_z ( float angle ){
+        float z_angle = angle * M_PI / 180.;
+        Mat3 z_rotation(cos(z_angle), -sin(z_angle), 0.,
+                        sin(z_angle), cos(z_angle), 0.,
+                        0., 0., 1.);
+        apply_transformation_matrix( z_rotation );
     }
 
 
@@ -146,11 +195,16 @@ public:
         glNormalPointer (GL_FLOAT, 3*sizeof (float), (GLvoid*)(normalsArray.data()));
         glVertexPointer (3, GL_FLOAT, 3*sizeof (float) , (GLvoid*)(positions_array.data()));
         glDrawElements(GL_TRIANGLES, triangles_array.size(), GL_UNSIGNED_INT, (GLvoid*)(triangles_array.data()));
+
     }
 
     RayTriangleIntersection intersect( Ray const & ray ) const {
         RayTriangleIntersection closestIntersection;
-        //TODO iterer sur les triangles et calculer l'intersection la plus proche
+        closestIntersection.t = FLT_MAX;
+        // Note :
+        // Creer un objet Triangle pour chaque face
+        // Vous constaterez des problemes de précision
+        // solution : ajouter un facteur d'échelle lors de la création du Triangle : float triangleScaling = 1.000001;
         return closestIntersection;
     }
 };

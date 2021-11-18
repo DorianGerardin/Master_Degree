@@ -7,7 +7,7 @@
 struct RayTriangleIntersection{
     bool intersectionExists;
     float t;
-    float w0,w1,w2; // coordonnées barycentriques de l'intersetion avec le triangle 
+    float w0,w1,w2;
     unsigned int tIndex;
     Vec3 intersection;
     Vec3 normal;

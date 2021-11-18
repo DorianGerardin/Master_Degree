@@ -42,7 +42,7 @@ using namespace std;
 // -------------------------------------------
 
 static GLint window;
-static unsigned int SCREENWIDTH = 640;
+static unsigned int SCREENWIDTH = 480;
 static unsigned int SCREENHEIGHT = 480;
 static Camera camera;
 static bool mouseRotatePressed = false;
@@ -317,10 +317,13 @@ int main (int argc, char ** argv) {
     glutMouseFunc (mouse);
     key ('?', 0, 0);
 
-    selected_scene=1;
-    scenes.resize(2);
+
+    camera.move(0., 0., -3.1);
+    selected_scene=0;
+    scenes.resize(3);
     scenes[0].setup_single_sphere();
     scenes[1].setup_single_square();
+    scenes[2].setup_cornell_box();
 
     glutMainLoop ();
     return EXIT_SUCCESS;
