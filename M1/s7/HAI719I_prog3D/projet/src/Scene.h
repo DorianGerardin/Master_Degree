@@ -115,7 +115,7 @@ public:
         }
 
         //square
-        /*RaySquareIntersection rSquarei;
+        RaySquareIntersection rSquarei;
         int nbSquares = this->squares.size();
         for (int i = 0; i < nbSquares; ++i)
         {
@@ -127,7 +127,7 @@ public:
                 result.intersectionExists = true;
                 result.typeOfIntersectedObject = SQUARE_INTERSECTION;
             }
-        }*/
+        }
 
         return result;
     }

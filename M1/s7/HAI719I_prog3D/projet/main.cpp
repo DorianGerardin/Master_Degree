@@ -189,7 +189,7 @@ void ray_trace_from_camera() {
     }
     std::cout << "\tDone" << std::endl;
 
-    std::string filename = "./rendu.ppm";
+    std::string filename = "./rendu_2.ppm";
     ofstream f(filename.c_str(), ios::binary);
     if (f.fail()) {
         cout << "Could not open file: " << filename << endl;
