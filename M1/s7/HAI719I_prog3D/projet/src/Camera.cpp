@@ -24,7 +24,7 @@ static bool ini = false;
 Camera::Camera () {
   fovAngle = 45.0;
   aspectRatio = 1.0;
-  nearPlane = 0.1;
+  nearPlane = 4.1;
   farPlane = 10000.0;
   
   spinning = 0;
