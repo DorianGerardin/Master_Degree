@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="fr">
+<head>
+	<meta charset="utf-8">
+	<link rel="stylesheet" href="css/webgl.css">
+	<script type="text/javascript" src="js/Dataset.js"></script>
+	<script type="text/javascript" src="js/Displayer.js"></script>
+	<script type="text/javascript" src="js/EnveloppeConvexe.js"></script>
+</head>
+<body>
+	<span id="choixAlgo">
+		<input type="radio" id="ri0" name="algo" value="0" checked>
+		<label for="ri0">algo des demi-plans</label>
+		<input type="radio" id="ri1" name="algo" value="1" >
+		<label for="ri0">algo de Jarvis</label>
+		<input type="radio" id="ri2" name="algo" value="2">
+		<label for="ri0">algo de Graham</label>
+	</span>
+	<canvas id="canvas" width="800" height="600"></canvas>
+	
+	<script type="text/javascript">
+		let algo, displayer, enveloppe, points;
+		let colors = ["#FEE","#FFF","#41566E"];
+		let nbSommets = 7;
+		function getAlgo(id){
+			return (id == "ri0") ? algoEnvConv.demiPlan : (id == "ri1") ? algoEnvConv.jarvis: algoEnvConv.graham;
+		}
+		function initComputeAndRender(){
+			document.querySelectorAll('input').forEach(e => {if (e.checked) algo = getAlgo(e.id)});
+ 			canvas = document.getElementById("canvas");
+			points = (new Dataset()).initRandomPoints(nbSommets, canvas.width, canvas.height, "p");
+			enveloppe = new EnveloppeConvexe(points, algo)
+			//let points = (new Dataset()).initFixedPoints("p");
+			displayer = new Displayer(canvas);
+			displayer.drawPoints(points, colors, false);
+			displayer.drawLines(enveloppe.getElements(), true, true)
+		}
+
+		window.onload = initComputeAndRender;
+
+		document.getElementById("choixAlgo").addEventListener("click", function (e){
+			let id = e.target.id;
+			algo =  getAlgo(id);
+		});
+		document.getElementById("canvas").addEventListener("click", initComputeAndRender);
+	</script>
+</body>
+</html>
