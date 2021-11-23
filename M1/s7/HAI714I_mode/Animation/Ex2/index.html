@@ -34,26 +34,28 @@
 		let shader = new Shader("canvas0", "vscs", "fscs");
 		let gl = shader.init(0,.3,.4,false,false);
 		let ballSize = 20;
-		let ball = new Shape([-shader.width/4,shader.height/4,0], ballSize, [.5,.5,.5,0.8], [1,1,1,0.3], 64);
+		let ball = new Shape([-shader.width/2,shader.height/2,0], ballSize, [.5,.5,.5,0.8], [1,1,1,0.3], 64);
 		let r,v,b;
 		r = Math.random();
 		v = Math.random();
 		b = Math.random();
 		ball.setBgColor(r,v,b);
-		let duration = 1000;
+		let duration = 2000;
 		let id, animationOn, startTime;
+		let clip = 0;
+		let nbClips = 3;
 
 		//fonctions de rythme
 		function lerp(t){
 			return t;
 		}
 
-		function circ(t) {
-		  return 1 - Math.pow(Math.sin(Math.acos(t)), 10);
+		function circ(timeFraction) {
+		  return 1 - Math.sin(Math.acos(timeFraction));
 		}
 
 		function quad(t) {
-		  return Math.pow(t, 1)
+		  return Math.pow(t, 2)
 		}
 
 		function bounce(t) {
@@ -85,14 +87,43 @@
 				shader.initDisplay(0,.3,.4);
 				shader.initModelView();
 
-				//Anticipation
-				shader.translate(0,-(circ)(relativeTime)*(shader.height*3/4 - ballSize), 0);
-				//shader.translate((quad)(relativeTime)*(shader.width*0.4 - ballSize),-(bounceEaseOut)(relativeTime)*(shader.height*3/4 - ballSize), 0);
+				switch(clip) {
+					case 0:
+					shader.translate(
+						(quad)(relativeTime)*(shader.width*1/4 - ballSize),
+						-(circ)(relativeTime)*(shader.height - ballSize), 
+						0);
+					break;
+
+					case 1:
+					shader.translate(
+						(shader.width*1/4 - ballSize) + (quad)(relativeTime)*(shader.width*1/8 - ballSize),
+						-(shader.height - ballSize) + (circEaseOut)(relativeTime)*(shader.height*1/4 - ballSize),
+						0);
+					break;
+
+					case 2:
+					shader.translate(
+						(shader.width*3/8 - ballSize) + (quad)(relativeTime)*(shader.width*1/8 - ballSize),
+						-(shader.height*3/4) - (circ)(relativeTime)*(shader.height*1/4 - ballSize),
+						0);
+					break;
+				}
 				ball.drawWith(shader);
 			} else if (animationOn) {
-				console.log("animation stopped");
+				/*console.log("animation stopped");
 				cancelAnimationFrame(id);
-				animationOn = false;
+				animationOn = false;*/
+				clip++
+				if(clip == nbClips) {
+					clip = 0;
+				} else {
+					console.log("animation stopped");
+					cancelAnimationFrame(id);
+					animationOn = false;
+				}
+				startTime = t;
+				requestAnimationFrame(display);
 			}
 		}
 		id = requestAnimationFrame(display);
