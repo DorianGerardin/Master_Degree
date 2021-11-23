@@ -138,7 +138,7 @@ public:
     Vec3 rayTraceRecursive( Ray ray , int NRemainingBounces ) {
 
         //TODO RaySceneIntersection raySceneIntersection = computeIntersection(ray);
-        Vec3 color = Vec3(0.5, 1., 1.);
+        Vec3 color = Vec3(0.5, 0.5, 0.5);
 
 
         RaySceneIntersection raySceneIntersection = computeIntersection(ray);
@@ -253,12 +253,12 @@ public:
             s.scale(Vec3(2., 2., 1.));
             s.translate(Vec3(0., 0., -2.));
             s.build_arrays();
-            s.material.diffuse_material = Vec3( 1.,1.,1. );
+            s.material.diffuse_material = Vec3( 0.5,0.5,1.);
             s.material.specular_material = Vec3( 1.,1.,1. );
             s.material.shininess = 16;
         }
 
-        { //Left Wall
+        /*{ //Left Wall
 
             squares.resize( squares.size() + 1 );
             Square & s = squares[squares.size() - 1];
@@ -283,7 +283,7 @@ public:
             s.material.diffuse_material = Vec3( 0.0,1.0,0.0 );
             s.material.specular_material = Vec3( 0.0,1.0,0.0 );
             s.material.shininess = 16;
-        }
+        }*/
 
         { //Floor
             squares.resize( squares.size() + 1 );
@@ -293,7 +293,7 @@ public:
             s.scale(Vec3(2., 2., 1.));
             s.rotate_x(-90);
             s.build_arrays();
-            s.material.diffuse_material = Vec3( 1.0,1.0,1.0 );
+            s.material.diffuse_material = Vec3( 1.0,0.5,0.5 );
             s.material.specular_material = Vec3( 1.0,1.0,1.0 );
             s.material.shininess = 16;
         }
@@ -306,12 +306,12 @@ public:
             s.scale(Vec3(2., 2., 1.));
             s.rotate_x(90);
             s.build_arrays();
-            s.material.diffuse_material = Vec3( 1.0,1.0,1.0 );
+            s.material.diffuse_material = Vec3( 0.0,0.0,0.0 );
             s.material.specular_material = Vec3( 1.0,1.0,1.0 );
             s.material.shininess = 16;
         }
 
-        { //Front Wall
+        /*{ //Front Wall
             squares.resize( squares.size() + 1 );
             Square & s = squares[squares.size() - 1];
             s.setQuad(Vec3(-1., -1., 0.), Vec3(1., 0, 0.), Vec3(0., 1, 0.), 2., 2.);
@@ -322,7 +322,7 @@ public:
             s.material.diffuse_material = Vec3( 1.0,1.0,1.0 );
             s.material.specular_material = Vec3( 1.0,1.0,1.0 );
             s.material.shininess = 16;
-        }
+        }*/
 
 
         { //GLASS Sphere

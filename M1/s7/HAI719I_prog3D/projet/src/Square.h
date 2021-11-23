@@ -65,71 +65,90 @@ public:
 
     RaySquareIntersection intersect(const Ray &ray) const {
         RaySquareIntersection intersection;
+        intersection.intersectionExists = false;
 
-        Plane plane = Plane(m_bottom_left, m_normal);
+        Vec3 v0 = vertices[0].position;
+        Vec3 v1 = vertices[1].position;
+        Vec3 v2 = vertices[3].position;
+        Vec3 normal = Vec3::cross(v1 - v0, v2 - v0);
+
+        Plane plane = Plane(vertices[0].position, normal);
 
         if (!plane.isParallelTo(ray)) {
             Vec3 notSureIntersection = plane.getIntersectionPoint(ray);
 
-            Vec3 m_top_right = m_bottom_left + m_right_vector + m_up_vector;
-            cout << "m_bottom_left : " << m_bottom_left << endl;
-            cout << "m_right_vector : " << m_right_vector << endl;
-            cout << "m_up_vector : " << m_up_vector << endl;
-            cout << "m_top_right : " << m_top_right << endl;
+            Vec3 m_top_right = vertices[2].position;
+            Vec3 bottomLeft = vertices[0].position;
 
-            float minX = min(m_top_right[0], m_bottom_left[0]);
-            float minY = min(m_top_right[1], m_bottom_left[1]);
-            float minZ = min(m_top_right[2], m_bottom_left[2]);
+            float minX = min(m_top_right[0], bottomLeft[0]);
+            float minY = min(m_top_right[1], bottomLeft[1]);
+            float minZ = min(m_top_right[2], bottomLeft[2]);
 
-            cout << "minx : " << minX << endl;
-            cout << "miny : " << minY << endl;
-            cout << "minz : " << minZ << endl;
-
-            float maxX = max(m_top_right[0], m_bottom_left[0]);
-            float maxY = max(m_top_right[1], m_bottom_left[1]);
-            float maxZ = max(m_top_right[2], m_bottom_left[2]);
-
-            cout << "maxx : " << maxX << endl;
-            cout << "maxy : " << maxY << endl;
-            cout << "maxz : " << maxZ << endl;
-
-            cout << endl;
+            float maxX = max(m_top_right[0], bottomLeft[0]);
+            float maxY = max(m_top_right[1], bottomLeft[1]);
+            float maxZ = max(m_top_right[2], bottomLeft[2]);
 
             if (notSureIntersection[0] >= minX && notSureIntersection[0] <= maxX && 
                 notSureIntersection[1] >= minY && notSureIntersection[1] <= maxY &&
                 notSureIntersection[2] >= minZ && notSureIntersection[2] <= maxZ) {
 
-                    intersection.intersectionExists = true;
-                    intersection.intersection = notSureIntersection;
-                    intersection.normal = m_normal;
-
-                    Vec3 a = m_bottom_left;
-                    Vec3 n = m_normal;
+                    Vec3 a = bottomLeft;
+                    Vec3 n = normal;
 
                     float D = Vec3::dot(a, n);
                     Vec3 o = ray.origin();
                     Vec3 d = ray.direction();
 
+                    //Vec3 rayToPlane = vertices[0].position - ray.origin();
+
                     float t = (D - Vec3::dot(o, n)) / Vec3::dot(d, n);
-                    intersection.t = t;
 
-            } 
-            else {
-                intersection.intersectionExists = false;
-            }
-        } else intersection.intersectionExists = false;
-
-        /*if (!plane.isParallelTo(ray)) {
-            Vec3 notSureIntersection = plane.getIntersectionPoint(ray);
-            Vec3 vec = notSureIntersection - m_bottom_left;
-            float f = Vec3::dot(vec, m_right_vector);
-            float f2 = Vec3::dot(vec, m_up_vector);
-            if (f < 0|| f2 < 0 || f > m_right_vector.length() || f2 > m_up_vector.length()) {
-                intersection.intersectionExists = false;
-            }
-        }*/
-
+                    if(t > 0) {
+                        intersection.t = t;
+                        intersection.intersectionExists = true;
+                        intersection.intersection = notSureIntersection;
+                        intersection.normal = normal;
+                        intersection.normal.normalize();
+                        return intersection;
+                    }
+            }  
+        } 
         return intersection;
     }
+    /*RaySquareIntersection intersect(const Ray &ray) const {
+        RaySquareIntersection intersection;
+        intersection.intersectionExists=false;
+        //TODO calculer l'intersection rayon quad
+        Vec3 r = vertices[1].position - vertices[0].position;
+        Vec3 u = vertices[3].position - vertices[0].position;
+        Vec3 d = ray.direction(),
+            o = ray.origin(),
+            a = vertices[0].position,
+            n = Vec3::cross(r,u);
+        float D = Vec3::dot(a,n);
+
+  
+        float t = (D - Vec3::dot(o,n))/ Vec3::dot(d,n);
+        Vec3 p = o + t * d; 
+        if (t > 0){
+            Vec3 v0,v1,v2,v3;
+            v0 = Vec3::cross(vertices[1].position - vertices[0].position, p - vertices[0].position);
+            v1 = Vec3::cross(vertices[2].position - vertices[1].position, p - vertices[1].position);
+            v2 = Vec3::cross(vertices[3].position - vertices[2].position, p - vertices[2].position);
+            v3 = Vec3::cross(vertices[0].position - vertices[3].position, p - vertices[3].position);
+            bool positif = Vec3::dot(v0, n) > 0;
+            if ((Vec3::dot(v1, n) > 0) == positif)
+                if ((Vec3::dot(v2, n) > 0) == positif)
+                    if ((Vec3::dot(v3, n) > 0) == positif){
+                            intersection.intersection = p;
+                            intersection.t = t;
+                            intersection.intersectionExists = true;
+                            intersection.normal = n;
+                            intersection.normal.normalize();
+                        }
+        }
+        
+        return intersection;
+    }*/
 };
 #endif // SQUARE_H
