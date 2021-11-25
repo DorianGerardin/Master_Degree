@@ -1,0 +1,177 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>WebGL PBR TP</title>
+    <link rel="stylesheet" href="./webgl.css" type="text/css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gl-matrix/2.8.1/gl-matrix-min.js"
+      integrity="sha512-zhHQR0/H5SEBL3Wn6yYSaTTZej12z0hVZKOv3TwCUXT1z5qeqGcXJLLrbERYRScEDDpYIJhPC1fk31gqR783iQ=="
+      crossorigin="anonymous" defer>
+    </script>
+    <script src="webgl-demo.js" defer></script>
+  </head>
+
+  <body>
+	  <div id="fps">FPS</div>
+    <canvas id="glcanvas" width="640" height="480"></canvas>
+	<div>
+		<h1>Parameters</h1>
+		<div id="parameters">
+		</div>
+	</div>
+
+	<script id="vs" type="x-shader/x-vertex">
+	  precision highp float;
+	  attribute vec3 aVertexPosition;
+	  attribute vec3 aVertexNormal;
+	  attribute vec2 aVertexUV;
+
+	  uniform mat4 uNormalMatrix;
+	  uniform mat4 uViewMatrix;
+	  uniform mat4 uModelMatrix;
+	  uniform mat4 uModelViewMatrix;
+	  uniform mat4 uProjectionMatrix;
+
+	  varying vec3 vNormal;
+	  varying vec3 vFragPos;
+	  varying vec2 vFragUV;
+
+	  void main(void) {
+			vFragPos = vec3(uModelMatrix * vec4(aVertexPosition, 1.0));
+	    vNormal = vec3(uNormalMatrix * vec4(aVertexNormal, 1.0));
+			vFragUV = aVertexUV;
+
+			gl_Position = uProjectionMatrix * uViewMatrix * vec4(vFragPos, 1.0);
+	  }
+	</script>
+
+
+	<script id="fs" type="x-shader/x-fragment">
+	precision highp float;
+// Fragment-Interpolated data
+	varying vec3 vNormal;
+	varying vec3 vFragPos;
+	varying vec2 vFragUV;
+
+// Camera
+	uniform vec3 uViewPos;
+// Light
+	uniform vec3 uLightPos;
+	uniform vec3 uLightColor;
+
+// Material
+	uniform vec3 uObjectColor;
+	uniform vec3 uShininess;
+	// uniform sampler2D uSampler;// texture
+	uniform vec3 uAlbedo;
+	uniform float uRoughness;
+	uniform float uMetalness;
+	uniform float uAo;
+
+		vec3 fresnelSchlick(float cosTheta, vec3 F0)
+	{
+	    return F0 + (1.0 - F0) * pow(clamp(1.0 - cosTheta, 0.0, 1.0), 5.0);
+	}  
+
+		float DistributionGGX(vec3 N, vec3 H, float roughness)
+	{
+
+			const float PI = 3.14159265359;
+	    float a      = roughness*roughness;
+	    float a2     = a*a;
+	    float NdotH  = max(dot(N, H), 0.0);
+	    float NdotH2 = NdotH*NdotH;
+		
+	    float num = a2;
+	    float denom = (NdotH2 * (a2 - 1.0) + 1.0);
+	    denom = PI * denom * denom;
+		
+	    return num / denom;
+	}
+
+	float GeometrySchlickGGX(float NdotV, float roughness)
+	{
+	    float r = (roughness + 1.0);
+	    float k = (r*r) / 8.0;
+
+	    float num   = NdotV;
+	    float denom = NdotV * (1.0 - k) + k;
+		
+	    return num / denom;
+	}
+	float GeometrySmith(vec3 N, vec3 V, vec3 L, float roughness)
+	{
+	    float NdotV = max(dot(N, V), 0.0);
+	    float NdotL = max(dot(N, L), 0.0);
+	    float ggx2  = GeometrySchlickGGX(NdotV, roughness);
+	    float ggx1  = GeometrySchlickGGX(NdotL, roughness);
+		
+	    return ggx1 * ggx2;
+	}
+
+	void main(void) {
+
+	  // highp vec4 texelColor = texture2D(uSampler, vTextureCoord);
+
+		
+
+	  // ambient
+	   /*float ambientStrength = 0.1;
+	   vec3 ambient = ambientStrength * uLightColor;*/
+
+	   // diffuse
+	   
+	   /*float diff = max(dot(norm, lightDir), 0.0);
+	   vec3 diffuse = diff * uLightColor;*/
+
+	   // specular
+	   /*vec3 reflectDir = reflect(-lightDir, norm);
+	   float spec = max(dot(viewDir, reflectDir), 0.0);*/
+	   //vec3 specular = specularStrength * spec * uLightColor;
+
+		 vec3 Lo = vec3(0.0);
+
+		 vec3 norm = normalize(vNormal);
+	   vec3 lightDir = normalize(uLightPos - vFragPos);
+	   vec3 viewDir = normalize(uViewPos - vFragPos);
+	   vec3 H = normalize(viewDir + lightDir);
+	   float distance    = length(uLightPos - vFragPos);
+     float attenuation = 1.0;
+     vec3 radiance = uLightColor * attenuation; 
+
+     vec3 F0 = vec3(0.04); 
+		 F0      = mix(F0, uAlbedo, uMetalness);
+		 vec3 F  = fresnelSchlick(max(dot(H, viewDir), 0.0), F0);
+
+     float NDF = DistributionGGX(norm, H, uRoughness);
+     float G = GeometrySmith(norm, viewDir, lightDir, uRoughness);
+
+     vec3 numerator    = NDF * G * F;
+     float denominator = 4.0 * max(dot(norm, viewDir), 0.0) * max(dot(norm, lightDir), 0.0)  + 0.0001;
+     vec3 specular     = numerator / denominator; 
+
+     vec3 Ks = F;
+		 vec3 Kd = vec3(1.0) - Ks;
+		 Kd *= 1.0 - uMetalness;	
+
+		 const float PI = 3.14159265359;
+     float NdotL = max(dot(norm, lightDir), 0.0);        
+     Lo += (Kd * uAlbedo / PI + specular) * radiance * NdotL;
+
+
+		 vec3 ambient = vec3(0.03) * uAlbedo * uAo;
+		 vec3 color   = ambient + Lo;  
+		 color = color / (color + vec3(1.0));
+     color = pow(color, vec3(1.0/2.2));
+
+	   //vec3 result = (ambient + diffuse + specular) * uObjectColor;
+	   gl_FragColor = vec4(color, 1.0);
+
+	   // TODO Implement https://google.github.io/filament/Filament.html
+
+
+
+	}
+	</script>
+  </body>
+</html>
