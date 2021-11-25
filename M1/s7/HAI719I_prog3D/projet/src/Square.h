@@ -6,6 +6,8 @@
 #include "Mesh.h"
 #include <cmath>
 
+#define EPSILON  1e-3
+
 using namespace std;
 
 struct RaySquareIntersection{
@@ -63,7 +65,7 @@ public:
 
     }
 
-    RaySquareIntersection intersect(const Ray &ray) const {
+/*    RaySquareIntersection intersect(const Ray &ray) const {
         RaySquareIntersection intersection;
         intersection.intersectionExists = false;
 
@@ -103,7 +105,7 @@ public:
 
                     float t = (D - Vec3::dot(o, n)) / Vec3::dot(d, n);
 
-                    if(t > 0) {
+                    if(t > EPSILON) {
                         intersection.t = t;
                         intersection.intersectionExists = true;
                         intersection.intersection = notSureIntersection;
@@ -114,8 +116,9 @@ public:
             }  
         } 
         return intersection;
-    }
-    /*RaySquareIntersection intersect(const Ray &ray) const {
+    }*/
+    
+    RaySquareIntersection intersect(const Ray &ray) const {
         RaySquareIntersection intersection;
         intersection.intersectionExists=false;
         //TODO calculer l'intersection rayon quad
@@ -149,6 +152,6 @@ public:
         }
         
         return intersection;
-    }*/
+    }
 };
 #endif // SQUARE_H

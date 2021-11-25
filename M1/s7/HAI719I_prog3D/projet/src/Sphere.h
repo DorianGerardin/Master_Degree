@@ -120,7 +120,7 @@ public:
             intersection.theta = sCoordinates[0];
             intersection.phi = sCoordinates[1];
 
-            Vec3 normal = (intersection1 + (intersection1 - ce));
+            Vec3 normal = (intersection1 - ce);
             normal.normalize();
 
             intersection.intersection = intersection1;
