@@ -46,9 +46,15 @@ class EnveloppeConvexe{
 	}
 
 	findFirst(i, j, points) /* i < j */ {
-		if(i == 0 && j == 1) return points[2]
+		/*if(i == 0 && j == 1) return points[2]
 		else if (i == 0 && j == 2) return points[1]
-		else return points[0] 
+		else return points[0] */
+		let first = points[j];
+		for (var k = 0; k < points.length; k++) {
+			if(points[k] != points[i] && points[k] != points[j]) {
+				return points[k];
+			}
+		}
 	}
 
 	determinant(v1,v2){
@@ -56,7 +62,7 @@ class EnveloppeConvexe{
 	}
 
 	detSign(v1,v2){
-		let d = this.determinant(v1,v2);
+		let d = this.determinant(v1,v2);0
 		if (d > 0) return 1;
 		if (d == 0) return 0;
 		return -1;
@@ -74,6 +80,31 @@ class EnveloppeConvexe{
 
 		return this.detSign(ab, bc)
 
+	}
+
+	findNext(point) {
+		let next;
+		var tour
+		point != 0 ? next = 0 : next = 1
+		for (var i = 0; i < this.points.length; i++) {
+			if (i != point && i != next) {
+				tour = this.tour(this.points[point], this.points[next], this.points[i])
+				if (tour == -1) {
+					next = i;
+				} 
+			}
+		}
+		return next;
+	}
+
+	minY(points) {
+		let minY = points[0]
+		for (var i = 0; i < points.length; i++) {
+			if (points[i].y < minY.y) {
+				minY = points[i]
+			}
+		}
+		return minY;
 	}
 
 
@@ -114,10 +145,17 @@ class EnveloppeConvexe{
 	}
 
 	 algoJarvis(points){
-	 	let envconv
+	 	let envconv = new Array()
 		console.log("algo Jarvis")
+		let min = this.findMinIdx(points);
+		let courant;
+		let previous = min
 
-		//todo
+		do {
+			courant = this.findNext(previous)
+			envconv.push(courant)
+			previous = courant
+		} while (courant != min)
 
 		return envconv;
 	}
