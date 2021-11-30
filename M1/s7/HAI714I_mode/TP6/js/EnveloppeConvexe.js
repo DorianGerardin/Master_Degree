@@ -149,11 +149,12 @@ class EnveloppeConvexe{
 		console.log("algo Jarvis")
 		let min = this.findMinIdx(points);
 		let courant;
+		envconv = [min]
 		let previous = min
 
 		do {
 			courant = this.findNext(previous)
-			envconv.push(courant)
+			envconv.push(courant, courant)
 			previous = courant
 		} while (courant != min)
 
