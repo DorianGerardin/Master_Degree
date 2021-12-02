@@ -34,6 +34,36 @@ struct Light {
 
     Light() : powerCorrection(1.0) {}
 
+    float randomFloat(float min, float max)    
+    {    
+        return (min + 1) + (((float) rand()) / (float) RAND_MAX) * (max - (min + 1));    
+    }
+
+    std::vector<Vec3> randomPointsForSquare(size_t n) {
+
+        //int randNum = rand()%(max-min + 1) + min;
+        std::vector<Vec3> result;
+        Vec3 bottom_left = quad.vertices[0].position;
+        Vec3 top_right = quad.vertices[2].position;
+
+        float minX = min(top_right[0], bottom_left[0]);
+        float minY = min(top_right[1], bottom_left[1]);
+        float minZ = min(top_right[2], bottom_left[2]);
+
+        float maxX = max(top_right[0], bottom_left[0]);
+        float maxY = max(top_right[1], bottom_left[1]);
+        float maxZ = max(top_right[2], bottom_left[2]);
+        
+        for (unsigned int i = 0; i < n; ++i)
+        {
+            float x = randomFloat(minX, maxX);
+            float y = randomFloat(minY, maxY);
+            float z = randomFloat(minZ, maxZ);
+            result.push_back(Vec3(x, y, z));
+        }
+        return result;
+    }
+
 };
 
 struct RaySceneIntersection{
@@ -176,7 +206,7 @@ public:
     Vec3 rayTraceRecursive( Ray ray , int NRemainingBounces ) {
 
         //TODO RaySceneIntersection raySceneIntersection = computeIntersection(ray);
-        Vec3 color = Vec3(0.5, 0.5, 0.5);
+        Vec3 color = Vec3(0, 0, 0);
 
         RaySceneIntersection raySceneIntersection = computeIntersection(ray);
         if(raySceneIntersection.intersectionExists) {
@@ -215,6 +245,10 @@ public:
                 case(MESH_INTERSECTION):
                     break;
             } 
+
+            int nbShadowRays = 20;
+            float percentShadow = 0;
+            int nbShadowIntersect = 0;
         
             for (unsigned int j = 0; j < lights.size(); ++j)
             {
@@ -232,27 +266,33 @@ public:
                 V = ray.origin() - intersection; 
                 V.normalize();
                 RV = (Vec3::dot(R, V));
-        
-                for (unsigned int rgb = 0; rgb < 3; ++rgb)
+
+                std::vector<Vec3> randomPointsSquare = lights[j].randomPointsForSquare(nbShadowRays);
+                for (int i = 0; i < nbShadowRays; ++i)
                 {
+                    Ray rayTestShadow = Ray(intersection, randomPointsSquare[i] - intersection);
+                    RaySceneIntersection ombre = computeShadows(rayTestShadow);
+                    if(ombre.intersectionExists && ombre.t < 1 && ombre.t > 0.01) {
+                        nbShadowIntersect++;
+                    }
+                }
+                if (nbShadowRays != 0) {
+                    percentShadow = 1 - ((float)nbShadowIntersect/(float)nbShadowRays);
+                }
+                nbShadowIntersect = 0;
+
+                for (unsigned int rgb = 0; rgb < 3; ++rgb){
                     Isa = lights[j].material[rgb];
                     Isd = lights[j].material[rgb];
                     Iss = lights[j].material[rgb];
 
                     Ia = Isa * Ka[rgb];
-                    Id = Isd * Kd[rgb] * LN;
-                    Is = Iss * Ks[rgb] * pow(RV, shininess);
+                    Id = Isd * Kd[rgb] * LN * percentShadow;
+                    Is = Iss * Ks[rgb] * pow(RV, shininess) * percentShadow;
 
                     color[rgb] += (Ia + Id + Is);
                 }
-
-                Ray rayTestShadow = Ray(intersection, lights[j].pos - intersection);
-                RaySceneIntersection ombre = computeShadows(rayTestShadow);
-                if(ombre.intersectionExists && ombre.t < 1 && ombre.t > 0.01) {
-                    color = Vec3(0.0, 0.0, 0.0);
-                    //normalement noir mais ici pour avoir une cohérence avec le bug
-                }
-
+            
             }
         }
 
@@ -336,6 +376,8 @@ public:
             light.pos = Vec3( 0.0, 1.5, 0.0 );
             light.radius = 2.5f;
             light.powerCorrection = 2.f;
+            Square s = Square(Vec3(-0.5, 1.5, 0.5), Vec3(1, 0, 0.), Vec3(0., 0., 1.), 1., 1.);
+            light.quad = s;
             light.type = LightType_Spherical;
             light.material = Vec3(1,1,1);
             light.isInCamSpace = false;
