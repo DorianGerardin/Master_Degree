@@ -5,7 +5,8 @@
 	<link rel="stylesheet" href="css/webgl.css">
 </head>
 <body>
-	<canvas id="canvas" width="800" height="800"></canvas>
+	<canvas id="canvas" width="500" height="800"></canvas>
+	<canvas id="canvas2" width="500" height="800"></canvas>
 	
 	<script type="text/javascript">
 		let displayer;
@@ -13,9 +14,13 @@
 		function initComputeAndRender(){
  			canvas = document.getElementById("canvas");
 			displayer = new Displayer(canvas);
+			displayer2 = new Displayer(canvas2);
 			colors = ["#FEE","#FFF","#41566E"];
 			let squelette = new Squelette();
 			squelette.draw(displayer, colors);
+
+			let squeletteArticule = new SqueletteArticule();
+			squeletteArticule.draw(displayer2, colors);
 		}
 
 		window.onload = initComputeAndRender;

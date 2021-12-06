@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="fr">
+<head>
+	<meta charset="utf-8">
+	<link rel="stylesheed" href="css/webgl.css">
+	<script type="text/javascript" src="js/webgl-utils.js"></script>
+	<script type="text/javascript" src="js/gl-matrix-min.js"></script>
+	<script type="text/javascript" src="js/Shader.js"></script>
+	<script type="text/javascript" src="js/BufferedDataType.js"></script>
+	<script type="text/javascript" src="js/BufferedData.js"></script>
+	<script type="text/javascript" src="js/Shape.js"></script>
+</head>
+<body>
+	<canvas id="canvas0" width="400" height="400"></canvas>
+	
+	<script type="x-shader/x-vertex" id="vscs">#version 300 es
+	in vec2 js_coords;
+	uniform mat4x4 js_u_projection;
+	uniform mat4x4 js_u_modelView;
+	void main(){
+	    gl_Position =  js_u_projection * js_u_modelView * vec4(js_coords, 0.0, 1.0);
+	}
+	</script>
+	<script type="x-shader/x-fragment" id="fscs">#version 300 es
+		precision mediump float;
+		uniform int js_u_uniform_colors;
+		uniform vec4 js_u_color;
+		out vec4 glFragColor;
+		void main(){
+	    	glFragColor = js_u_color;
+		}
+	</script>
+	<script type="text/javascript">
+		let shader = new Shader("canvas0", "vscs", "fscs");
+		let gl = shader.init(0,.3,.4,false,false);
+		let ballSize = 20;
+		let ball = new Shape([-shader.width/2,shader.height/2,0], ballSize, [.5,.5,.5,0.8], [1,1,1,0.3], 64);
+		let r,v,b;
+		r = Math.random();
+		v = Math.random();
+		b = Math.random();
+		ball.setBgColor(r,v,b);
+		let duration = 2000;
+		let id, animationOn, startTime;
+		let clip = 0;
+		let nbClips = 3;
+
+		//fonctions de rythme
+		function lerp(t){
+			return t;
+		}
+
+		function circ(timeFraction) {
+		  return 1 - Math.sin(Math.acos(timeFraction));
+		}
+
+		function quad(t) {
+		  return Math.pow(t, 2)
+		}
+
+		function bounce(t) {
+		  for (let a = 0, b = 1; 1; a += b, b /= 2) {
+		    if (t >= (7 - 4 * a) / 11) {
+		      return -Math.pow((11 - 6 * a - 11 * t) / 4, 2) + Math.pow(b, 2)
+		    }
+		  }
+		}
+
+		// accepts a timing function, returns the transformed variant
+		function makeEaseOut(timing) {
+		  return function(timeFraction) {
+		    return 1 - timing(1 - timeFraction);
+		  }
+		}
+
+		let bounceEaseOut = makeEaseOut(bounce);
+		let quadEaseOut = makeEaseOut(quad);
+		let circEaseOut = makeEaseOut(circ);
+
+		function display(t){
+			if(startTime == null) startTime = t;
+			let relativeTime = (t - startTime)/duration;
+			console.log("t = "+relativeTime);
+			if (relativeTime <= 1){
+				animationOn = true;
+				id = requestAnimationFrame(display);
+				shader.initDisplay(0,.3,.4);
+				shader.initModelView();
+
+				switch(clip) {
+					case 0:
+					shader.translate(
+						(quad)(relativeTime)*(shader.width*1/4 - ballSize),
+						-(circ)(relativeTime)*(shader.height - ballSize), 
+						0);
+					break;
+
+					case 1:
+					shader.translate(
+						(shader.width*1/4 - ballSize) + (quad)(relativeTime)*(shader.width*1/8 - ballSize),
+						-(shader.height - ballSize) + (circEaseOut)(relativeTime)*(shader.height*1/4 - ballSize),
+						0);
+					break;
+
+					case 2:
+					shader.translate(
+						(shader.width*3/8 - ballSize) + (quad)(relativeTime)*(shader.width*1/8 - ballSize),
+						-(shader.height*3/4) - (circ)(relativeTime)*(shader.height*1/4 - ballSize),
+						0);
+					break;
+				}
+				ball.drawWith(shader);
+			} else if (animationOn) {
+				/*console.log("animation stopped");
+				cancelAnimationFrame(id);
+				animationOn = false;*/
+				clip++
+				if(clip == nbClips) {
+					clip = 0;
+				} else {
+					console.log("animation stopped");
+					cancelAnimationFrame(id);
+					animationOn = false;
+				}
+				startTime = t;
+				requestAnimationFrame(display);
+			}
+		}
+		id = requestAnimationFrame(display);
+	</script>
+</body>
+</html>
