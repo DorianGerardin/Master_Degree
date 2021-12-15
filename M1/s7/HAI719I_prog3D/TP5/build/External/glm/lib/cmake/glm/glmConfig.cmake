@@ -2,7 +2,10 @@ set(GLM_VERSION "0.9.9")
 
 
 ####### Expanded from @PACKAGE_INIT@ by configure_package_config_file() #######
-get_filename_component(PACKAGE_PREFIX_DIR "${CMAKE_CURRENT_LIST_DIR}/../../../../" ABSOLUTE)
+####### Any changes to this file will be overwritten by the next CMake run ####
+####### The input file was glmConfig.cmake.in                            ########
+
+get_filename_component(PACKAGE_PREFIX_DIR "${CMAKE_CURRENT_LIST_DIR}/../../../" ABSOLUTE)
 
 macro(set_and_check _var _file)
   set(${_var} "${_file}")

@@ -1,7 +1,7 @@
 file(REMOVE_RECURSE
   "CMakeFiles/glm_static.dir/detail/glm.cpp.o"
-  "libglm_static.a"
   "libglm_static.pdb"
+  "libglm_static.a"
 )
 
 # Per-language clean rules from dependency scanning.

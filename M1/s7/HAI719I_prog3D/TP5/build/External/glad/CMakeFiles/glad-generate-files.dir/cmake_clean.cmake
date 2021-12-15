@@ -1,7 +1,7 @@
 file(REMOVE_RECURSE
   "CMakeFiles/glad-generate-files"
-  "include/glad/glad.h"
   "src/glad.c"
+  "include/glad/glad.h"
 )
 
 # Per-language clean rules from dependency scanning.

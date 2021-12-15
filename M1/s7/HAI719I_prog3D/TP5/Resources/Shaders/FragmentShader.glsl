@@ -1,15 +1,17 @@
 #version 450 core // Minimal GL version support expected from the GPU
+#define NB_LIGHTS 3 
 
 struct LightSource {
     vec3 position;
     vec3 color;
     float intensity;
     int isActive;
+    mat4 depthMVP;
 };
-int numberOfLights = 3;
+int numberOfLights = NB_LIGHTS;
 
 
-uniform LightSource lightSources[3];
+uniform LightSource lightSources[NB_LIGHTS];
 
 
 
@@ -27,6 +29,7 @@ in vec3 fPosition; // Shader input, linearly interpolated by default from the pr
 in vec3 fPositionWorldSpace;
 in vec3 fNormal;
 in vec2 fTexCoord;
+uniform sampler2D shadowMap[NB_LIGHTS];
 
 out vec4 colorResponse; // Shader output: the color response attached to this fragment
 
@@ -36,6 +39,16 @@ uniform mat4 projectionMat, modelViewMat, normalMat;
 
 
 float pi = 3.1415927;
+
+
+float shadowCalculation(int i, vec4 fragPosLightSpace) {
+    vec3 projCoords = fragPosLightSpace.xyz / fragPosLightSpace.w;
+    projCoords = projCoords * 0.5 + 0.5;
+    float closestDepth = texture(shadowMap[i], projCoords.xy).r;
+    float currentDepth = projCoords.z;
+    float shadow = currentDepth < closestDepth + 0.001 ? 1.0 : 0.0;
+    return shadow;
+}
 
 
 void main() {
@@ -55,9 +68,11 @@ void main() {
                         if( dot( wi , n ) >= 0.0 ) { // WE ONLY CONSIDER LIGHTS THAT ARE ON THE RIGHT HEMISPHERE (side of the tangent plane)
                             vec3 wh = normalize( wi + wo ); // half vector (if wi changes, wo should change as well)
                             vec3 Li = lightSources[i].color * lightSources[i].intensity;
-
+                            vec4 shadowCoords = lightSources[i].depthMVP * vec4(fPositionWorldSpace, 1.0);
+                            float shadow = shadowCalculation(i, shadowCoords);
                             radiance = radiance +
                                     Li // light color
+                                    * shadow 
                                     * material.albedo
                                     * ( max(dot(n,wi),0.0) + pow(max(dot(n,wh),0.0),material.shininess) )
                                     ;

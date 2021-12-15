@@ -325,10 +325,15 @@ struct Scene{
                 string color = "lightSources[" + to_string(i) + "].color";
                 string intensity = "lightSources[" + to_string(i) + "].intensity";
                 string isActive = "lightSources[" + to_string(i) + "].isActive";
+                string depthMVP = "lightSources[" + to_string(i) + "].depthMVP";
+                string shadowMap = "shadowMap[" + to_string(i) + "]";
+
                 shaderProgramPtr->set (position, light.m_position);
                 shaderProgramPtr->set (color, light.m_color);
                 shaderProgramPtr->set (intensity, light.m_intensity);
                 shaderProgramPtr->set (isActive, 1);
+                shaderProgramPtr->set (depthMVP, light.depthMVP);
+                shaderProgramPtr->set (shadowMap, (int)light.shadowMapTexOnGPU);
             }
         }
 
@@ -562,7 +567,7 @@ void initScene (const std::string & meshFilename) {
                 Light & newLight = scene.scene_lights[i];
                 newLight.m_position = glm::vec3 (-2*cos(app_timer), 2*sin(app_timer), 3.5);
                 newLight.m_color = glm::vec3(1.0, 1.0, 1.0);
-                newLight.m_intensity = 0.5f;
+                newLight.m_intensity = 0.33f;
                 newLight.allocateShadowMapFBO(shadow_map_width , shadow_map_height);
                 newLight.shadowMapTexOnGPU = texture_slot_available;   ++texture_slot_available;
             }

@@ -1,4 +1,4 @@
-# Install script for directory: /home/e20180001518/Master/M1/s7/HAI719I_prog3D/TP5/External/glfw/src
+# Install script for directory: /home/dorian/Master/M1/s7/HAI719I_prog3D/TP5/External/glfw/src
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
@@ -38,6 +38,6 @@ if(NOT DEFINED CMAKE_CROSSCOMPILING)
 endif()
 
 if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)
-  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/lib" TYPE STATIC_LIBRARY FILES "/home/e20180001518/Master/M1/s7/HAI719I_prog3D/TP5/build/External/glfw/src/libglfw3.a")
+  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/lib" TYPE STATIC_LIBRARY FILES "/home/dorian/Master/M1/s7/HAI719I_prog3D/TP5/build/External/glfw/src/libglfw3.a")
 endif()
 

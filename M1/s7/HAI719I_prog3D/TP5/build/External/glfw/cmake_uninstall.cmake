@@ -1,9 +1,9 @@
 
-if (NOT EXISTS "/home/e20180001518/Master/M1/s7/HAI719I_prog3D/TP5/build/External/glfw/install_manifest.txt")
-  message(FATAL_ERROR "Cannot find install manifest: \"/home/e20180001518/Master/M1/s7/HAI719I_prog3D/TP5/build/External/glfw/install_manifest.txt\"")
+if (NOT EXISTS "/home/dorian/Master/M1/s7/HAI719I_prog3D/TP5/build/External/glfw/install_manifest.txt")
+  message(FATAL_ERROR "Cannot find install manifest: \"/home/dorian/Master/M1/s7/HAI719I_prog3D/TP5/build/External/glfw/install_manifest.txt\"")
 endif()
 
-file(READ "/home/e20180001518/Master/M1/s7/HAI719I_prog3D/TP5/build/External/glfw/install_manifest.txt" files)
+file(READ "/home/dorian/Master/M1/s7/HAI719I_prog3D/TP5/build/External/glfw/install_manifest.txt" files)
 string(REGEX REPLACE "\n" ";" files "${files}")
 
 foreach (file ${files})

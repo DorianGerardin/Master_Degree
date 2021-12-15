@@ -4,14 +4,9 @@ set(CMAKE_DEPENDS_LANGUAGES
   )
 # The set of files for implicit dependencies of each language:
 set(CMAKE_DEPENDS_CHECK_CXX
-  "/home/e20180001518/Master/M1/s7/HAI719I_prog3D/TP5/External/glm/glm/detail/glm.cpp" "/home/e20180001518/Master/M1/s7/HAI719I_prog3D/TP5/build/External/glm/glm/CMakeFiles/glm_shared.dir/detail/glm.cpp.o"
+  "/home/dorian/Master/M1/s7/HAI719I_prog3D/TP5/External/glm/glm/detail/glm.cpp" "/home/dorian/Master/M1/s7/HAI719I_prog3D/TP5/build/External/glm/glm/CMakeFiles/glm_shared.dir/detail/glm.cpp.o"
   )
 set(CMAKE_CXX_COMPILER_ID "GNU")
-
-# Preprocessor definitions for this target.
-set(CMAKE_TARGET_DEFINITIONS_CXX
-  "glm_shared_EXPORTS"
-  )
 
 # The include file search paths:
 set(CMAKE_CXX_TARGET_INCLUDE_PATH

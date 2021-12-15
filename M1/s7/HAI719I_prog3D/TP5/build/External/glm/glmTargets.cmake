@@ -49,7 +49,7 @@ unset(_expectedTargets)
 add_library(glm INTERFACE IMPORTED)
 
 set_target_properties(glm PROPERTIES
-  INTERFACE_INCLUDE_DIRECTORIES "/home/e20180001518/Master/M1/s7/HAI719I_prog3D/TP5/External/glm"
+  INTERFACE_INCLUDE_DIRECTORIES "/home/dorian/Master/M1/s7/HAI719I_prog3D/TP5/External/glm"
 )
 
 # This file does not depend on other imported targets which have

@@ -1,4 +1,4 @@
-# Install script for directory: /home/e20180001518/Master/M1/s7/HAI719I_prog3D/TP5/External/glm
+# Install script for directory: /home/dorian/Master/M1/s7/HAI719I_prog3D/TP5/External/glm
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
@@ -38,40 +38,40 @@ if(NOT DEFINED CMAKE_CROSSCOMPILING)
 endif()
 
 if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)
-  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/include" TYPE DIRECTORY FILES "/home/e20180001518/Master/M1/s7/HAI719I_prog3D/TP5/External/glm/glm")
+  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/include" TYPE DIRECTORY FILES "/home/dorian/Master/M1/s7/HAI719I_prog3D/TP5/External/glm/glm")
 endif()
 
 if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)
-  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/lib/x86_64-linux-gnu/cmake/glm" TYPE FILE FILES
-    "/home/e20180001518/Master/M1/s7/HAI719I_prog3D/TP5/build/External/glm/lib/x86_64-linux-gnu/cmake/glm/glmConfig.cmake"
-    "/home/e20180001518/Master/M1/s7/HAI719I_prog3D/TP5/build/External/glm/glmConfigVersion.cmake"
+  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/lib/cmake/glm" TYPE FILE FILES
+    "/home/dorian/Master/M1/s7/HAI719I_prog3D/TP5/build/External/glm/lib/cmake/glm/glmConfig.cmake"
+    "/home/dorian/Master/M1/s7/HAI719I_prog3D/TP5/build/External/glm/glmConfigVersion.cmake"
     )
 endif()
 
 if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)
-  if(EXISTS "$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}/lib/x86_64-linux-gnu/cmake/glm/glmTargets.cmake")
+  if(EXISTS "$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}/lib/cmake/glm/glmTargets.cmake")
     file(DIFFERENT EXPORT_FILE_CHANGED FILES
-         "$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}/lib/x86_64-linux-gnu/cmake/glm/glmTargets.cmake"
-         "/home/e20180001518/Master/M1/s7/HAI719I_prog3D/TP5/build/External/glm/CMakeFiles/Export/lib/x86_64-linux-gnu/cmake/glm/glmTargets.cmake")
+         "$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}/lib/cmake/glm/glmTargets.cmake"
+         "/home/dorian/Master/M1/s7/HAI719I_prog3D/TP5/build/External/glm/CMakeFiles/Export/lib/cmake/glm/glmTargets.cmake")
     if(EXPORT_FILE_CHANGED)
-      file(GLOB OLD_CONFIG_FILES "$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}/lib/x86_64-linux-gnu/cmake/glm/glmTargets-*.cmake")
+      file(GLOB OLD_CONFIG_FILES "$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}/lib/cmake/glm/glmTargets-*.cmake")
       if(OLD_CONFIG_FILES)
-        message(STATUS "Old export file \"$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}/lib/x86_64-linux-gnu/cmake/glm/glmTargets.cmake\" will be replaced.  Removing files [${OLD_CONFIG_FILES}].")
+        message(STATUS "Old export file \"$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}/lib/cmake/glm/glmTargets.cmake\" will be replaced.  Removing files [${OLD_CONFIG_FILES}].")
         file(REMOVE ${OLD_CONFIG_FILES})
       endif()
     endif()
   endif()
-  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/lib/x86_64-linux-gnu/cmake/glm" TYPE FILE FILES "/home/e20180001518/Master/M1/s7/HAI719I_prog3D/TP5/build/External/glm/CMakeFiles/Export/lib/x86_64-linux-gnu/cmake/glm/glmTargets.cmake")
+  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/lib/cmake/glm" TYPE FILE FILES "/home/dorian/Master/M1/s7/HAI719I_prog3D/TP5/build/External/glm/CMakeFiles/Export/lib/cmake/glm/glmTargets.cmake")
 endif()
 
 if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)
-  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/lib/x86_64-linux-gnu/pkgconfig" TYPE FILE FILES "/home/e20180001518/Master/M1/s7/HAI719I_prog3D/TP5/build/External/glm/glm.pc")
+  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/lib/pkgconfig" TYPE FILE FILES "/home/dorian/Master/M1/s7/HAI719I_prog3D/TP5/build/External/glm/glm.pc")
 endif()
 
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for each subdirectory.
-  include("/home/e20180001518/Master/M1/s7/HAI719I_prog3D/TP5/build/External/glm/glm/cmake_install.cmake")
-  include("/home/e20180001518/Master/M1/s7/HAI719I_prog3D/TP5/build/External/glm/test/cmake_install.cmake")
+  include("/home/dorian/Master/M1/s7/HAI719I_prog3D/TP5/build/External/glm/glm/cmake_install.cmake")
+  include("/home/dorian/Master/M1/s7/HAI719I_prog3D/TP5/build/External/glm/test/cmake_install.cmake")
 
 endif()
 

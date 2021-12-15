@@ -1,4 +1,4 @@
-# Install script for directory: /home/e20180001518/Master/M1/s7/HAI719I_prog3D/TP5/External/glm/glm
+# Install script for directory: /home/dorian/Master/M1/s7/HAI719I_prog3D/TP5/External/glm/glm
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
