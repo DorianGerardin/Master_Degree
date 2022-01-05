@@ -153,7 +153,7 @@ public:
         //TODO calculer les intersections avec les objets de la scene et garder la plus proche
 
         //meshes
-        /*RayTriangleIntersection rMeshi;
+        RayTriangleIntersection rMeshi;
         int nbMeshes = this->meshes.size();
         for (int i = 0; i < nbMeshes; ++i)
         {
@@ -165,7 +165,7 @@ public:
                 result.intersectionExists = true;
                 result.typeOfIntersectedObject = MESH_INTERSECTION;
             }
-        }*/
+        }
 
         //Spheres
         RaySphereIntersection rSpherei;
@@ -203,7 +203,7 @@ public:
 
 
 
-    Vec3 rayTraceRecursive( Ray ray , int NRemainingBounces ) {
+    Vec3 rayTraceRecursive( Ray ray , int NRemainingBounces) {
 
         //TODO RaySceneIntersection raySceneIntersection = computeIntersection(ray);
         Vec3 color = Vec3(0, 0, 0);
@@ -216,33 +216,42 @@ public:
             float Ia, Isa;
             float Id, Isd;
             float Is, Iss;
+            MaterialType typeMaterial;
             double shininess;
 
             switch(raySceneIntersection.typeOfIntersectedObject) {
 
                 case(SPHERE_INTERSECTION):
 
-                intersection = raySceneIntersection.raySphereIntersection.intersection;
-                N = raySceneIntersection.raySphereIntersection.normal;
-                Ka = this->spheres[raySceneIntersection.objectIndex].material.ambient_material;
-                Kd = this->spheres[raySceneIntersection.objectIndex].material.diffuse_material;
-                Ks = this->spheres[raySceneIntersection.objectIndex].material.specular_material;
-                shininess = this->spheres[raySceneIntersection.objectIndex].material.shininess;
-
-                break;
+                    intersection = raySceneIntersection.raySphereIntersection.intersection;
+                    N = raySceneIntersection.raySphereIntersection.normal;
+                    Ka = this->spheres[raySceneIntersection.objectIndex].material.ambient_material;
+                    Kd = this->spheres[raySceneIntersection.objectIndex].material.diffuse_material;
+                    Ks = this->spheres[raySceneIntersection.objectIndex].material.specular_material;
+                    shininess = this->spheres[raySceneIntersection.objectIndex].material.shininess;
+                    typeMaterial = this->spheres[raySceneIntersection.objectIndex].material.type;
+                    break;
 
                 case(SQUARE_INTERSECTION):
 
-                intersection = raySceneIntersection.raySquareIntersection.intersection;
-                N = raySceneIntersection.raySquareIntersection.normal;
-                Ka = this->squares[raySceneIntersection.objectIndex].material.ambient_material;
-                Kd = this->squares[raySceneIntersection.objectIndex].material.diffuse_material;
-                Ks = this->squares[raySceneIntersection.objectIndex].material.specular_material;
-                shininess = this->squares[raySceneIntersection.objectIndex].material.shininess;
-
-                break;
+                    intersection = raySceneIntersection.raySquareIntersection.intersection;
+                    N = raySceneIntersection.raySquareIntersection.normal;
+                    Ka = this->squares[raySceneIntersection.objectIndex].material.ambient_material;
+                    Kd = this->squares[raySceneIntersection.objectIndex].material.diffuse_material;
+                    Ks = this->squares[raySceneIntersection.objectIndex].material.specular_material;
+                    shininess = this->squares[raySceneIntersection.objectIndex].material.shininess;
+                    typeMaterial = this->squares[raySceneIntersection.objectIndex].material.type;
+                    break;
 
                 case(MESH_INTERSECTION):
+
+                    intersection = raySceneIntersection.rayMeshIntersection.intersection;
+                    N = raySceneIntersection.rayMeshIntersection.normal;
+                    Ka = this->meshes[raySceneIntersection.objectIndex].material.ambient_material;
+                    Kd = this->meshes[raySceneIntersection.objectIndex].material.diffuse_material;
+                    Ks = this->meshes[raySceneIntersection.objectIndex].material.specular_material;
+                    shininess = this->meshes[raySceneIntersection.objectIndex].material.shininess;
+                    typeMaterial = this->meshes[raySceneIntersection.objectIndex].material.type;
                     break;
             } 
 
@@ -267,30 +276,51 @@ public:
                 V.normalize();
                 RV = (Vec3::dot(R, V));
 
-                std::vector<Vec3> randomPointsSquare = lights[j].randomPointsForSquare(nbShadowRays);
-                for (int i = 0; i < nbShadowRays; ++i)
-                {
-                    Ray rayTestShadow = Ray(intersection, randomPointsSquare[i] - intersection);
-                    RaySceneIntersection ombre = computeShadows(rayTestShadow);
-                    if(ombre.intersectionExists && ombre.t < 1 && ombre.t > 0.01) {
-                        nbShadowIntersect++;
+                //Mirror
+                if(typeMaterial == Material_Mirror && NRemainingBounces > 0) {
+                    Vec3 rayDirection = ray.origin() - intersection;
+                    //Vec3 rayDirection2 = ray.direction() * -1;
+                    rayDirection.normalize();
+                    float RN = Vec3::dot(rayDirection, N);
+                    if(RN < 0){
+                        RN = 0.;
                     }
-                }
-                if (nbShadowRays != 0) {
-                    percentShadow = 1 - ((float)nbShadowIntersect/(float)nbShadowRays);
-                }
-                nbShadowIntersect = 0;
+                    Vec3 R2 = 2 * RN * N - rayDirection;
+                    R2.normalize();
+                    Ray reflexion = Ray(intersection + R2 * 1e-4, R2);
+                    color = rayTraceRecursive(reflexion, NRemainingBounces - 1);
+                    /*Vec3 direction = ray.direction();
+                    float magnitude = direction.length();
+                    Vec3 reflection = direction - 2*(Vec3::dot(direction, N))/(magnitude*magnitude) * N;
+                    color = rayTraceRecursive(Ray(intersection, reflection), NRemainingBounces-1);*/
+                } 
+                else {
 
-                for (unsigned int rgb = 0; rgb < 3; ++rgb){
-                    Isa = lights[j].material[rgb];
-                    Isd = lights[j].material[rgb];
-                    Iss = lights[j].material[rgb];
+                    std::vector<Vec3> randomPointsSquare = lights[j].randomPointsForSquare(nbShadowRays);
+                    for (int i = 0; i < nbShadowRays; ++i)
+                    {
+                        Ray rayTestShadow = Ray(intersection, randomPointsSquare[i] - intersection);
+                        RaySceneIntersection ombre = computeShadows(rayTestShadow);
+                        if(ombre.intersectionExists && ombre.t < 1 && ombre.t > 0.01) {
+                            nbShadowIntersect++;
+                        }
+                    }
+                    if (nbShadowRays != 0) {
+                        percentShadow = 1 - ((float)nbShadowIntersect/(float)nbShadowRays);
+                    }
+                    nbShadowIntersect = 0;
 
-                    Ia = Isa * Ka[rgb];
-                    Id = Isd * Kd[rgb] * LN * percentShadow;
-                    Is = Iss * Ks[rgb] * pow(RV, shininess) * percentShadow;
+                    for (unsigned int rgb = 0; rgb < 3; ++rgb){
+                        Isa = lights[j].material[rgb];
+                        Isd = lights[j].material[rgb];
+                        Iss = lights[j].material[rgb];
 
-                    color[rgb] += (Ia + Id + Is);
+                        Ia = Isa * Ka[rgb];
+                        Id = Isd * Kd[rgb] * LN * percentShadow;
+                        Is = Iss * Ks[rgb] * pow(RV, shininess) * percentShadow;
+
+                        color[rgb] += (Ia + Id + Is);
+                    }
                 }
             
             }
@@ -302,7 +332,7 @@ public:
 
     Vec3 rayTrace( Ray const & rayStart ) {
         //TODO appeler la fonction recursive
-        Vec3 color = rayTraceRecursive(rayStart, 1); 
+        Vec3 color = rayTraceRecursive(rayStart, 5); 
 
         return color;
     }
@@ -390,6 +420,7 @@ public:
             s.scale(Vec3(2., 2., 1.));
             s.translate(Vec3(0., 0., -2.));
             s.build_arrays();
+            //s.material.type = Material_Mirror;
             s.material.diffuse_material = Vec3( 0.5,0.5,1.);
             s.material.specular_material = Vec3( 0.5,0.5,1. );
             s.material.shininess = 16;
@@ -448,19 +479,52 @@ public:
             s.material.shininess = 16;
         }
 
-/*        { //Front Wall
+        /*{ //Front Wall
             squares.resize( squares.size() + 1 );
             Square & s = squares[squares.size() - 1];
             s.setQuad(Vec3(-1., -1., 0.), Vec3(1., 0, 0.), Vec3(0., 1, 0.), 2., 2.);
-            s.translate(Vec3(0., 0., -2.));
-            s.scale(Vec3(2., 2., 1.));
+            s.translate(Vec3(0., 0., -1.5));
+            s.scale(Vec3(4., 4., 2.));
             s.rotate_y(180);
             s.build_arrays();
+            s.material.type = Material_Mirror;
             s.material.diffuse_material = Vec3( 1.0,1.0,1.0 );
             s.material.specular_material = Vec3( 1.0,1.0,1.0 );
             s.material.shininess = 16;
         }*/
 
+        /*{ //Mesh icosahdron
+
+            meshes.resize( meshes.size() + 1 );
+            Mesh & m = meshes[meshes.size() - 1];
+            m = Mesh();
+            m.loadOFF("/home/dorian/Master/M1/s7/HAI719I_prog3D/projet/data/icosahedron.off");
+            m.translate(Vec3(1.3, -3.15, 1.5));
+            m.scale(Vec3(0.5, 0.5, 0.5));
+            m.rotate_y(-20);
+            m.rotate_z(-20);
+            m.build_arrays();
+            m.material.type = Material_Mirror;
+            m.material.diffuse_material = Vec3( 0.5,0.2,0.3 );
+            m.material.specular_material = Vec3( .5,0.5,0.5 );
+            m.material.shininess = 16;
+        }*/
+
+        /*{ //Mesh plane
+
+            meshes.resize( meshes.size() + 1 );
+            Mesh & m = meshes[meshes.size() - 1];
+            m = Mesh();
+            m.loadOFFWithNormals("/home/dorian/Master/M1/s7/HAI719I_prog3D/projet/data/avion_n.off");
+            m.translate(Vec3(0, 0.1, 0.5));
+            m.scale(Vec3(1.3, 1.3, 1.3));
+            m.rotate_y(-50);
+            m.rotate_z(-75);
+            m.build_arrays();
+            m.material.diffuse_material = Vec3( 0.5,0.5,0.5 );
+            m.material.specular_material = Vec3( .5,0.5,0.5 );
+            m.material.shininess = 16;
+        }*/
 
         { //GLASS Sphere
 
@@ -469,7 +533,7 @@ public:
             s.m_center = Vec3(1.0, -1.25, 0.5);
             s.m_radius = 0.75f;
             s.build_arrays();
-            s.material.type = Material_Mirror;
+            s.material.type = Material_Glass;
             s.material.diffuse_material = Vec3( 1.,0.,0. );
             s.material.specular_material = Vec3( 1.,0.,0. );
             s.material.shininess = 16;
@@ -484,9 +548,10 @@ public:
             s.m_center = Vec3(-1.0, -1.25, -0.5);
             s.m_radius = 0.75f;
             s.build_arrays();
-            s.material.type = Material_Glass;
+            s.material.type = Material_Mirror;
             s.material.diffuse_material = Vec3( 1.,1.,1. );
             s.material.specular_material = Vec3(  1.,1.,1. );
+            //s.material.ambient_material = Vec3(  0.3,0.3,0.3 );
             s.material.shininess = 16;
             s.material.transparency = 0.;
             s.material.index_medium = 0.;

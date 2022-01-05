@@ -185,6 +185,7 @@ void ray_trace_from_camera() {
                 image[x + y*w] += color;
             }
             image[x + y*w] /= nsamples;
+            //std::cout << x << "x" << y << " : " << image[x + y*w] << std::endl;
         }
     }
     std::cout << "\tDone" << std::endl;
