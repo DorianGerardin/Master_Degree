@@ -216,6 +216,7 @@ public:
             float Ia, Isa;
             float Id, Isd;
             float Is, Iss;
+            float indexRefraction;
             MaterialType typeMaterial;
             double shininess;
 
@@ -230,6 +231,7 @@ public:
                     Ks = this->spheres[raySceneIntersection.objectIndex].material.specular_material;
                     shininess = this->spheres[raySceneIntersection.objectIndex].material.shininess;
                     typeMaterial = this->spheres[raySceneIntersection.objectIndex].material.type;
+                    indexRefraction = this->spheres[raySceneIntersection.objectIndex].material.index_medium;
                     break;
 
                 case(SQUARE_INTERSECTION):
@@ -241,6 +243,7 @@ public:
                     Ks = this->squares[raySceneIntersection.objectIndex].material.specular_material;
                     shininess = this->squares[raySceneIntersection.objectIndex].material.shininess;
                     typeMaterial = this->squares[raySceneIntersection.objectIndex].material.type;
+                    indexRefraction = this->squares[raySceneIntersection.objectIndex].material.index_medium;
                     break;
 
                 case(MESH_INTERSECTION):
@@ -252,6 +255,7 @@ public:
                     Ks = this->meshes[raySceneIntersection.objectIndex].material.specular_material;
                     shininess = this->meshes[raySceneIntersection.objectIndex].material.shininess;
                     typeMaterial = this->meshes[raySceneIntersection.objectIndex].material.type;
+                    indexRefraction = this->meshes[raySceneIntersection.objectIndex].material.index_medium;
                     break;
             } 
 
@@ -279,7 +283,7 @@ public:
                 //Mirror
                 if(typeMaterial == Material_Mirror && NRemainingBounces > 0) {
                     Vec3 rayDirection = ray.origin() - intersection;
-                    //Vec3 rayDirection2 = ray.direction() * -1;
+                    //Vec3 rayDirection2 = ray.direction() * (-1);
                     rayDirection.normalize();
                     float RN = Vec3::dot(rayDirection, N);
                     if(RN < 0){
@@ -293,7 +297,11 @@ public:
                     float magnitude = direction.length();
                     Vec3 reflection = direction - 2*(Vec3::dot(direction, N))/(magnitude*magnitude) * N;
                     color = rayTraceRecursive(Ray(intersection, reflection), NRemainingBounces-1);*/
-                } 
+                }
+                if(typeMaterial == Material_Glass && NRemainingBounces > 0) {
+                    Ray refraction = ray.refract(intersection, N, indexRefraction);
+                    color = rayTraceRecursive(refraction, NRemainingBounces - 1);
+                }
                 else {
 
                     std::vector<Vec3> randomPointsSquare = lights[j].randomPointsForSquare(nbShadowRays);
@@ -483,17 +491,17 @@ public:
             squares.resize( squares.size() + 1 );
             Square & s = squares[squares.size() - 1];
             s.setQuad(Vec3(-1., -1., 0.), Vec3(1., 0, 0.), Vec3(0., 1, 0.), 2., 2.);
-            s.translate(Vec3(0., 0., -1.5));
+            s.translate(Vec3(0., 0., -1.002));
             s.scale(Vec3(4., 4., 2.));
             s.rotate_y(180);
             s.build_arrays();
-            s.material.type = Material_Mirror;
+            //s.material.type = Material_Mirror;
             s.material.diffuse_material = Vec3( 1.0,1.0,1.0 );
             s.material.specular_material = Vec3( 1.0,1.0,1.0 );
             s.material.shininess = 16;
         }*/
 
-        /*{ //Mesh icosahdron
+        { //Mesh icosahdron
 
             meshes.resize( meshes.size() + 1 );
             Mesh & m = meshes[meshes.size() - 1];
@@ -508,7 +516,7 @@ public:
             m.material.diffuse_material = Vec3( 0.5,0.2,0.3 );
             m.material.specular_material = Vec3( .5,0.5,0.5 );
             m.material.shininess = 16;
-        }*/
+        }
 
         /*{ //Mesh plane
 
@@ -533,7 +541,7 @@ public:
             s.m_center = Vec3(1.0, -1.25, 0.5);
             s.m_radius = 0.75f;
             s.build_arrays();
-            s.material.type = Material_Glass;
+            //s.material.type = Material_Glass;
             s.material.diffuse_material = Vec3( 1.,0.,0. );
             s.material.specular_material = Vec3( 1.,0.,0. );
             s.material.shininess = 16;
