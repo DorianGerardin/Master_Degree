@@ -336,7 +336,7 @@ int main(int argc, char *argv[])
 	int sampling_freq = 44100;
 	short channels_nb = 1;
 	int data_nb = (int)floor(nbSec*sampling_freq);
-	//int freq_note = 440;
+	int freq_note = 440;
 	unsigned char data8[data_nb];
 	int m = Trouver_m(data_nb);
 	long int M = (int)floor(pow(2, m));
@@ -358,7 +358,7 @@ int main(int argc, char *argv[])
 
 	int gammeI = 0;
 	//Gamme Chromatique
-	/*for (unsigned int j = 0; j < data_nb; ++j)
+	for (unsigned int j = 0; j < data_nb; ++j)
 	{
 		partieImaginaire[j] = 0.;
 		if(j%(data_nb/7) == 0 && j != 0) {
@@ -368,11 +368,15 @@ int main(int argc, char *argv[])
 		partieReelle[j] = xk;
 	}
 
-	for (int i = 0; i < M; ++i)
+	for (int i = data_nb; i < M; ++i)
 	{
 		partieImaginaire[i] = 0.;
-		//partieReelle[i] = 0.;
-	}*/
+		partieReelle[i] = 0.;
+	}
+
+	FFT(1, m, partieReelle, partieImaginaire);
+	FFT(-1, m, partieReelle, partieImaginaire);
+	real2Char(partieReelle, data8, data_nb);
 
 	//Accord Do Majeur
 	for (int i = 0; i < data_nb; ++i)
