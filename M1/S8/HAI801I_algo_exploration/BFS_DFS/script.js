@@ -5,12 +5,16 @@ class Graph {
 	}
 }
 
-function showOrder(nodeList) {
-	console.log(nodeList.join('-'))
+function showOrderBFS(nodeList) {
+	document.getElementById("output-BFS").innerHTML += (nodeList.join('-'))
 }
 
-function BDS(graph, node) {
-	console.log("BDS : ")
+function showOrderDFS(nodeList) {
+	document.getElementById("output-DFS").innerHTML += (nodeList.join('-'))
+}
+
+function BFS(graph, node) {
+	document.getElementById("output-BFS").innerHTML += "BFS : "
 	markedNodes = new Array()
 	searchOrder = new Array()
 
@@ -23,50 +27,46 @@ function BDS(graph, node) {
 		node = file.shift();
 		searchOrder.push(node.id)
 		node.children.forEach((child) => {
-			if(!markedNodes.includes(child)) {
+			if(!markedNodes.includes(child.id)) {
 				file.push(child)
-				markedNodes.push(child)
+				markedNodes.push(child.id)
 			}
 		})
 	}
-	showOrder(searchOrder)
+	showOrderBFS(searchOrder)
 }
 
 
 function explore(graph, node, markedNodes, searchOrder) {
 	searchOrder.push(node.id)
-	markedNodes.push(node)
+	markedNodes.push(node.id)
 	node.children.forEach((child) => {
-		if(!markedNodes.includes(child)) {
+		if(!markedNodes.includes(child.id)) {
 			explore(graph, child, markedNodes, searchOrder)
 		}	
 	})
 }
 
 function DFS(graph, node, markedNodes, searchOrder) {
-	console.log("DFS : ")
+	document.getElementById("output-DFS").innerHTML += "DFS : "
 	graph.nodeList.forEach(node => {
-		if(!markedNodes.includes(node)) {
+		if(!markedNodes.includes(node.id)) {
 			explore(graph, node, markedNodes, searchOrder)
 		}
 	})
-	showOrder(searchOrder)
+	showOrderDFS(searchOrder)
 }
 
-nodeA = new Node("A")
-nodeB = new Node("B")
-nodeC = new Node("C")
-nodeD = new Node("D")
-nodeE = new Node("E")
-nodeF = new Node("F")
-nodeG = new Node("G")
+nodeList = [
+nodeA = new Node("A"),
+nodeB = new Node("B"),
+nodeC = new Node("C"),
+nodeD = new Node("D"),
+]
 
-nodeB.appendChild(nodeD, nodeF)
-nodeC.appendChild(nodeG)
-nodeE.appendChild(nodeF)
-nodeA.appendChild(nodeB, nodeC, nodeE)
-
-nodeList = [nodeA, nodeB, nodeC, nodeD, nodeE, nodeF, nodeG]
+nodeA.appendChild(nodeB, nodeC)
+nodeC.appendChild(nodeD)
+nodeD.appendChild(nodeC)
 
 graph = new Graph(nodeList)
 
@@ -75,8 +75,8 @@ nodeC.drawChildren()
 nodeE.drawChildren()
 nodeA.drawChildren()*/
 
-//BDS
-BDS(graph, nodeA)
+//BFS
+BFS(graph, nodeA)
 
 //DFS
 markedNodes = new Array()
