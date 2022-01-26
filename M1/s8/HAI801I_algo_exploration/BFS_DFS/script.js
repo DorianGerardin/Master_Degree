@@ -58,15 +58,18 @@ function DFS(graph, node, markedNodes, searchOrder) {
 }
 
 nodeList = [
-nodeA = new Node("A"),
-nodeB = new Node("B"),
-nodeC = new Node("C"),
-nodeD = new Node("D"),
+nodeH = new Node("Hurt"),
+nodeA = new Node("AttackMode"),
+nodeSu = new Node("Survive"),
+nodeSt = new Node("Still"),
+nodeD = new Node("DefenseMode"),
 ]
 
-nodeA.appendChild(nodeB, nodeC)
-nodeC.appendChild(nodeD)
-nodeD.appendChild(nodeC)
+nodeH.appendChild(nodeSt)
+nodeA.appendChild(nodeH, nodeSt)
+nodeSt.appendChild(nodeA, nodeD)
+nodeD.appendChild(nodeSt, nodeSu)
+nodeSu.appendChild(nodeSt)
 
 graph = new Graph(nodeList)
 
@@ -76,12 +79,12 @@ nodeE.drawChildren()
 nodeA.drawChildren()*/
 
 //BFS
-BFS(graph, nodeA)
+BFS(graph, nodeSt)
 
 //DFS
 markedNodes = new Array()
 searchOrder = new Array()
-DFS(graph, nodeA, markedNodes, searchOrder)
+DFS(graph, nodeSt, markedNodes, searchOrder)
 
 
 
