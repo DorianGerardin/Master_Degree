@@ -14,7 +14,7 @@ int main(int argc, char* argv[])
   
   if (argc != 3) 
      {
-       printf("Usage: ImageIn.pgm ImageOut.pgm Seuil \n"); 
+       printf("Usage: ImageIn.pgm ImageOut.pgm \n"); 
        exit (1) ;
      }
 
