@@ -1,10 +1,3 @@
-class Graph {
-
-	constructor(nodeList) {
-		this.nodeList = nodeList
-	}
-}
-
 function showOrderBFS(nodeList) {
 	document.getElementById("output-BFS").innerHTML += (nodeList.join('-'))
 }
@@ -15,8 +8,8 @@ function showOrderDFS(nodeList) {
 
 function BFS(graph, node) {
 	document.getElementById("output-BFS").innerHTML += "BFS : "
-	markedNodes = new Array()
-	searchOrder = new Array()
+	let markedNodes = new Array()
+	let searchOrder = new Array()
 
 	file = new Array()
 	file.push(node)
@@ -37,39 +30,44 @@ function BFS(graph, node) {
 }
 
 
-function explore(graph, node, markedNodes, searchOrder) {
-	searchOrder.push(node.id)
+function explore(graph, node, markedNodes) {
 	markedNodes.push(node.id)
 	node.children.forEach((child) => {
 		if(!markedNodes.includes(child.id)) {
-			explore(graph, child, markedNodes, searchOrder)
+			explore(graph, child, markedNodes)
 		}	
 	})
 }
 
-function DFS(graph, node, markedNodes, searchOrder) {
+function DFS(graph, node, markedNodes) {
 	document.getElementById("output-DFS").innerHTML += "DFS : "
+	if(!markedNodes.includes(node.id)) {
+		explore(graph, node, markedNodes)
+	}
 	graph.nodeList.forEach(node => {
 		if(!markedNodes.includes(node.id)) {
-			explore(graph, node, markedNodes, searchOrder)
+			explore(graph, node, markedNodes)
 		}
 	})
-	showOrderDFS(searchOrder)
+	showOrderDFS(markedNodes)
 }
 
+
+
+
 nodeList = [
-nodeH = new Node("Hurt"),
-nodeA = new Node("AttackMode"),
-nodeSu = new Node("Survive"),
-nodeSt = new Node("Still"),
-nodeD = new Node("DefenseMode"),
+nodeA = new Node("A"),
+nodeB = new Node("B"),
+nodeC = new Node("C"),
+nodeD = new Node("D"),
+nodeE = new Node("E"),
 ]
 
-nodeH.appendChild(nodeSt)
-nodeA.appendChild(nodeH, nodeSt)
-nodeSt.appendChild(nodeA, nodeD)
-nodeD.appendChild(nodeSt, nodeSu)
-nodeSu.appendChild(nodeSt)
+nodeA.appendChild(nodeB, nodeC)
+nodeB.appendChild(nodeA, nodeD)
+nodeC.appendChild(nodeA, nodeE)
+nodeD.appendChild(nodeA)
+nodeE.appendChild(nodeA)
 
 graph = new Graph(nodeList)
 
@@ -79,12 +77,11 @@ nodeE.drawChildren()
 nodeA.drawChildren()*/
 
 //BFS
-BFS(graph, nodeSt)
+BFS(graph, nodeA)
 
 //DFS
-markedNodes = new Array()
-searchOrder = new Array()
-DFS(graph, nodeSt, markedNodes, searchOrder)
+let markedNodes = new Array()
+DFS(graph, nodeA, markedNodes)
 
 
 
