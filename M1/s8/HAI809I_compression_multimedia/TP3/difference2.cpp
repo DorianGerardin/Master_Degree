@@ -61,9 +61,9 @@ int main(int argc, char* argv[])
       int AB = abs(ImgIn[i*nW+(j-1)] - ImgIn[(i-1)*nW+(j-1)]);
       int BC = abs(ImgIn[(i-1)*nW+j] - ImgIn[(i-1)*nW+(j-1)]);
      	if(AB < BC) {
-        diff = ImgIn[(i-1)*nW+j] + 128;
+        diff = (ImgIn[i*nW+j] - ImgIn[(i-1)*nW+j]) + 128;
       } else {
-        diff = ImgIn[i*nW+(j-1)] + 128;
+        diff = (ImgIn[i*nW+j] - ImgIn[i*nW+(j-1)]) + 128;
       }
         if(diff < 0) diff = 0;
   	    if(diff > 255) diff = 255;
