@@ -1,8 +1,8 @@
 file(REMOVE_RECURSE
-  "CMakeFiles/events.dir/__/deps/getopt.c.o"
   "CMakeFiles/events.dir/events.c.o"
-  "events"
+  "CMakeFiles/events.dir/__/deps/getopt.c.o"
   "events.pdb"
+  "events"
 )
 
 # Per-language clean rules from dependency scanning.

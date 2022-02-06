@@ -6,12 +6,15 @@ layout(location = 0) in vec3 vertices_position_modelspace;
 //TODO create uniform transformations matrices Model View Projection
 // Values that stay constant for the whole mesh.
 
-uniform mat4 transfo_mat;
+//uniform mat4 transfo_mat;
+uniform mat4 modelMatrix;
+uniform mat4 viewMatrix;
+uniform mat4 projectionMatrix;
 
 void main(){
 
         // TODO : Output position of the vertex, in clip space : MVP * position
-        gl_Position = transfo_mat * vec4(vertices_position_modelspace,1);
+        gl_Position = projectionMatrix * viewMatrix * modelMatrix * vec4(vertices_position_modelspace,1);
 
 }
 
