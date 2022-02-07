@@ -9,14 +9,35 @@
 </head>
 <body>
 
-	<div id="output-BFS" class="output linearBDS">
-	</div>
-	<div id="output-DFS" class="output linearDFS">
+	<div id="title" class="linearText output" style="--fontSize: 5em"> Jeu des missionnaires et des cannibales
 	</div>
 
+	<div id="context" class="linearText output" style="--fontSize: 1.7em"> Voici le jeu des missionnaires et des cannibales. Imaginez vous une rivière. D'un côté de la rivière on retrouve (dans le cas classique) 3 missionnaires et 3 cannibales ainsi qu'un bateau. Le but du jeu est simple : Tous les amener de l'autre côté. Seulement il y a un petit problème. Les cannibales, en nombre supérieur n'hésiteront pas à dévorer les missionnaires. Il faut toujours d'un côté ou de l'autre, un nombre supérieur de missionnaires par rapport aux cannibales. Enfin, le bateau est fragile : il ne peut transporter qu'une ou 2 personnes à la fois mais ne peut pas se déplacer à vide. Bonne chance ! 
+	</div>
+
+	<div id="form" class="form">
+        <label for="name" class="linearText output" style="--fontSize: 1.7em">Nombre de missionnaires (égal au nombre de cannibales)</label>
+        <input type="text" name="nbMissCann" id="input" placeHolder="Ex : 3" value="3" required>
+	</div>
+
+	<div id="buttons" class="buttons">
+		<input class="button" style="--fontSize: 25px; --margin:10px; --padding: 14px 10px" type="button" value="Algo BFS" onclick="showBFS();">
+		<input class="button" style="--fontSize: 25px; --margin:10px; --padding: 14px 10px" type="button" value="Algo DFS" onclick="showDFS();">
+	</div>
+
+	<div id="output-BFS" class="output linearBFS" style="--fontSize: 3em">
+	</div>
+	<div id="output-DFS" class="output linearDFS" style="--fontSize: 3em">
+	</div>
+
+	<script src="treant/vendor/raphael.js"></script>
+	<script src="treant/Treant.js"></script>
+	<script src="treant/vendor/jquery.min.js"></script>
+	<script src="treant/vendor/jquery.mousewheel.js"></script>
+	<script src="treant/vendor/perfect-scrollbar/perfect-scrollbar.js"></script>
 	<script type="text/javascript" src="Node.js"></script>
-	<script type="text/javascript" src="MissCann.js"></script>
 	<script type="text/javascript" src="Graph.js"></script>
+	<script type="text/javascript" src="MissCann.js"></script>
 	<script type="text/javascript" src="script.js"></script>
 </body>
 </html>
