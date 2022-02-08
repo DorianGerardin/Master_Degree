@@ -77,15 +77,18 @@ function constructTree(graph, node) {
 
 
 function showOrderBFS(nodeList) {
-	document.getElementById("output-BFS").innerHTML += (nodeList.join(' - '))
+	if(document.getElementById("output-BFS") !== null) document.getElementById("output-BFS").innerHTML += (nodeList.join(' - '))
 }
 
 function showOrderDFS(nodeList) {
-	document.getElementById("output-DFS").innerHTML += (nodeList.join(' - '))
+	document.getElementById("output-DFS").innerHTML += "<br>" + (nodeList.join(' - '))
 }
 
-function BFS(graph, node) {
-	document.getElementById("output-BFS").innerHTML += "BFS : "
+function showShortestPath(string) {
+	document.getElementById("ShortestPath").innerHTML += "<br>" + string
+}
+
+function BFS(graph, node, goal) {
 	let markedNodes = new Array()
 	let searchOrder = new Array()
 
@@ -94,13 +97,40 @@ function BFS(graph, node) {
 
 	markedNodes.push(node.id)
 
+	const edges = [];
+    edges[node.id] = 0;
+
+    const predecessors = [];
+    predecessors[node.id] = null;
+
+    const buildPath = (goal, root, predecessors) => {
+	    const stack = [];
+	    stack.push(goal.id);
+	    let u = predecessors[goal.id];
+	    while(u !== null && u.id !== root.id) {
+	        stack.push(u.id);
+	        u = predecessors[u.id];
+	    }
+
+	    let path = stack.reverse().join(' - ');
+	    showShortestPath(path);
+	}
+
 	while(file.length !== 0) {
 		node = file.shift();
 		searchOrder.push(node.id)
+
+		if (node.id === goal.id) { 
+            buildPath(goal, node, predecessors)
+           
+        }
+
 		node.children.forEach((child) => {
 			if(!markedNodes.includes(child.id)) {
 				file.push(child)
 				markedNodes.push(child.id)
+				edges[child.id] = edges[node] + 1;
+				predecessors[child.id] = node;
 			}
 		})
 	}
@@ -118,6 +148,7 @@ function explore(graph, node, markedNodes) {
 }
 
 function DFS(graph, node, markedNodes) {
+	document.getElementById("output-DFS").style.display = "flex";
 	document.getElementById("output-DFS").innerHTML += "DFS : "
 	if(!markedNodes.includes(node.id)) {
 		explore(graph, node, markedNodes)
@@ -132,39 +163,46 @@ function DFS(graph, node, markedNodes) {
 
 
 function showDFS() {
-	set(document.getElementById("input").value)
+	set(3)
 	var title = document.getElementById("title"); document.body.removeChild(title);
 	var context = document.getElementById("context"); document.body.removeChild(context);
-	var form = document.getElementById("form"); document.body.removeChild(form);
 	var buttons = document.getElementById("buttons"); document.body.removeChild(buttons);
 	var bfs = document.getElementById("output-BFS"); document.body.removeChild(bfs);
+	document.getElementById("ShortestPath").style.display = "flex";
 
 	let nodeList = new Array()
-	let firstNode = new Node("<"+inputValue+"-"+inputValue+"-"+true+">")
+	let firstNode = new Node("<3-3-"+true+">")
+	let goalNode = new Node("<0-0-"+false+">")
 	let graph = buildGraph(initialState, firstNode, nodeList)
 
 	let markedNodes = new Array()
 	DFS(graph, firstNode, markedNodes)
-	showOrderDFS(markedNodes)
+	console.log(graph)
+
+	BFS(graph, firstNode, goalNode)
 	//constructTree(graph, firstNode)
 
 }
 
 function showBFS() {
-	set(document.getElementById("input").value)
+	set(3)
 	var title = document.getElementById("title"); document.body.removeChild(title);
 	var context = document.getElementById("context"); document.body.removeChild(context);
-	var form = document.getElementById("form"); document.body.removeChild(form);
 	var buttons = document.getElementById("buttons"); document.body.removeChild(buttons);
 	var dfs = document.getElementById("output-DFS"); document.body.removeChild(dfs);
+	document.getElementById("output-BFS").style.display = "flex";
+	document.getElementById("output-BFS").innerHTML += "BFS : "
+	document.getElementById("ShortestPath").style.display = "flex";
 
 	let nodeList = new Array()
-	let firstNode = new Node("<"+inputValue+"-"+inputValue+"-"+true+">")
+	let firstNode = new Node("<3-3-"+true+">")
+	let goalNode = new Node("<0-0-"+false+">")
 	let graph = buildGraph(initialState, firstNode, nodeList)
 
+	console.log(graph)
+
 	let markedNodes = new Array()
-	BFS(graph, firstNode)
-	showOrderBFS(markedNodes)
+	BFS(graph, firstNode, goalNode)
 }
 
 

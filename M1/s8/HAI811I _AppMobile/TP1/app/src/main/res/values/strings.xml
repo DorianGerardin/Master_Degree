@@ -5,4 +5,6 @@
     <string name="age">Age : </string>
     <string name="skill">Compétences : </string>
     <string name="phone">Téléphone : </string>
+    <string name="message"></string>
+    <string name="call">Appeler</string>
 </resources>

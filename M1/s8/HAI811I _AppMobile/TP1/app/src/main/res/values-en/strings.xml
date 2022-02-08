@@ -6,4 +6,6 @@
     <string name="age">"Age : "</string>
     <string name="skill">"Skills : "</string>
     <string name="phone">"Phone : "</string>
+    <string name="message"></string>
+    <string name="call">Call</string>
 </resources>
