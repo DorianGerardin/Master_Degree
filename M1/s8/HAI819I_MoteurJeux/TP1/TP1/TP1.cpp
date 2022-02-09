@@ -22,6 +22,9 @@ using namespace glm;
 #include <common/objloader.hpp>
 #include <common/vboindexer.hpp>
 
+#define STB_IMAGE_IMPLEMENTATION
+#include "../common/stb_image.h"
+
 void processInput(GLFWwindow *window);
 
 // settings
@@ -52,19 +55,15 @@ void generateGeometryPlane(int size, std::vector<glm::vec3> & indexed_vertices,
     indices.clear();
     triangles.clear();
 
+    std::vector<glm::vec2> texCoord;
+
     for (int i = 0; i < size; ++i)
     {
         for (int j = 0; j < size; ++j)
         {
-            if(j%2 == 0) {
-                glm::vec3 vertex = glm::vec3((float)i-size/2, (float)j-size/2, -20.);
-                indexed_vertices.push_back(vertex);
-            }
-            if(j%2 != 0) {
-                glm::vec3 vertex = glm::vec3((float)i-size/2, (float)j-size/2, -20.);
-                indexed_vertices.push_back(vertex);
-            }
-            
+            float z = (-1 + 1) + (((float) rand()) / (float) RAND_MAX) * (1 - (-1 + 1));   
+            glm::vec3 vertex = glm::vec3((float)i-size/2, z, (float)j-size/2);
+            indexed_vertices.push_back(vertex);
         }
     }
 
@@ -87,6 +86,58 @@ void generateGeometryPlane(int size, std::vector<glm::vec3> & indexed_vertices,
             indices.push_back((i+1)*size+j);
         }
     }
+
+/*    float vertices[] = {
+        indexed_vertices[0][0], indexed_vertices[0][1], indexed_vertices[0][2], 0.0f, 1.0f, 
+        indexed_vertices[size-1][0], indexed_vertices[size-1][1], indexed_vertices[size-1][2], 1.0f, 1.0f, 
+        indexed_vertices[(size-1)*size+size][0], indexed_vertices[(size-1)*size+size][1], indexed_vertices[(size-1)*size+size][2], 0.0f, 0.0f,  
+        indexed_vertices[size*size-1][0], indexed_vertices[size*size-1][1], indexed_vertices[size*size-1][2], 1.0f, 1.0f  
+    };
+
+    unsigned int indices2[indices.size()] = (unsigned int[]*) indices;
+
+     //Textures
+    unsigned int VBO, VAO, EBO;
+    glGenVertexArrays(1, &VAO);
+    glGenBuffers(1, &VBO);
+    glGenBuffers(1, &EBO);
+
+    glBindVertexArray(VAO);
+
+    glBindBuffer(GL_ARRAY_BUFFER, VBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices2), indices2, GL_STATIC_DRAW);
+
+    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 5* sizeof(float), (void*)(3*sizeof(float)));
+    glEnableVertexAttribArray(2);  
+
+    GLuint tex;
+    glGenTextures(1, &tex);
+    glBindTexture(GL_TEXTURE_2D, tex);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);   
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    
+    int width, height, nrChannels;
+    unsigned char *data = stbi_load("texture.png", &width, &height, &nrChannels, 0);
+    if (data)
+    {
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+        glGenerateMipmap(GL_TEXTURE_2D);
+        //texCoord.push_back(glm::vec2((float)i/size, (float)j/size));
+        
+
+        glBindTexture(GL_TEXTURE_2D, tex);
+        glBindVertexArray(tex);
+    }
+    else
+    {
+        std::cout << "Failed to load texture" << std::endl;
+    }
+    stbi_image_free(data);*/
 }
 
 void drawPlane(GLuint vertexbufferPlane, GLuint elementbufferPlane, std::vector<unsigned short> indicesPlane) {

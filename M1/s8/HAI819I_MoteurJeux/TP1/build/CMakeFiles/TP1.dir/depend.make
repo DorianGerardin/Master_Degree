@@ -90,6 +90,7 @@ CMakeFiles/TP1.dir/TP1/TP1.cpp.o: ../external/glm-0.9.7.1/glm/vec3.hpp
 CMakeFiles/TP1.dir/TP1/TP1.cpp.o: ../external/glm-0.9.7.1/glm/vec4.hpp
 CMakeFiles/TP1.dir/TP1/TP1.cpp.o: ../external/glm-0.9.7.1/glm/vector_relational.hpp
 CMakeFiles/TP1.dir/TP1/TP1.cpp.o: ../TP1/TP1.cpp
+CMakeFiles/TP1.dir/TP1/TP1.cpp.o: ../common/stb_image.h
 
 CMakeFiles/TP1.dir/common/controls.cpp.o: ../external/glfw-3.1.2/include/GLFW/glfw3.h
 CMakeFiles/TP1.dir/common/controls.cpp.o: ../external/glm-0.9.7.1/glm/common.hpp
