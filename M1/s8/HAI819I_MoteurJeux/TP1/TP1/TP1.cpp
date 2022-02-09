@@ -62,7 +62,7 @@ void generateGeometryPlane(int size, std::vector<glm::vec3> & indexed_vertices,
         for (int j = 0; j < size; ++j)
         {
             float z = (-1 + 1) + (((float) rand()) / (float) RAND_MAX) * (1 - (-1 + 1));   
-            glm::vec3 vertex = glm::vec3((float)i-size/2, z, (float)j-size/2);
+            glm::vec3 vertex = glm::vec3((float)i-size/2, z, -20 + (float)j-size/2);
             indexed_vertices.push_back(vertex);
         }
     }
