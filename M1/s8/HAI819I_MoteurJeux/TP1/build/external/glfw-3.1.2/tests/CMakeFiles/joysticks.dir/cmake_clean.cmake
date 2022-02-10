@@ -1,7 +1,7 @@
 file(REMOVE_RECURSE
   "CMakeFiles/joysticks.dir/joysticks.c.o"
-  "joysticks.pdb"
   "joysticks"
+  "joysticks.pdb"
 )
 
 # Per-language clean rules from dependency scanning.

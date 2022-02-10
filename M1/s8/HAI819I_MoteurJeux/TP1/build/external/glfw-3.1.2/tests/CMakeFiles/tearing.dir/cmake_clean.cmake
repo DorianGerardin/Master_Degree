@@ -1,8 +1,8 @@
 file(REMOVE_RECURSE
-  "CMakeFiles/tearing.dir/tearing.c.o"
   "CMakeFiles/tearing.dir/__/deps/getopt.c.o"
-  "tearing.pdb"
+  "CMakeFiles/tearing.dir/tearing.c.o"
   "tearing"
+  "tearing.pdb"
 )
 
 # Per-language clean rules from dependency scanning.

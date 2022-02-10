@@ -21,6 +21,7 @@ using namespace glm;
 #include <common/shader.hpp>
 #include <common/objloader.hpp>
 #include <common/vboindexer.hpp>
+#include <common/texture.hpp>
 
 #define STB_IMAGE_IMPLEMENTATION
 #include "../common/stb_image.h"
@@ -43,27 +44,35 @@ float lastFrame = 0.0f;
 //rotation
 float angle = 0.;
 float zoom = 1.;
-float rotation = 0.;
+
+float rotationX = 0.;
+float rotationY = 0.;
+float rotationZ = 0.;
 /*******************************************************************************/
 
 
 void generateGeometryPlane(int size, std::vector<glm::vec3> & indexed_vertices,
                                      std::vector<unsigned short> & indices, 
-                                     std::vector<std::vector<unsigned short>> & triangles) {
+                                     std::vector<std::vector<unsigned short>> & triangles,
+                                     std::vector<float>& uv) {
 
     indexed_vertices.clear();
     indices.clear();
     triangles.clear();
 
-    std::vector<glm::vec2> texCoord;
+    int minZ = -1;
+    int maxZ = 1;
 
     for (int i = 0; i < size; ++i)
     {
         for (int j = 0; j < size; ++j)
         {
-            float z = (-1 + 1) + (((float) rand()) / (float) RAND_MAX) * (1 - (-1 + 1));   
-            glm::vec3 vertex = glm::vec3((float)i-size/2, z, -20 + (float)j-size/2);
+
+            float z = (minZ + maxZ) + (((float) rand()) / (float) RAND_MAX) * (maxZ - (minZ + maxZ));   
+            glm::vec3 vertex = glm::vec3((float)i-size/2, (float)j-size/2, -20+z);
             indexed_vertices.push_back(vertex);
+            uv.push_back((float)i/(size-1));
+            uv.push_back((float)j/(size-1));
         }
     }
 
@@ -86,58 +95,6 @@ void generateGeometryPlane(int size, std::vector<glm::vec3> & indexed_vertices,
             indices.push_back((i+1)*size+j);
         }
     }
-
-/*    float vertices[] = {
-        indexed_vertices[0][0], indexed_vertices[0][1], indexed_vertices[0][2], 0.0f, 1.0f, 
-        indexed_vertices[size-1][0], indexed_vertices[size-1][1], indexed_vertices[size-1][2], 1.0f, 1.0f, 
-        indexed_vertices[(size-1)*size+size][0], indexed_vertices[(size-1)*size+size][1], indexed_vertices[(size-1)*size+size][2], 0.0f, 0.0f,  
-        indexed_vertices[size*size-1][0], indexed_vertices[size*size-1][1], indexed_vertices[size*size-1][2], 1.0f, 1.0f  
-    };
-
-    unsigned int indices2[indices.size()] = (unsigned int[]*) indices;
-
-     //Textures
-    unsigned int VBO, VAO, EBO;
-    glGenVertexArrays(1, &VAO);
-    glGenBuffers(1, &VBO);
-    glGenBuffers(1, &EBO);
-
-    glBindVertexArray(VAO);
-
-    glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices2), indices2, GL_STATIC_DRAW);
-
-    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 5* sizeof(float), (void*)(3*sizeof(float)));
-    glEnableVertexAttribArray(2);  
-
-    GLuint tex;
-    glGenTextures(1, &tex);
-    glBindTexture(GL_TEXTURE_2D, tex);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);   
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    
-    int width, height, nrChannels;
-    unsigned char *data = stbi_load("texture.png", &width, &height, &nrChannels, 0);
-    if (data)
-    {
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
-        glGenerateMipmap(GL_TEXTURE_2D);
-        //texCoord.push_back(glm::vec2((float)i/size, (float)j/size));
-        
-
-        glBindTexture(GL_TEXTURE_2D, tex);
-        glBindVertexArray(tex);
-    }
-    else
-    {
-        std::cout << "Failed to load texture" << std::endl;
-    }
-    stbi_image_free(data);*/
 }
 
 void drawPlane(GLuint vertexbufferPlane, GLuint elementbufferPlane, std::vector<unsigned short> indicesPlane) {
@@ -163,6 +120,21 @@ void drawPlane(GLuint vertexbufferPlane, GLuint elementbufferPlane, std::vector<
                 GL_UNSIGNED_SHORT,   // type
                 (void*)0           // element array buffer offset
                 );
+}
+
+glm::vec3 getBarycentre(std::vector<glm::vec3> vertices) {
+    glm::vec3 barycentre = glm::vec3(0.f, 0.f, 0.f);
+    unsigned int size = vertices.size();
+    for (int i = 0; i < size; ++i)
+    {
+        barycentre[0] += vertices[i][0];
+        barycentre[1] += vertices[i][1];
+        barycentre[2] += vertices[i][2];
+    }
+    barycentre[0] /= size;
+    barycentre[1] /= size;
+    barycentre[2] /= size;
+    return barycentre;
 }
 
 
@@ -230,37 +202,38 @@ int main( void )
 
     /*****************TODO***********************/
     // Get a handle for our "Model View Projection" matrices uniforms
+    glm::mat4 modelMatrix;
+    glm::mat4 viewMatrix;
+    glm::mat4 projectionMatrix;
 
     /****************************************/
     std::vector<unsigned short> indices; //Triangles concaténés dans une liste
     std::vector<std::vector<unsigned short> > triangles;
     std::vector<glm::vec3> indexed_vertices;
-
-    std::vector<unsigned short> indicesPlane; //Triangles concaténés dans une liste
-    std::vector<std::vector<unsigned short> > trianglesPlane;
-    std::vector<glm::vec3> indexed_verticesPlane;
-
-    //Chargement du fichier de maillage
     std::string filename("suzanne.off");
     //loadOFF(filename, indexed_vertices, indices, triangles );
 
-
     // Load it into a VBO
 
-    /*GLuint vertexbuffer;
+   /* GLuint vertexbuffer;
     glGenBuffers(1, &vertexbuffer);
     glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
-    glBufferData(GL_ARRAY_BUFFER, indexed_vertices.size() * sizeof(glm::vec3), &indexed_vertices[0], GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, indexed_vertices.size() * sizeof(glm::vec3), &indexed_vertices[0], GL_STATIC_DRAW);*/
 
-    Generate a buffer for the indices as well
-    GLuint elementbuffer;
+    //Generate a buffer for the indices as well
+    /*GLuint elementbuffer;
     glGenBuffers(1, &elementbuffer);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementbuffer);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned short), &indices[0] , GL_STATIC_DRAW);*/
 
-    generateGeometryPlane(16, indexed_verticesPlane, indicesPlane, trianglesPlane);
 
-    // Pour le plan
+    //Plan
+    std::vector<unsigned short> indicesPlane; //Triangles concaténés dans une liste
+    std::vector<std::vector<unsigned short> > trianglesPlane;
+    std::vector<glm::vec3> indexed_verticesPlane;
+    std::vector<float> uv_surface;
+    generateGeometryPlane(16, indexed_verticesPlane, indicesPlane, trianglesPlane, uv_surface);
+
     GLuint vertexbufferPlane;
     glGenBuffers(1, &vertexbufferPlane);
     glBindBuffer(GL_ARRAY_BUFFER, vertexbufferPlane);
@@ -272,6 +245,16 @@ int main( void )
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementbufferPlane);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, indicesPlane.size() * sizeof(unsigned short), &indicesPlane[0] , GL_STATIC_DRAW);
 
+    //Texture
+    GLuint vertexbuffer;
+    GLuint elementbuffer;
+    GLuint Texture = loadBMP_custom("puech.bmp");
+    GLuint TextureID = glGetUniformLocation(programID,"textureSampler");
+    GLuint uvbuffer;
+    glGenBuffers(1,&uvbuffer);
+    glBindBuffer(GL_ARRAY_BUFFER,uvbuffer);
+    glBufferData(GL_ARRAY_BUFFER,uv_surface.size()*sizeof(float),&uv_surface[0],GL_STATIC_DRAW);
+    
     // Get a handle for our "LightPosition" uniform
     glUseProgram(programID);
     GLuint LightID = glGetUniformLocation(programID, "LightPosition_worldspace");
@@ -304,10 +287,19 @@ int main( void )
 
 
         //Dessiner le plan
-        glm::mat4 modelMatrix = glm::mat4(1.0f);
+
+        glm::vec3 barycentre = getBarycentre(indexed_verticesPlane);
+        glm::vec3 barycentreInverse = glm::vec3(-barycentre[0], -barycentre[1], -barycentre[2]);
+        modelMatrix = glm::mat4(1.0f);
+        modelMatrix = glm::translate(modelMatrix, barycentre);
+        modelMatrix = glm::rotate(modelMatrix, glm::radians(rotationX), glm::vec3(1, 0, 0));
+        modelMatrix = glm::rotate(modelMatrix, glm::radians(rotationY), glm::vec3(0, 1, 0));
+        modelMatrix = glm::rotate(modelMatrix, glm::radians(rotationZ), glm::vec3(0, 0, 1));
+        modelMatrix = glm::translate(modelMatrix, glm::vec3(barycentreInverse));
+       
         glm::mat4 viewMatrix = glm::lookAt(camera_position, camera_position + camera_target, camera_up);
         glm::mat4 projectionMatrix = glm::perspective<float>(glm::radians(45.0f), 4.0f / 3.0f, 0.1f, 100.f);
-
+        
         GLint modelID = glGetUniformLocation(programID, "modelMatrix");
         GLint viewID = glGetUniformLocation(programID, "viewMatrix");
         GLint projectionID = glGetUniformLocation(programID, "projectionMatrix");
@@ -315,12 +307,42 @@ int main( void )
         glUniformMatrix4fv(modelID, 1, GL_FALSE, &modelMatrix[0][0]);
         glUniformMatrix4fv(viewID, 1, GL_FALSE, &viewMatrix[0][0]);
         glUniformMatrix4fv(projectionID, 1, GL_FALSE, &projectionMatrix[0][0]);
+
+        /*glEnableVertexAttribArray(0);
+        glBindBuffer(GL_ARRAY_BUFFER, vertexbufferPlane);
+        glVertexAttribPointer(
+                    0,                  // attribute
+                    3,                  // size
+                    GL_FLOAT,           // type
+                    GL_FALSE,           // normalized?
+                    0,                  // stride
+                    (void*)0            // array buffer offset
+                    );
+
+        // Index buffer
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementbufferPlane);*/
+
+        //Textures
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D,Texture);
+        glUniform1i(TextureID,0);
+        glEnableVertexAttribArray(1);
+        glBindBuffer(GL_ARRAY_BUFFER,uvbuffer);
+        glVertexAttribPointer(1,2,GL_FLOAT,GL_FALSE,0,(void*)0);
+
+        /*glDrawElements(
+                GL_TRIANGLES,      // mode
+                indicesPlane.size(),    // count
+                GL_UNSIGNED_SHORT,   // type
+                (void*)0           // element array buffer offset
+                );*/
+
         drawPlane(vertexbufferPlane, elementbufferPlane, indicesPlane);
 
 
         /*****************TODO***********************/
         // Model matrix : an identity matrix (model will be at the origin) then change
- /*       glm::mat4 modelMatrix = glm::mat4(1.0f);
+ /*     glm::mat4 modelMatrix = glm::mat4(1.0f);
         modelMatrix = glm::scale(modelMatrix, vec3(0.5,0.5,0.5));
         modelMatrix = glm::translate(modelMatrix, glm::vec3(-2, -2.5, 0));
 
@@ -332,7 +354,7 @@ int main( void )
         // Send our transformation to the currently bound shader,
         // in the "Model View Projection" to the shader uniforms
 
-/*        GLint modelID = glGetUniformLocation(programID, "modelMatrix");
+/*      GLint modelID = glGetUniformLocation(programID, "modelMatrix");
         GLint viewID = glGetUniformLocation(programID, "viewMatrix");
         GLint projectionID = glGetUniformLocation(programID, "projectionMatrix");
         glUniformMatrix4fv(modelID, 1, GL_FALSE, &modelMatrix[0][0]);
@@ -353,7 +375,7 @@ int main( void )
                     );*/
 
         // Index buffer
-/*        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementbuffer);
+/*      glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementbuffer);
 
         // Draw the triangles !
         glDrawElements(
@@ -364,7 +386,7 @@ int main( void )
                     );*/
 
         //2eme chaise
-/*        modelMatrix = glm::mat4(1.0f);
+/*       modelMatrix = glm::mat4(1.0f);
         modelMatrix = glm::scale(modelMatrix, vec3(0.5,0.5,0.5));
         modelMatrix = glm::translate(modelMatrix, glm::vec3(2, -2.5, 0));
         modelMatrix = glm::rotate(modelMatrix, glm::radians(180.0f), glm::vec3(0, 1, 0));
@@ -434,15 +456,20 @@ void processInput(GLFWwindow *window)
 
     glm::vec3 camera_right = glm::vec3(1.0f, 0.0f,  0.0f);
 
-    //rotation
-    if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS)
-        rotation += 0.1;
+    //rotationX
+    if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS) rotationX += 3;
+    if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)rotationX -= 3;
 
-    if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS)
-        rotation -= 0.1;
+    //rotationY
+    if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS) rotationY += 3;
+    if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS) rotationY -= 3;
+
+    //rotationZ
+    if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS) rotationZ += 3;
+    if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS) rotationZ -= 3;
 
     //Camera zoom in and out
-    float cameraSpeed = 2.5 * deltaTime;
+    float cameraSpeed = 10 * deltaTime;
     glfwSetScrollCallback(window, scroll_callback);
 
     //TODO add translations

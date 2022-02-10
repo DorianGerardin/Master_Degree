@@ -2,16 +2,16 @@
 
 // Ouput data
 //in vec3 ourColor;
-in vec2 TexCoord;
+in vec2 UV;
 
 //out vec4 Color;
 out vec3 color;
 
-uniform sampler2D tex;
+uniform sampler2D textureSampler;
 
 void main(){
 
         //Color = texture(tex, Texcoord);
-        color =vec3(0.2, 0.2,0.4);
+        color = texture(textureSampler, UV).rgb;
 
 }
