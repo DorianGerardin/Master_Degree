@@ -6,17 +6,18 @@
 #include "image_ppm.h"
 #include "file.h"
 
-void transformeOndelette(OCTET *ImgIn, char* filenameIn, int nH, int nW, 
-                         OCTET *ImgOut, char* filenameOut, int N) {
-  lire_nb_lignes_colonnes_image_pgm(filenameIn, &nH, &nW);
+void transformeOndelette(OCTET *ImgIn, char* cNomImgLue, int nH, int nW, 
+                         OCTET *ImgOut, char* cNomImgEcrite, int N) {
   int nTaille = nH * nW;
   allocation_tableau(ImgIn, OCTET, nTaille);
   allocation_tableau(ImgOut, OCTET, nTaille);
-  lire_image_pgm(filenameIn, ImgIn, nH * nW);
-  int A, B, C, D;
+  lire_image_pgm(cNomImgLue, ImgIn, nH * nW);
+  int A, B, C, D, Q;
+
+  Q = 256;
 
   if (N = 0) {
-    //ecrire_image_pgm(filenameOut, ImgOut,  nH, nW);
+    //ecrire_image_pgm(cNomImgEcrite, ImgOut,  nH*2, nW*2);
   } else {
     for (int i=0; i < nH; i+=2) {
      for (int j=0; j < nW; j+=2)
@@ -26,49 +27,21 @@ void transformeOndelette(OCTET *ImgIn, char* filenameIn, int nH, int nW,
         C = ImgIn[(i+1)*nW+j];
         D = ImgIn[(i+1)*nW+j+1];
 
-        std::cout << "i : " << i << std::endl;
-        std::cout << "j : " << j << std::endl;
+        int BF = (int)floor((A+B+C+D)/4);
+        int MFv = (int)floor((A+B-C-D)/2) + 128;
+        int MFh = (int)floor((A-B+C-D)/2) + 128;
+        int HF = A-B-C+D + 128;
 
-        std::cout << "A : " << A << std::endl;
-        std::cout << "B : " << B << std::endl;
-        std::cout << "C : " << C << std::endl;
-        std::cout << "D : " << D << std::endl;
-
-        int BF = (A+B+C+D)/4;
-        int MFv = (A+B-C-D)/2;
-        int MFh = (A-B+C-D)/2;
-        int HF = A-B-C+D;
-
-        //en haut a gauche
-        if(i >= 0 && i <= 255 && j >= 0 && j <= 255) {
-          ImgOut[(i/2)*nW+(j/2)] = BF;
-          ImgOut[(i/2 + 256)*nW+(j/2 + 256)] = HF;
-          ImgOut[(i/2 + 256)*nW+(j/2)] = MFh;
-          ImgOut[(i/2)*nW+(j/2  + 256)] = MFv;
-        }
-        //en haut a droite
-        if(i >= 0 && i <= 255 && j >= 256 && j <= 511) {
-          ImgOut[(i/2)*nW+(j/2)] = MFv;
-          ImgOut[(i/2 + 256)*nW+(j/2)] = HF;
-          ImgOut[(i/2 + 256)*nW+(j/2 - 256)] = MFh;
-          ImgOut[(i/2)*nW+(j/2 - 256)] = BF;
-        }
-        //en bas a gauche
-        if(i >= 256 && i <= 511 && j >= 0 && j <= 255) {
-          ImgOut[(i/2)*nW+(j/2)] = MFh;
-          ImgOut[(i/2)*nW+(j/2 + 256)] = HF;
-          ImgOut[(i/2 - 256)*nW+(j/2 + 256)] = MFh;
-          ImgOut[(i/2 - 256)*nW+(j/2)] = BF;
-        }
-        //en bas a droite
-        if(i >= 256 && i <= 511 && j >= 256 && j <= 511) {
-          ImgOut[(i/2)*nW+(j/2)] = HF;
-          ImgOut[(i/2)*nW+(j/2 - 256)] = MFh;
-          ImgOut[(i/2 +-256)*nW+(j/2)] = MFv;
-          ImgOut[(i/2 - 256)*nW+(j/2 - 256)] = BF;
-        }
+        ImgOut[(i/2)*nW+(j/2)] = BF;
+        ImgOut[(i/2)*nW+(j/2 + 256)] = MFv / (Q/2);
+        ImgOut[(i/2 + 256)*nW+(j/2)] = MFh / (Q/2);
+        ImgOut[(i/2 + 256)*nW+(j/2 + 256)] = HF / Q;
       }
    }
+   ecrire_image_pgm(cNomImgEcrite, ImgOut,  nH, nW);
+   free(ImgIn);
+   /*OCTET* ImgIn2 = ImgOut;
+   transformeOndelette(ImgIn2, cNomImgEcrite, nH/2, nW/2, ImgOut, cNomImgEcrite, N-1, Ndepart);*/
   }
 }
 
@@ -79,7 +52,7 @@ int main(int argc, char* argv[])
   
   if (argc != 3) 
      {
-       printf("Usage: ImageIn\n"); 
+       printf("Usage: ImageIn ImageOut\n"); 
        exit (1) ;
      }
 
@@ -98,32 +71,8 @@ int main(int argc, char* argv[])
    
    lire_nb_lignes_colonnes_image_pgm(cNomImgLue, &nH, &nW);
    nTaille = nH * nW;
-  
-   allocation_tableau(ImgIn, OCTET, nTaille);
-   lire_image_pgm(cNomImgLue, ImgIn, nH * nW);
-   allocation_tableau(ImgOut, OCTET, nTaille);
 
-   transformeOndelette(ImgIn, cNomImgLue, nH, nW, ImgOut, cNomImgEcrite, 1);
+   transformeOndelette(ImgIn, cNomImgLue, nH, nW, ImgOut, cNomImgEcrite, 2);
 	
-  /*int diff;
-  ImgOut[0] = 0;
-  for (int i=0; i < nH; i++) {
-   for (int j=1; j < nW; j++)
-     {
-     	if(j-1 >= 0) {
-          diff = ( ImgIn[i*nW+j] - ImgIn[i*nW+(j-1)] ) + 128;
-        } else if(i-1 >= 0) {
-        	diff = ( ImgIn[i*nW+j] - ImgIn[(i-1)*nW+j] ) + 128;
-        }
-        if(diff < 0) diff = 0;
-	    if(diff > 255) diff = 255;
-	    ImgOut[i*nW+j] = diff;
-     }
-   }*/
-
-
-
-   ecrire_image_pgm(cNomImgEcrite, ImgOut,  nH, nW);
-   free(ImgIn);
    return 1;
 }
