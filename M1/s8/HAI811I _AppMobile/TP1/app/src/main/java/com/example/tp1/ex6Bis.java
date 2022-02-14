@@ -22,6 +22,7 @@ public class ex6Bis extends AppCompatActivity {
     public void addListenerOnButton(){
         Button buttonCall = findViewById(R.id.call);
         Button buttonRetour = findViewById(R.id.Retour);
+        Button buttonTrains = findViewById(R.id.trains);
         buttonCall.setOnClickListener(view -> {
             Intent intent = new Intent (this, appeler.class);
             startActivity(intent);
@@ -29,6 +30,11 @@ public class ex6Bis extends AppCompatActivity {
 
         buttonRetour.setOnClickListener(view -> {
             this.finish();
+        });
+
+        buttonTrains.setOnClickListener(view -> {
+            Intent intent = new Intent (this, trains.class);
+            startActivity(intent);
         });
     }
 

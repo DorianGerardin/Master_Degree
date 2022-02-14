@@ -17,12 +17,14 @@
             android:text="@string/nom"
             android:layout_height="wrap_content"
             android:layout_width="wrap_content"/>
+
         <EditText
             android:id="@+id/nomEdit"
-            android:layout_span="2"
-            android:hint="Trybe"
+            android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:layout_width="fill_parent"/>
+            android:layout_span="2"
+            android:hint="@string/dupont"
+            android:minHeight="48dp" />
     </LinearLayout>
 
     <LinearLayout
@@ -35,12 +37,14 @@
             android:text="@string/prenom"
             android:layout_height="wrap_content"
             android:layout_width="wrap_content"/>
+
         <EditText
             android:id="@+id/prenomEdit"
-            android:layout_span="2"
-            android:hint="Trysstent"
+            android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:layout_width="fill_parent"/>
+            android:layout_span="2"
+            android:hint="Jean"
+            android:minHeight="48dp" />
     </LinearLayout>
 
     <LinearLayout
@@ -53,13 +57,15 @@
             android:text="@string/age"
             android:layout_height="wrap_content"
             android:layout_width="wrap_content"/>
+
         <EditText
             android:id="@+id/AgeEdit"
-            android:inputType="number"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
             android:layout_span="2"
             android:hint="48"
-            android:layout_height="wrap_content"
-            android:layout_width="fill_parent"/>
+            android:inputType="number"
+            android:minHeight="48dp" />
     </LinearLayout>
 
     <LinearLayout
@@ -72,12 +78,14 @@
             android:text="@string/skill"
             android:layout_height="wrap_content"
             android:layout_width="wrap_content"/>
+
         <EditText
             android:id="@+id/SkillEdit"
-            android:layout_span="2"
-            android:hint="aucune"
+            android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:layout_width="fill_parent"/>
+            android:layout_span="2"
+            android:hint="Comptabilité"
+            android:minHeight="48dp" />
     </LinearLayout>
 
     <LinearLayout
@@ -90,20 +98,22 @@
             android:text="@string/phone"
             android:layout_height="wrap_content"
             android:layout_width="wrap_content"/>
+
         <EditText
             android:id="@+id/phoneEdit"
-            android:inputType="phone"
-            android:hint="XX XX XX XX XX"
-            android:layout_span="2"
+            android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:layout_width="fill_parent"/>
+            android:layout_span="2"
+            android:hint="XX XX XX XX XX"
+            android:inputType="phone"
+            android:minHeight="48dp" />
     </LinearLayout>
 
     <Button
         android:id="@+id/submit"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Valider (non)"
+        android:text="Valider"
         android:layout_marginTop="15dip"
         android:padding="20dip"
         android:layout_gravity="center_horizontal"/>

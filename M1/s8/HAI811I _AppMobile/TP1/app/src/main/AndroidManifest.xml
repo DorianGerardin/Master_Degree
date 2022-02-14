@@ -23,6 +23,12 @@
         <activity android:name=".appeler"
             android:exported="false">
         </activity>
+        <activity android:name=".trains"
+            android:exported="false">
+        </activity>
+        <activity android:name=".horaires"
+            android:exported="false">
+        </activity>
     </application>
 
 </manifest>

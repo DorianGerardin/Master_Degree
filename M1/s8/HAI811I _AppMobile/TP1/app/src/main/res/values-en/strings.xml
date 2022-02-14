@@ -8,4 +8,5 @@
     <string name="phone">"Phone : "</string>
     <string name="message"></string>
     <string name="call">Call</string>
+    <string name="dupont">Dupont</string>
 </resources>

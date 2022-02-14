@@ -7,4 +7,15 @@
     <string name="phone">Téléphone : </string>
     <string name="message"></string>
     <string name="call">Appeler</string>
+    <string name="dupont" translatable="false">Dupont</string>
+    <string-array name="cities">
+        <item>Paris</item>
+        <item>Rome</item>
+        <item>Madrid</item>
+        <item>Bruxelles</item>
+        <item>Londres</item>
+        <item>Berlin</item>
+        <item>Genève</item>
+        <item>Moscou</item>
+    </string-array>
 </resources>
