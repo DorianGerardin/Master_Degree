@@ -1,0 +1,9 @@
+body{
+	display:flex; 
+	justify-content: space-around; 
+	align-items: center; 
+	min-height: 97vh; 
+	font-family: 'Roboto';
+	font-weight: bold;
+	flex-direction: column;
+}
