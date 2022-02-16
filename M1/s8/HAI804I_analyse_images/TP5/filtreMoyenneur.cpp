@@ -52,27 +52,27 @@ int main(int argc, char* argv[])
 	          k++;
 	        }
 	         //voisin haut droit
-	        if(i-1 >= 0 && j+1<= nW) {
+	        if(i-1 >= 0 && j+1< nW) {
 	          moyenne += ImgIn[(i-1)*nW+(j+1)];
 	          k++;
 	        }
 	         //voisin droit
-	        if(j+1 <= nW) {
+	        if(j+1 < nW) {
 	          moyenne += ImgIn[i*nW+(j+1)];
 	          k++;
 	        }
 	        //voisin bas droit
-	        if(i+1 <= nH && j+1 <= nW) {
+	        if(i+1 < nH && j+1 < nW) {
 	          moyenne += ImgIn[(i+1)*nW+(j+1)];
 	          k++;
 	        }
 	        //voisin bas
-	        if(i+1 <= nH) {
+	        if(i+1 < nH) {
 	          moyenne += ImgIn[(i+1)*nW+j];
 	          k++;
 	        }
 	        //voisin bas gauche
-	        if(i+1 <= nH && j-1 >= 0) {
+	        if(i+1 < nH && j-1 >= 0) {
 	          moyenne += ImgIn[(i+1)*nW+(j-1)];
 	          k++;
 	        }
