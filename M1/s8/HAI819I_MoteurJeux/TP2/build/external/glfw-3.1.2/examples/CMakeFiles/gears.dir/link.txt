@@ -1,0 +1,1 @@
+/usr/bin/cc   -rdynamic CMakeFiles/gears.dir/gears.c.o  -o gears  ../src/libglfw3.a -lrt -lm -lX11 -lpthread -lXrandr -lXinerama -lXi -lXxf86vm -lXcursor -lGL -ldl 
