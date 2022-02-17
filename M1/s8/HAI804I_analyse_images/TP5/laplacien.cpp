@@ -39,75 +39,28 @@ int main(int argc, char* argv[])
 
    for(int i = 0; i < nH; i++) {
    		for(int j = 0; j < nH; j++) {
-	    		//voisin haut gauche
-	        if(i-1 >= 0 && j-1 >= 0) {
-	        	int value;
-	        	if(ImgIn[(i-1)*nW+(j-1)] + 128 > 255) value = 255;
-	        	else if(ImgIn[(i-1)*nW+(j-1)] + 128 < 0) value = 0;
-	        	else value = ImgIn[(i-1)*nW+(j-1)] + 128;
-	        	ImgOut[(i-1)*nW+(j-1)] = value;
-	        }
-	         //voisin haut
+   			int minus = 0;
+	        //voisin haut
 	        if(i-1 >= 0) {
 	          int value;
-	          if(ImgIn[(i-1)*nW+j] -1 + 128 > 255) value = 255;
-	        	else if(ImgIn[(i-1)*nW+j] -1 + 128 < 0) value = 0;
-	        	else value = ImgIn[(i-1)*nW+j] -1 + 128;
-	        	ImgOut[(i-1)*nW+(j-1)] = value;
+	          minus += ImgIn[(i-1)*nW+j];
 	        }
-	         //voisin haut droit
-	        if(i-1 >= 0 && j+1< nW) {
-	          int value;
-	          if(ImgIn[(i-1)*nW+(j+1)] + 128 > 255) value = 255;
-	        	else if(ImgIn[(i-1)*nW+(j+1)] + 128 < 0) value = 0;
-	        	else value = ImgIn[(i-1)*nW+(j+1)] + 128;
-	        	ImgOut[(i-1)*nW+(j+1)] = value;
-	        }
-	         //voisin droit
+	        //voisin droit
 	        if(j+1 < nW) {
-	          int value;
-	          if(ImgIn[i*nW+(j+1)] -1 + 128 > 255) value = 255;
-	        	else if(ImgIn[i*nW+(j+1)] -1 + 128 < 0) value = 0;
-	        	else value = ImgIn[i*nW+(j+1)] -1 + 128;
-	        	ImgOut[i*nW+(j+1)] = value;
-	        }
-	        //voisin bas droit
-	        if(i+1 < nH && j+1 < nW) {
-	          int value;
-	          if(ImgIn[(i+1)*nW+(j+1)] + 128 > 255) value = 255;
-	        	else if(ImgIn[(i+1)*nW+(j+1)] + 128 < 0) value = 0;
-	        	else value = ImgIn[(i+1)*nW+(j+1)] + 128;
-	        	ImgOut[(i+1)*nW+(j+1)] = value;
+	        	minus += ImgIn[i*nW+(j+1)]; 
 	        }
 	        //voisin bas
 	        if(i+1 < nH) {
-	          int value;
-	          if(ImgIn[(i+1)*nW+j] -1 + 128 > 255) value = 255;
-	        	else if(ImgIn[(i+1)*nW+j] -1 + 128 < 0) value = 0;
-	        	else value = ImgIn[(i+1)*nW+j] -1 + 128;
-	        	ImgOut[(i+1)*nW+j] = value;
+	          minus += ImgIn[(i+1)*nW+j];
 	        }
-	        //voisin bas gauche
-	        if(i+1 < nH && j-1 >= 0) {
-	          int value;
-	          if(ImgIn[(i+1)*nW+(j-1)] + 128 > 255) value = 255;
-	        	else if(ImgIn[(i+1)*nW+(j-1)] + 128 < 0) value = 0;
-	        	else value = ImgIn[(i+1)*nW+(j-1)] + 128;
-	        	ImgOut[(i+1)*nW+(j-1)] = value;
-	        }
-	          //voisin gauche
+	        //voisin gauche
 	        if(j-1 >= 0) {
-	          int value;
-	          if(ImgIn[i*nW+(j-1)] -1 + 128 > 255) value = 255;
-	        	else if(ImgIn[i*nW+(j-1)] -1 + 128 < 0) value = 0;
-	        	else value = ImgIn[i*nW+(j-1)] -1 + 128;
-	        	ImgOut[i*nW+(j-1)] = value;
+	          minus += ImgIn[i*nW+(j-1)];
 	  			}
-	  			int value;
-          if(ImgIn[i*nW+(j-1)] + 4 + 128 > 255) value = 255;
-        	else if(ImgIn[i*nW+(j-1)] + 4 + 128 < 0) value = 0;
-        	else value = ImgIn[i*nW+(j-1)] + 4 + 128;
-        	ImgOut[i*nW+j] = value;
+	  			int value = ImgIn[i*nW+j] * 4 - minus + 128;
+	  			if(value > 255) ImgOut[i*nW+j] = 255;
+	  			else if (value < 0) ImgOut[i*nW+j] = 0;
+        	else ImgOut[i*nW+j] = value;
 	  	}
 	}
 
