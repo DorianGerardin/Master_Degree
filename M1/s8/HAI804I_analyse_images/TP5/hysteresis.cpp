@@ -30,59 +30,64 @@ int main(int argc, char* argv[])
    sscanf (argv[3],"%d",&SH);
    sscanf (argv[4],"%d",&SB);
 
-   OCTET *ImgIn, *ImgOut;
+   OCTET *ImgIn, *ImgHyst, *ImgOut;
    
    lire_nb_lignes_colonnes_image_pgm(cNomImgLue, &nH, &nW);
    nTaille = nH * nW;
   
    allocation_tableau(ImgIn, OCTET, nTaille);
    lire_image_pgm(cNomImgLue, ImgIn, nH * nW);
+   allocation_tableau(ImgHyst, OCTET, nTaille);
    allocation_tableau(ImgOut, OCTET, nTaille);
 
    for(int i = 0; i < nH; i++) {
-   		for(int j = 0; j < nH; j++) {
-    		if(ImgIn[i*nW+j] > SH) ImgIn[i*nW+j] = 255;
-    		else if(ImgIn[i*nW+j] < SH && ImgIn[i*nW+j] > SB) {
+   		for(int j = 0; j < nW; j++) {
+   				if(ImgIn[i*nW+j] > SH) ImgHyst[i*nW+j] = 255;
+   				else ImgHyst[i*nW+j] = ImgIn[i*nW+j];
+   		}
+   	}
+
+   for(int i = 0; i < nH; i++) {
+   		for(int j = 0; j < nW; j++) {
+    		if(ImgHyst[i*nW+j] > SB) {
 	    		//voisin haut gauche
-		        if(i-1 >= 0 && j-1 >= 0) {
-		            if(ImgIn[(i-1)*nW+(j-1)] > SH) ImgOut[i*nW+j] = 255;
+		        if(i-1 >= 0 && j-1 >= 0 && ImgHyst[(i-1)*nW+(j-1)] == 255) {
+		          ImgOut[i*nW+j] = 255;
 		        }
-		         //voisin haut
-		        if(i-1 >= 0) {
-		            if(ImgIn[(i-1)*nW+j] > SH) ImgOut[i*nW+j] = 255;
+		        //voisin haut
+		        else if(i-1 >= 0 && ImgHyst[(i-1)*nW+j] == 255) {
+		          ImgOut[i*nW+j] = 255;
 		        }
 		         //voisin haut droit
-		        if(i-1 >= 0 && j+1<= nW) {
-		            if(ImgIn[(i-1)*nW+(j+1)] > SH) ImgOut[i*nW+j] = 255;
+		        else if(i-1 >= 0 && j+1 < nW && ImgHyst[(i-1)*nW+(j+1)] == 255) {
+		          ImgOut[i*nW+j] = 255;
 		        }
 		         //voisin droit
-		        if(j+1 <= nW) {
-		            if(ImgIn[i*nW+(j+1)] > SH) ImgOut[i*nW+j] = 255;
+		        else if(j+1 < nW && ImgHyst[i*nW+(j+1)] == 255) {
+		          ImgOut[i*nW+j] = 255;
 		        }
 		        //voisin bas droit
-		        if(i+1 <= nH && j+1 <= nW) {
-		            if(ImgIn[(i+1)*nW+(j+1)] > SH) ImgOut[i*nW+j] = 255;
+		        else if(i+1 < nH && j+1 < nW && ImgHyst[(i+1)*nW+(j+1)] == 255) {
+		          ImgOut[i*nW+j] = 255;
 		        }
 		        //voisin bas
-		        if(i+1 <= nH) {
-		            if(ImgIn[(i+1)*nW+j] > SH) ImgOut[i*nW+j] = 255;
+		        else if(i+1 < nH && ImgHyst[(i+1)*nW+j] == 255) {
+		          ImgOut[i*nW+j] = 255;
 		        }
 		        //voisin bas gauche
-		        if(i+1 <= nH && j-1 >= 0) {
-		            if(ImgIn[(i+1)*nW+(j-1)] > SH) ImgOut[i*nW+j] = 255;
+		        else if(i+1 < nH && j-1 >= 0 && ImgHyst[(i+1)*nW+(j-1)] == 255) {
+		          ImgOut[i*nW+j] = 255;
 		        }
 		          //voisin gauche
-		        if(j-1 >= 0) {
-		            if(ImgIn[i*nW+(j-1)] > SH) ImgOut[i*nW+j] = 255;
-		    	}
-		    	else ImgOut[i*nW+j] = 0;
+		        else if(j-1 >= 0 && ImgHyst[i*nW+(j-1)] == 255) {
+		          ImgOut[i*nW+j] = 255;
+		    		}
+		    		else ImgOut[i*nW+j] = 0;
 	  		}
 	  		else ImgOut[i*nW+j] = 0;
 	  	}
 	}
 
-
-  
    ecrire_image_pgm(cNomImgEcrite, ImgOut,  nH, nW);
    free(ImgIn);
    return 1;

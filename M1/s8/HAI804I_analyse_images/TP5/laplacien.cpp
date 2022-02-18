@@ -42,21 +42,21 @@ int main(int argc, char* argv[])
    			int minus = 0;
 	        //voisin haut
 	        if(i-1 >= 0) {
-	          int value;
 	          minus += ImgIn[(i-1)*nW+j];
-	        }
+	        } else minus += ImgIn[i*nW+j];
 	        //voisin droit
 	        if(j+1 < nW) {
 	        	minus += ImgIn[i*nW+(j+1)]; 
-	        }
+	        } else minus += ImgIn[i*nW+j];
 	        //voisin bas
 	        if(i+1 < nH) {
 	          minus += ImgIn[(i+1)*nW+j];
-	        }
+	        } else minus += ImgIn[i*nW+j];
 	        //voisin gauche
 	        if(j-1 >= 0) {
 	          minus += ImgIn[i*nW+(j-1)];
-	  			}
+	  			} else minus += ImgIn[i*nW+j];
+
 	  			int value = ImgIn[i*nW+j] * 4 - minus + 128;
 	  			if(value > 255) ImgOut[i*nW+j] = 255;
 	  			else if (value < 0) ImgOut[i*nW+j] = 0;
