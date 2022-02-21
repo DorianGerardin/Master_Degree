@@ -48,6 +48,13 @@ float zoom = 1.;
 float rotationX = 0.;
 float rotationY = 0.;
 float rotationZ = 0.;
+float rotationNoStop = 0.;
+
+int planeSize = 16;
+std::vector<unsigned short> indicesPlane; //Triangles concaténés dans une liste
+std::vector<std::vector<unsigned short>> trianglesPlane;
+std::vector<glm::vec3> indexed_verticesPlane;
+std::vector<float> uv_surface;
 /*******************************************************************************/
 
 
@@ -59,9 +66,12 @@ void generateGeometryPlane(int size, std::vector<glm::vec3> & indexed_vertices,
     indexed_vertices.clear();
     indices.clear();
     triangles.clear();
+    uv.clear();
 
     int minZ = -1;
     int maxZ = 1;
+
+    std::cout << "planeSize: " << size << std::endl;
 
     for (int i = 0; i < size; ++i)
     {
@@ -71,8 +81,8 @@ void generateGeometryPlane(int size, std::vector<glm::vec3> & indexed_vertices,
             float z = (minZ + maxZ) + (((float) rand()) / (float) RAND_MAX) * (maxZ - (minZ + maxZ));   
             glm::vec3 vertex = glm::vec3((float)i-size/2, (float)j-size/2, 0);
             indexed_vertices.push_back(vertex);
-            uv.push_back((float)i/(size-1));
             uv.push_back((float)j/(size-1));
+            uv.push_back((float)i/(size-1));
         }
     }
 
@@ -226,13 +236,8 @@ int main( void )
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementbuffer);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned short), &indices[0] , GL_STATIC_DRAW);*/
 
-
     //Plan
-    std::vector<unsigned short> indicesPlane; //Triangles concaténés dans une liste
-    std::vector<std::vector<unsigned short> > trianglesPlane;
-    std::vector<glm::vec3> indexed_verticesPlane;
-    std::vector<float> uv_surface;
-    generateGeometryPlane(16, indexed_verticesPlane, indicesPlane, trianglesPlane, uv_surface);
+    generateGeometryPlane(planeSize, indexed_verticesPlane, indicesPlane, trianglesPlane, uv_surface);
 
     GLuint vertexbufferPlane;
     glGenBuffers(1, &vertexbufferPlane);
@@ -248,8 +253,17 @@ int main( void )
     //Texture
     GLuint vertexbuffer;
     GLuint elementbuffer;
-    GLuint Texture = loadBMP_custom("textures/Heightmap_Mountain.bmp");
-    GLuint TextureID = glGetUniformLocation(programID,"hmapSampler");
+
+    GLuint TextureHmap = loadBMP_custom("textures/Heightmap_Mountain.bmp");
+    GLuint TextureGrass = loadBMP_custom("textures/grass.bmp");
+    GLuint TextureRock = loadBMP_custom("textures/rock.bmp");
+    GLuint TextureSnow = loadBMP_custom("textures/snowrocks.bmp");
+
+    GLuint TextureIDHmap = glGetUniformLocation(programID,"hmapSampler");
+    GLuint TextureIDGrass = glGetUniformLocation(programID,"grassSampler");
+    GLuint TextureIDRock = glGetUniformLocation(programID,"rockSampler");
+    GLuint TextureIDSnow = glGetUniformLocation(programID,"snowSampler");
+
     GLuint uvbuffer;
     glGenBuffers(1,&uvbuffer);
     glBindBuffer(GL_ARRAY_BUFFER,uvbuffer);
@@ -294,11 +308,14 @@ int main( void )
        
         glm::mat4 viewMatrix = glm::lookAt(camera_position, camera_position + camera_target, camera_up);
 
+        viewMatrix = glm::rotate(viewMatrix, glm::radians(135.0f), glm::vec3(1, 0, 0));
+        rotationNoStop += 0.05;
+        viewMatrix = glm::rotate(viewMatrix, glm::radians(rotationNoStop), glm::vec3(0, 0, 1));
+
         viewMatrix = glm::rotate(viewMatrix, glm::radians(rotationX), glm::vec3(1, 0, 0));
         viewMatrix = glm::rotate(viewMatrix, glm::radians(rotationY), glm::vec3(0, 1, 0));
         viewMatrix = glm::rotate(viewMatrix, glm::radians(rotationZ), glm::vec3(0, 0, 1));
  
-
         glm::mat4 projectionMatrix = glm::perspective<float>(glm::radians(45.0f), 4.0f / 3.0f, 0.1f, 100.f);
         
         GLint modelID = glGetUniformLocation(programID, "modelMatrix");
@@ -325,8 +342,21 @@ int main( void )
 
         //Textures
         glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D,Texture);
-        glUniform1i(TextureID,0);
+        glBindTexture(GL_TEXTURE_2D,TextureHmap);
+        glUniform1i(TextureIDHmap,0);
+
+        glActiveTexture(GL_TEXTURE1);
+        glBindTexture(GL_TEXTURE_2D,TextureGrass);
+        glUniform1i(TextureIDGrass,1);
+
+        glActiveTexture(GL_TEXTURE2);
+        glBindTexture(GL_TEXTURE_2D,TextureRock);
+        glUniform1i(TextureIDRock,2);
+
+        glActiveTexture(GL_TEXTURE3);
+        glBindTexture(GL_TEXTURE_2D,TextureSnow);
+        glUniform1i(TextureIDSnow,3);
+
         glEnableVertexAttribArray(1);
         glBindBuffer(GL_ARRAY_BUFFER,uvbuffer);
         glVertexAttribPointer(1,2,GL_FLOAT,GL_FALSE,0,(void*)0);
@@ -458,16 +488,16 @@ void processInput(GLFWwindow *window)
     glm::vec3 camera_right = glm::vec3(1.0f, 0.0f,  0.0f);
 
     //rotationX
-    if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS) rotationX += 3;
-    if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)rotationX -= 3;
+    if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS) rotationX += 0.1;
+    if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)rotationX -= 0.1;
 
     //rotationY
-    if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS) rotationY += 3;
-    if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS) rotationY -= 3;
+    if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS) rotationY += 0.1;
+    if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS) rotationY -= 0.1;
 
     //rotationZ
-    if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS) rotationZ += 3;
-    if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS) rotationZ -= 3;
+    if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS) rotationZ += 0.1;
+    if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS) rotationZ -= 0.1;
 
     //Camera zoom in and out
     float cameraSpeed = 10 * deltaTime;
@@ -482,6 +512,18 @@ void processInput(GLFWwindow *window)
         camera_position += glm::normalize(glm::cross(camera_right, camera_target)) * cameraSpeed;
     if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
         camera_position -= glm::normalize(glm::cross(camera_right, camera_target)) * cameraSpeed;
+
+    //resolution
+    if (glfwGetKey(window, GLFW_KEY_KP_ADD) == GLFW_PRESS) {
+        planeSize++;
+        generateGeometryPlane(planeSize, indexed_verticesPlane, indicesPlane, trianglesPlane, uv_surface);
+    }
+    if (glfwGetKey(window, GLFW_KEY_KP_SUBTRACT) == GLFW_PRESS) {
+        if(planeSize > 2) {
+            planeSize--;
+            generateGeometryPlane(planeSize, indexed_verticesPlane, indicesPlane, trianglesPlane, uv_surface);
+        }
+    }
 }
 
 // glfw: whenever the window size changed (by OS or user resize) this callback function executes

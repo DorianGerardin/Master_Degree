@@ -12,7 +12,11 @@ layout(location = 1) in vec2 vertexUV;
 uniform mat4 modelMatrix;
 uniform mat4 viewMatrix;
 uniform mat4 projectionMatrix;
+
 uniform sampler2D hmapSampler;
+uniform sampler2D grassSampler;
+uniform sampler2D rockSampler;
+uniform sampler2D snowSampler;
 
 out vec2 UV;
 out float zPos;
@@ -21,10 +25,11 @@ out float zPos;
 void main(){
 
         vec4 position = vec4(vertices_position_modelspace,1);
-        position.z = -5 * texture(hmapSampler, vertexUV).r;
+        position.z = 5*texture(hmapSampler, vertexUV).r;
 
         gl_Position = projectionMatrix * viewMatrix * modelMatrix * position;
         // TODO : Output position of the vertex, in clip space : MVP * position
         UV = vertexUV;
+        zPos = position.z;
 }
 

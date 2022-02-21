@@ -3,20 +3,27 @@
 // Ouput data
 //in vec3 ourColor;
 in vec2 UV;
-in vec4 position;
+in float zPos;
 
 //out vec4 Color;
 out vec3 color;
 
 uniform sampler2D hmapSampler;
-uniform sampler2D grassTextureSampler;
-uniform sampler2D rockTextureSampler;
-uniform sampler2D snowTextureSampler;
+uniform sampler2D grassSampler;
+uniform sampler2D rockSampler;
+uniform sampler2D snowSampler;
 
 
 void main(){
 
-        //Color = texture(tex, Texcoord);
-        color = texture(hmapSampler, UV).rgb;
+        // grass
+        if(zPos > 4) {
+                color = texture(grassSampler, UV).rgb;
+        } else if(zPos > 2.5 && zPos < 4) {
+                color = texture(rockSampler, UV).rgb;
+        } else {
+                color = texture(snowSampler, UV).rgb;
+        }
+        //color = texture(hmapSampler, UV).rgb;
 
 }

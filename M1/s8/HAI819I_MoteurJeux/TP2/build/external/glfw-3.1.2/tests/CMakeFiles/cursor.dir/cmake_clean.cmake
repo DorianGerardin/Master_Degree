@@ -1,7 +1,7 @@
 file(REMOVE_RECURSE
   "CMakeFiles/cursor.dir/cursor.c.o"
-  "cursor"
   "cursor.pdb"
+  "cursor"
 )
 
 # Per-language clean rules from dependency scanning.
