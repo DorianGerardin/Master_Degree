@@ -10,7 +10,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.TP2">
         <activity
-            android:name=".listCapteurs"
+            android:name=".accelerometre"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
