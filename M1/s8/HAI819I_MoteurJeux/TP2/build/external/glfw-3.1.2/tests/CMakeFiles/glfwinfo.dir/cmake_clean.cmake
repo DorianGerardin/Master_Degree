@@ -1,8 +1,8 @@
 file(REMOVE_RECURSE
-  "CMakeFiles/glfwinfo.dir/glfwinfo.c.o"
   "CMakeFiles/glfwinfo.dir/__/deps/getopt.c.o"
-  "glfwinfo.pdb"
+  "CMakeFiles/glfwinfo.dir/glfwinfo.c.o"
   "glfwinfo"
+  "glfwinfo.pdb"
 )
 
 # Per-language clean rules from dependency scanning.

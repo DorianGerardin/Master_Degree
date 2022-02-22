@@ -1,7 +1,7 @@
 file(REMOVE_RECURSE
   "CMakeFiles/reopen.dir/reopen.c.o"
-  "reopen.pdb"
   "reopen"
+  "reopen.pdb"
 )
 
 # Per-language clean rules from dependency scanning.
