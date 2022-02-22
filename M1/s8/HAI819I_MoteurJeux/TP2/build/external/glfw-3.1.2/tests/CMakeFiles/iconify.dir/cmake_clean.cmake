@@ -1,8 +1,8 @@
 file(REMOVE_RECURSE
-  "CMakeFiles/iconify.dir/__/deps/getopt.c.o"
   "CMakeFiles/iconify.dir/iconify.c.o"
-  "iconify"
+  "CMakeFiles/iconify.dir/__/deps/getopt.c.o"
   "iconify.pdb"
+  "iconify"
 )
 
 # Per-language clean rules from dependency scanning.

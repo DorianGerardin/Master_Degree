@@ -308,8 +308,8 @@ int main( void )
        
         glm::mat4 viewMatrix = glm::lookAt(camera_position, camera_position + camera_target, camera_up);
 
-        viewMatrix = glm::rotate(viewMatrix, glm::radians(135.0f), glm::vec3(1, 0, 0));
-        rotationNoStop += 0.05;
+        /*viewMatrix = glm::rotate(viewMatrix, glm::radians(135.0f), glm::vec3(1, 0, 0));
+        rotationNoStop += 0.05;*/
         viewMatrix = glm::rotate(viewMatrix, glm::radians(rotationNoStop), glm::vec3(0, 0, 1));
 
         viewMatrix = glm::rotate(viewMatrix, glm::radians(rotationX), glm::vec3(1, 0, 0));

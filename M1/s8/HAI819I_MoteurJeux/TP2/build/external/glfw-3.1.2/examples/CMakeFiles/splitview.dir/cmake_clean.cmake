@@ -1,7 +1,7 @@
 file(REMOVE_RECURSE
   "CMakeFiles/splitview.dir/splitview.c.o"
-  "splitview"
   "splitview.pdb"
+  "splitview"
 )
 
 # Per-language clean rules from dependency scanning.

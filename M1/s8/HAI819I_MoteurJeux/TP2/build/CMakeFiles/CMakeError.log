@@ -1,58 +1,55 @@
-Performing C SOURCE FILE Test CMAKE_HAVE_LIBC_PTHREAD failed with the following output:
-Change Dir: /home/e20180001518/Master/M1/s8/HAI819I_MoteurJeux/TP2/build/CMakeFiles/CMakeTmp
+Determining if the pthread_create exist failed with the following output:
+Change Dir: /home/dorian/Master/M1/s8/HAI819I_MoteurJeux/TP2/build/CMakeFiles/CMakeTmp
 
-Run Build Command(s):/usr/bin/make cmTC_cb9cb/fast && /usr/bin/make -f CMakeFiles/cmTC_cb9cb.dir/build.make CMakeFiles/cmTC_cb9cb.dir/build
-make[1] : on entre dans le répertoire « /home/e20180001518/Master/M1/s8/HAI819I_MoteurJeux/TP2/build/CMakeFiles/CMakeTmp »
-Building C object CMakeFiles/cmTC_cb9cb.dir/src.c.o
-/usr/bin/cc   -DCMAKE_HAVE_LIBC_PTHREAD   -o CMakeFiles/cmTC_cb9cb.dir/src.c.o   -c /home/e20180001518/Master/M1/s8/HAI819I_MoteurJeux/TP2/build/CMakeFiles/CMakeTmp/src.c
-Linking C executable cmTC_cb9cb
-/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_cb9cb.dir/link.txt --verbose=1
-/usr/bin/cc  -DCMAKE_HAVE_LIBC_PTHREAD    -rdynamic CMakeFiles/cmTC_cb9cb.dir/src.c.o  -o cmTC_cb9cb 
-/usr/bin/ld : CMakeFiles/cmTC_cb9cb.dir/src.c.o : dans la fonction « main » :
-src.c:(.text+0x46) : référence indéfinie vers « pthread_create »
-/usr/bin/ld : src.c:(.text+0x52) : référence indéfinie vers « pthread_detach »
-/usr/bin/ld : src.c:(.text+0x63) : référence indéfinie vers « pthread_join »
+Run Build Command:"/usr/bin/make" "cmTC_82cf8/fast"
+/usr/bin/make -f CMakeFiles/cmTC_82cf8.dir/build.make CMakeFiles/cmTC_82cf8.dir/build
+make[1] : on entre dans le répertoire « /home/dorian/Master/M1/s8/HAI819I_MoteurJeux/TP2/build/CMakeFiles/CMakeTmp »
+Building C object CMakeFiles/cmTC_82cf8.dir/CheckSymbolExists.c.o
+/usr/bin/cc    -o CMakeFiles/cmTC_82cf8.dir/CheckSymbolExists.c.o   -c /home/dorian/Master/M1/s8/HAI819I_MoteurJeux/TP2/build/CMakeFiles/CMakeTmp/CheckSymbolExists.c
+Linking C executable cmTC_82cf8
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_82cf8.dir/link.txt --verbose=1
+/usr/bin/cc      -rdynamic CMakeFiles/cmTC_82cf8.dir/CheckSymbolExists.c.o  -o cmTC_82cf8 
+CMakeFiles/cmTC_82cf8.dir/CheckSymbolExists.c.o : Dans la fonction « main » :
+CheckSymbolExists.c:(.text+0x1b) : référence indéfinie vers « pthread_create »
 collect2: error: ld returned 1 exit status
-make[1]: *** [CMakeFiles/cmTC_cb9cb.dir/build.make:87 : cmTC_cb9cb] Erreur 1
-make[1] : on quitte le répertoire « /home/e20180001518/Master/M1/s8/HAI819I_MoteurJeux/TP2/build/CMakeFiles/CMakeTmp »
-make: *** [Makefile:121 : cmTC_cb9cb/fast] Erreur 2
+CMakeFiles/cmTC_82cf8.dir/build.make:97: recipe for target 'cmTC_82cf8' failed
+make[1]: *** [cmTC_82cf8] Error 1
+make[1] : on quitte le répertoire « /home/dorian/Master/M1/s8/HAI819I_MoteurJeux/TP2/build/CMakeFiles/CMakeTmp »
+Makefile:126: recipe for target 'cmTC_82cf8/fast' failed
+make: *** [cmTC_82cf8/fast] Error 2
 
-
-Source file was:
+File /home/dorian/Master/M1/s8/HAI819I_MoteurJeux/TP2/build/CMakeFiles/CMakeTmp/CheckSymbolExists.c:
+/* */
 #include <pthread.h>
 
-void* test_func(void* data)
+int main(int argc, char** argv)
 {
-  return data;
-}
-
-int main(void)
-{
-  pthread_t thread;
-  pthread_create(&thread, NULL, test_func, NULL);
-  pthread_detach(thread);
-  pthread_join(thread, NULL);
-  pthread_atfork(NULL, NULL, NULL);
-  pthread_exit(NULL);
-
+  (void)argv;
+#ifndef pthread_create
+  return ((int*)(&pthread_create))[argc];
+#else
+  (void)argc;
   return 0;
+#endif
 }
 
 Determining if the function pthread_create exists in the pthreads failed with the following output:
-Change Dir: /home/e20180001518/Master/M1/s8/HAI819I_MoteurJeux/TP2/build/CMakeFiles/CMakeTmp
+Change Dir: /home/dorian/Master/M1/s8/HAI819I_MoteurJeux/TP2/build/CMakeFiles/CMakeTmp
 
-Run Build Command(s):/usr/bin/make cmTC_731c2/fast && /usr/bin/make -f CMakeFiles/cmTC_731c2.dir/build.make CMakeFiles/cmTC_731c2.dir/build
-make[1] : on entre dans le répertoire « /home/e20180001518/Master/M1/s8/HAI819I_MoteurJeux/TP2/build/CMakeFiles/CMakeTmp »
-Building C object CMakeFiles/cmTC_731c2.dir/CheckFunctionExists.c.o
-/usr/bin/cc   -DCHECK_FUNCTION_EXISTS=pthread_create   -o CMakeFiles/cmTC_731c2.dir/CheckFunctionExists.c.o   -c /usr/share/cmake-3.16/Modules/CheckFunctionExists.c
-Linking C executable cmTC_731c2
-/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_731c2.dir/link.txt --verbose=1
-/usr/bin/cc  -DCHECK_FUNCTION_EXISTS=pthread_create    -rdynamic CMakeFiles/cmTC_731c2.dir/CheckFunctionExists.c.o  -o cmTC_731c2  -lpthreads 
+Run Build Command:"/usr/bin/make" "cmTC_b4a46/fast"
+/usr/bin/make -f CMakeFiles/cmTC_b4a46.dir/build.make CMakeFiles/cmTC_b4a46.dir/build
+make[1] : on entre dans le répertoire « /home/dorian/Master/M1/s8/HAI819I_MoteurJeux/TP2/build/CMakeFiles/CMakeTmp »
+Building C object CMakeFiles/cmTC_b4a46.dir/CheckFunctionExists.c.o
+/usr/bin/cc   -DCHECK_FUNCTION_EXISTS=pthread_create   -o CMakeFiles/cmTC_b4a46.dir/CheckFunctionExists.c.o   -c /usr/share/cmake-3.10/Modules/CheckFunctionExists.c
+Linking C executable cmTC_b4a46
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_b4a46.dir/link.txt --verbose=1
+/usr/bin/cc  -DCHECK_FUNCTION_EXISTS=pthread_create    -rdynamic CMakeFiles/cmTC_b4a46.dir/CheckFunctionExists.c.o  -o cmTC_b4a46 -lpthreads 
 /usr/bin/ld : ne peut trouver -lpthreads
 collect2: error: ld returned 1 exit status
-make[1]: *** [CMakeFiles/cmTC_731c2.dir/build.make:87 : cmTC_731c2] Erreur 1
-make[1] : on quitte le répertoire « /home/e20180001518/Master/M1/s8/HAI819I_MoteurJeux/TP2/build/CMakeFiles/CMakeTmp »
-make: *** [Makefile:121 : cmTC_731c2/fast] Erreur 2
-
+CMakeFiles/cmTC_b4a46.dir/build.make:97: recipe for target 'cmTC_b4a46' failed
+make[1]: *** [cmTC_b4a46] Error 1
+make[1] : on quitte le répertoire « /home/dorian/Master/M1/s8/HAI819I_MoteurJeux/TP2/build/CMakeFiles/CMakeTmp »
+Makefile:126: recipe for target 'cmTC_b4a46/fast' failed
+make: *** [cmTC_b4a46/fast] Error 2
 
 
