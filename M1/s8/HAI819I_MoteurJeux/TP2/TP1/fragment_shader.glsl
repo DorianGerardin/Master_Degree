@@ -16,7 +16,7 @@ uniform sampler2D snowSampler;
 
 void main(){
 
-        if (zPos < 1){
+        /* if (zPos < 1){
                 color = texture( snowSampler, UV ).rgb;
         }
         else if (zPos < 2.5){
@@ -29,6 +29,7 @@ void main(){
         }
         else  {
                 color = texture( grassSampler, UV ).rgb;
-        }
+        } */
+        color = texture( hmapSampler, UV ).rgb;
 
 }

@@ -88,7 +88,7 @@ GL/glext.h
 GL/glu.h
 -
 
-/home/dorian/Master/M1/s8/HAI819I_MoteurJeux/TP2/external/glfw-3.1.2/deps/glad.c
+/home/e20180001518/Master/M1/s8/HAI819I_MoteurJeux/TP2/external/glfw-3.1.2/deps/glad.c
 stdio.h
 -
 string.h
@@ -96,7 +96,7 @@ string.h
 glad/glad.h
 -
 
-/home/dorian/Master/M1/s8/HAI819I_MoteurJeux/TP2/external/glfw-3.1.2/examples/heightmap.c
+/home/e20180001518/Master/M1/s8/HAI819I_MoteurJeux/TP2/external/glfw-3.1.2/examples/heightmap.c
 stdlib.h
 -
 stdio.h
