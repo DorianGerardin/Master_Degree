@@ -1,7 +1,7 @@
 file(REMOVE_RECURSE
   "CMakeFiles/wave.dir/wave.c.o"
-  "wave"
   "wave.pdb"
+  "wave"
 )
 
 # Per-language clean rules from dependency scanning.

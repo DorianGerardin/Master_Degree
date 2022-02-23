@@ -54,8 +54,8 @@ add_definitions(
 )
 
 # TP1
-add_executable(TP1
-        TP1/TP1.cpp
+add_executable(TP2
+        TP2/TP2.cpp
 	common/shader.cpp
 	common/shader.hpp
 	common/controls.cpp
@@ -67,15 +67,15 @@ add_executable(TP1
 	common/vboindexer.cpp
 	common/vboindexer.hpp
 	
-        TP1/vertex_shader.glsl
-        TP1/fragment_shader.glsl
+        TP2/vertex_shader.glsl
+        TP2/fragment_shader.glsl
 )
-target_link_libraries(TP1
+target_link_libraries(TP2
 	${ALL_LIBS}
 )
 # Xcode and Visual working directories
-set_target_properties(TP1 PROPERTIES XCODE_ATTRIBUTE_CONFIGURATION_BUILD_DIR "${CMAKE_CURRENT_SOURCE_DIR}/TP1/")
-create_target_launcher(TP1 WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/TP1/")
+set_target_properties(TP2 PROPERTIES XCODE_ATTRIBUTE_CONFIGURATION_BUILD_DIR "${CMAKE_CURRENT_SOURCE_DIR}/TP2/")
+create_target_launcher(TP2 WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/TP2/")
 
 
 
@@ -86,8 +86,8 @@ SOURCE_GROUP(shaders REGULAR_EXPRESSION ".*/.*shader$" )
 
 if (NOT ${CMAKE_GENERATOR} MATCHES "Xcode" )
 add_custom_command(
-   TARGET TP1 POST_BUILD
-   COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/TP1${CMAKE_EXECUTABLE_SUFFIX}" "${CMAKE_CURRENT_SOURCE_DIR}/TP1/"
+   TARGET TP2 POST_BUILD
+   COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/TP2${CMAKE_EXECUTABLE_SUFFIX}" "${CMAKE_CURRENT_SOURCE_DIR}/TP2/"
 )
 elseif (${CMAKE_GENERATOR} MATCHES "Xcode" )
 
