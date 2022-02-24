@@ -53,7 +53,7 @@ CMAKE_BINARY_DIR = /home/e20180001518/Master/M1/s8/HAI819I_MoteurJeux/TP3/build
 # Directory level rules for the build root directory
 
 # The main recursive "all" target.
-all: CMakeFiles/TP1.dir/all
+all: CMakeFiles/TP3.dir/all
 all: external/all
 
 .PHONY : all
@@ -64,7 +64,7 @@ preinstall: external/preinstall
 .PHONY : preinstall
 
 # The main recursive "clean" target.
-clean: CMakeFiles/TP1.dir/clean
+clean: CMakeFiles/TP3.dir/clean
 clean: external/clean
 
 .PHONY : clean
@@ -211,32 +211,32 @@ external/glfw-3.1.2/tests/clean: external/glfw-3.1.2/tests/CMakeFiles/tearing.di
 .PHONY : external/glfw-3.1.2/tests/clean
 
 #=============================================================================
-# Target rules for target CMakeFiles/TP1.dir
+# Target rules for target CMakeFiles/TP3.dir
 
 # All Build rule for target.
-CMakeFiles/TP1.dir/all: external/CMakeFiles/GLEW_1130.dir/all
-CMakeFiles/TP1.dir/all: external/glfw-3.1.2/src/CMakeFiles/glfw.dir/all
-	$(MAKE) -f CMakeFiles/TP1.dir/build.make CMakeFiles/TP1.dir/depend
-	$(MAKE) -f CMakeFiles/TP1.dir/build.make CMakeFiles/TP1.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/e20180001518/Master/M1/s8/HAI819I_MoteurJeux/TP3/build/CMakeFiles --progress-num=3,4,5,6,7,8,9,10,11 "Built target TP1"
-.PHONY : CMakeFiles/TP1.dir/all
+CMakeFiles/TP3.dir/all: external/CMakeFiles/GLEW_1130.dir/all
+CMakeFiles/TP3.dir/all: external/glfw-3.1.2/src/CMakeFiles/glfw.dir/all
+	$(MAKE) -f CMakeFiles/TP3.dir/build.make CMakeFiles/TP3.dir/depend
+	$(MAKE) -f CMakeFiles/TP3.dir/build.make CMakeFiles/TP3.dir/build
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/e20180001518/Master/M1/s8/HAI819I_MoteurJeux/TP3/build/CMakeFiles --progress-num=3,4,5,6,7,8,9,10,11 "Built target TP3"
+.PHONY : CMakeFiles/TP3.dir/all
 
 # Build rule for subdir invocation for target.
-CMakeFiles/TP1.dir/rule: cmake_check_build_system
+CMakeFiles/TP3.dir/rule: cmake_check_build_system
 	$(CMAKE_COMMAND) -E cmake_progress_start /home/e20180001518/Master/M1/s8/HAI819I_MoteurJeux/TP3/build/CMakeFiles 25
-	$(MAKE) -f CMakeFiles/Makefile2 CMakeFiles/TP1.dir/all
+	$(MAKE) -f CMakeFiles/Makefile2 CMakeFiles/TP3.dir/all
 	$(CMAKE_COMMAND) -E cmake_progress_start /home/e20180001518/Master/M1/s8/HAI819I_MoteurJeux/TP3/build/CMakeFiles 0
-.PHONY : CMakeFiles/TP1.dir/rule
+.PHONY : CMakeFiles/TP3.dir/rule
 
 # Convenience name for target.
-TP1: CMakeFiles/TP1.dir/rule
+TP3: CMakeFiles/TP3.dir/rule
 
-.PHONY : TP1
+.PHONY : TP3
 
 # clean rule for target.
-CMakeFiles/TP1.dir/clean:
-	$(MAKE) -f CMakeFiles/TP1.dir/build.make CMakeFiles/TP1.dir/clean
-.PHONY : CMakeFiles/TP1.dir/clean
+CMakeFiles/TP3.dir/clean:
+	$(MAKE) -f CMakeFiles/TP3.dir/build.make CMakeFiles/TP3.dir/clean
+.PHONY : CMakeFiles/TP3.dir/clean
 
 #=============================================================================
 # Target rules for target external/CMakeFiles/GLEW_1130.dir
