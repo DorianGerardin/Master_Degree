@@ -3,6 +3,13 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
+        <entry key="..\:/Bureau/COURS/Master/M1/s8/HAI811I _AppMobile/TP2/app/src/main/res/drawable-v24/ic_launcher_foreground.xml" value="0.2265" />
+        <entry key="..\:/Bureau/COURS/Master/M1/s8/HAI811I _AppMobile/TP2/app/src/main/res/drawable/ic_launcher_background.xml" value="0.2265" />
+        <entry key="..\:/Bureau/COURS/Master/M1/s8/HAI811I _AppMobile/TP2/app/src/main/res/layout/accelerometre.xml" value="0.22826086956521738" />
+        <entry key="..\:/Bureau/COURS/Master/M1/s8/HAI811I _AppMobile/TP2/app/src/main/res/layout/direction.xml" value="0.22826086956521738" />
+        <entry key="..\:/Bureau/COURS/Master/M1/s8/HAI811I _AppMobile/TP2/app/src/main/res/layout/lampe_torche.xml" value="0.22826086956521738" />
+        <entry key="..\:/Bureau/COURS/Master/M1/s8/HAI811I _AppMobile/TP2/app/src/main/res/layout/menu.xml" value="0.22826086956521738" />
+        <entry key="..\:/Bureau/COURS/Master/M1/s8/HAI811I _AppMobile/TP2/app/src/main/res/layout/presence_capteurs.xml" value="0.22826086956521738" />
         <entry key="app/src/main/res/drawable/ic_launcher_background.xml" value="0.358" />
         <entry key="app/src/main/res/layout/accelerometre.xml" value="0.35833333333333334" />
         <entry key="app/src/main/res/layout/listCapteurs.xml" value="0.34375" />

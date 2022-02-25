@@ -10,12 +10,27 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.TP2">
         <activity
-            android:name=".accelerometre"
+            android:name=".menu"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+        </activity>
+        <activity android:name=".listCapteurs"
+            android:exported="false">
+        </activity>
+        <activity android:name=".presenceCapteurs"
+            android:exported="false">
+        </activity>
+        <activity android:name=".accelerometre"
+            android:exported="false">
+        </activity>
+        <activity android:name=".direction"
+            android:exported="false">
+        </activity>
+        <activity android:name=".lampeTorche"
+            android:exported="false">
         </activity>
     </application>
 
