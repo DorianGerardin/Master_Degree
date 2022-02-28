@@ -11,6 +11,7 @@ import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 public class direction extends AppCompatActivity implements SensorEventListener {
 
@@ -84,6 +85,9 @@ public class direction extends AppCompatActivity implements SensorEventListener 
 
         SensorManager sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
         Sensor sensor = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
-        sensorManager.registerListener(this, sensor, SensorManager.SENSOR_DELAY_NORMAL);
+        if (sensor == null) {
+            Toast.makeText(this, "No accelerometer sensor found in device.", Toast.LENGTH_SHORT).show();
+            finish();
+        } else sensorManager.registerListener(this, sensor, SensorManager.SENSOR_DELAY_NORMAL);
     }
 }

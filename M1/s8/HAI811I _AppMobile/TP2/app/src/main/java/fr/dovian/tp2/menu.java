@@ -21,6 +21,8 @@ public class menu extends AppCompatActivity {
         Button accelerometre = findViewById(R.id.accelerometre);
         Button direction = findViewById(R.id.direction);
         Button lampeTorche = findViewById(R.id.lampeTorche);
+        Button proximite = findViewById(R.id.proximite);
+        Button localisation = findViewById(R.id.localisation);
         listCapteurs.setOnClickListener(view -> {
             Intent intent = new Intent (this, listCapteurs.class);
             startActivity(intent);
@@ -39,6 +41,14 @@ public class menu extends AppCompatActivity {
         });
         lampeTorche.setOnClickListener(view -> {
             Intent intent = new Intent (this, lampeTorche.class);
+            startActivity(intent);
+        });
+        proximite.setOnClickListener(view -> {
+            Intent intent = new Intent (this, proximite.class);
+            startActivity(intent);
+        });
+        localisation.setOnClickListener(view -> {
+            Intent intent = new Intent (this, localisation.class);
             startActivity(intent);
         });
     }

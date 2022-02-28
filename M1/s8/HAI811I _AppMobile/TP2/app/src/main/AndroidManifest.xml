@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     package="fr.dovian.tp2">
 
     <application
@@ -32,6 +33,14 @@
         <activity android:name=".lampeTorche"
             android:exported="false">
         </activity>
+        <activity android:name=".proximite"
+            android:exported="false">
+        </activity>
+        <activity android:name=".localisation"
+            android:exported="false">
+        </activity>
     </application>
-
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
 </manifest>
