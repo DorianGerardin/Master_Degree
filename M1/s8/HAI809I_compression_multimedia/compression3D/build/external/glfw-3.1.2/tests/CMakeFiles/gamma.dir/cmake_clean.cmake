@@ -1,8 +1,8 @@
 file(REMOVE_RECURSE
-  "CMakeFiles/gamma.dir/__/deps/getopt.c.o"
   "CMakeFiles/gamma.dir/gamma.c.o"
-  "gamma"
+  "CMakeFiles/gamma.dir/__/deps/getopt.c.o"
   "gamma.pdb"
+  "gamma"
 )
 
 # Per-language clean rules from dependency scanning.

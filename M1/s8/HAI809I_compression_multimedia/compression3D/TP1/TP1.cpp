@@ -96,23 +96,61 @@ std::vector<glm::vec3> computeCube(std::vector<glm::vec3> vertices) {
     }
 
 
-std::vector<glm::vec3> quantification(std::vector<glm::vec3> &vertices, int qp) {
+std::vector<glm::vec3> quantification(std::vector<glm::vec3> vertices, int qp) {
 
     std::vector<glm::vec3> newVertices;
 
     unsigned int nbVertices = vertices.size();
-    glm::vec3 BBmin_c = computeCube(vertices)[0];
-    glm::vec3 BBmax_c = computeCube(vertices)[1];
-    float range = max( (abs(BBmin_c[0] - BBmax_c[0])), max( (abs(BBmin_c[1] - BBmax_c[1])), (abs(BBmin_c[2] - BBmax_c[2])) ) );
+    std::vector<glm::vec3> cube = computeCube(vertices);
+    glm::vec3 BBmin_c = cube[0];
+    glm::vec3 BBmax_c = cube[1];
+    float range = max((abs(BBmin_c[0] - BBmax_c[0])), max((abs(BBmin_c[1] - BBmax_c[1])), (abs(BBmin_c[2] - BBmax_c[2]))));
 
     for (unsigned int i = 0; i < nbVertices; ++i)
     {
         glm::vec3 c = vertices[i]; 
-        glm::vec3 c_qp = (c - BBmin_c) * (float)(pow(2, qp) / range);
+        //glm::vec3 c_qp = round((glm::vec3(c[0] - BBmin_c[0], c[1] - BBmin_c[1], c[2] - BBmin_c[2])) * (float)((float)pow(2, qp) / (float)range));
+        glm::vec3 c_qp = round((c - BBmin_c) * (float)((float)pow(2, qp) / (float)range));
+        newVertices.push_back(c_qp);
+    }
+    return newVertices;
+}
+
+std::vector<glm::vec3> dequantification(std::vector<glm::vec3> verticesWithoutQ, std::vector<glm::vec3> vertices, int qp) {
+
+    std::vector<glm::vec3> newVertices;
+
+    unsigned int nbVertices = vertices.size();
+    std::vector<glm::vec3> cube = computeCube(verticesWithoutQ);
+    glm::vec3 BBmin_c = cube[0];
+    glm::vec3 BBmax_c = cube[1];
+    float range = max((abs(BBmin_c[0] - BBmax_c[0])), max((abs(BBmin_c[1] - BBmax_c[1])), (abs(BBmin_c[2] - BBmax_c[2]))));
+
+    for (unsigned int i = 0; i < nbVertices; ++i)
+    {
+        glm::vec3 c = vertices[i]; 
+        //glm::vec3 c_qp = round((glm::vec3(c[0] - BBmin_c[0], c[1] - BBmin_c[1], c[2] - BBmin_c[2])) * (float)((float)pow(2, qp) / (float)range));
+        glm::vec3 c_qp = c * range / (float)pow(2, qp) + BBmin_c;
         newVertices.push_back(c_qp);
     }
     return newVertices;
 
+}
+
+float RMSE(std::vector<glm::vec3> vertices, std::vector<glm::vec3> verticesQ) {
+    unsigned int size = vertices.size();
+    float sum = 0;
+    for (int i = 0; i < size; ++i)
+    {
+        sum += (float)glm::dot(vertices[i] - verticesQ[i], vertices[i] - verticesQ[i]);
+    }
+    sum /= (float)size;
+    sum = (float)sqrt(sum);
+    return sum;
+}
+
+int encode_rANS() {
+    return 1;
 }
 
 
@@ -191,9 +229,15 @@ int main( void )
     std::string filename("bunny.off");
     loadOFF(filename, indexed_vertices, indices, triangles );
 
-    std::vector<glm::vec3> vertices_q = quantification(indexed_vertices, 5);
-    std::string filename2("bunny_q5.off");
-    saveOFF(filename, vertices_q, indices);
+    for (int i = 5; i <= 30; ++i)
+    {
+        std::vector<glm::vec3> vertices_q = quantification(indexed_vertices, i);
+        std::vector<glm::vec3> vertices_dq = dequantification(indexed_vertices, vertices_q, i);
+        std::string filename = std::string("quant_deq/bunny_q") + std::to_string(i) + std::string(".off");
+        std::string filename_out(filename);
+        saveOFF(filename_out, vertices_dq, indices);
+        std::cout << i << " " << RMSE(indexed_vertices, vertices_dq) << std::endl;
+    }
 
     // Load it into a VBO
 
@@ -330,16 +374,16 @@ void processInput(GLFWwindow *window)
     glm::vec3 camera_right = glm::vec3(1.0f, 0.0f,  0.0f);
 
     //rotationX
-    if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS) rotationX += 1;
-    if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)rotationX -= 1;
+    if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS) rotationX += 0.1;
+    if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)rotationX -= 0.1;
 
     //rotationY
-    if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS) rotationY += 1;
-    if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS) rotationY -= 1;
+    if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS) rotationY += 0.1;
+    if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS) rotationY -= 0.1;
 
     //rotationZ
-    if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS) rotationZ += 1;
-    if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS) rotationZ -= 1;
+    if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS) rotationZ += 0.1;
+    if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS) rotationZ -= 0.1;
 
     //Camera zoom in and out
     float cameraSpeed = 2.5 * deltaTime;

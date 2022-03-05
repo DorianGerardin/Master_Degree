@@ -1,8 +1,8 @@
 file(REMOVE_RECURSE
-  "CMakeFiles/msaa.dir/__/deps/getopt.c.o"
   "CMakeFiles/msaa.dir/msaa.c.o"
-  "msaa"
+  "CMakeFiles/msaa.dir/__/deps/getopt.c.o"
   "msaa.pdb"
+  "msaa"
 )
 
 # Per-language clean rules from dependency scanning.

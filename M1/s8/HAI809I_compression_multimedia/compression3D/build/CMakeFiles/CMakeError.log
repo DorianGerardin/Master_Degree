@@ -1,58 +1,55 @@
-Performing C SOURCE FILE Test CMAKE_HAVE_LIBC_PTHREAD failed with the following output:
-Change Dir: /home/e20180001518/Master/M1/s8/HAI809I_compression_multimedia/compression3D/build/CMakeFiles/CMakeTmp
+Determining if the pthread_create exist failed with the following output:
+Change Dir: /home/dorian/Master/M1/s8/HAI809I_compression_multimedia/compression3D/build/CMakeFiles/CMakeTmp
 
-Run Build Command(s):/usr/bin/make cmTC_8c58f/fast && /usr/bin/make -f CMakeFiles/cmTC_8c58f.dir/build.make CMakeFiles/cmTC_8c58f.dir/build
-make[1] : on entre dans le répertoire « /home/e20180001518/Master/M1/s8/HAI809I_compression_multimedia/compression3D/build/CMakeFiles/CMakeTmp »
-Building C object CMakeFiles/cmTC_8c58f.dir/src.c.o
-/usr/bin/cc   -DCMAKE_HAVE_LIBC_PTHREAD   -o CMakeFiles/cmTC_8c58f.dir/src.c.o   -c /home/e20180001518/Master/M1/s8/HAI809I_compression_multimedia/compression3D/build/CMakeFiles/CMakeTmp/src.c
-Linking C executable cmTC_8c58f
-/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_8c58f.dir/link.txt --verbose=1
-/usr/bin/cc  -DCMAKE_HAVE_LIBC_PTHREAD    -rdynamic CMakeFiles/cmTC_8c58f.dir/src.c.o  -o cmTC_8c58f 
-/usr/bin/ld : CMakeFiles/cmTC_8c58f.dir/src.c.o : dans la fonction « main » :
-src.c:(.text+0x46) : référence indéfinie vers « pthread_create »
-/usr/bin/ld : src.c:(.text+0x52) : référence indéfinie vers « pthread_detach »
-/usr/bin/ld : src.c:(.text+0x63) : référence indéfinie vers « pthread_join »
+Run Build Command:"/usr/bin/make" "cmTC_cb74f/fast"
+/usr/bin/make -f CMakeFiles/cmTC_cb74f.dir/build.make CMakeFiles/cmTC_cb74f.dir/build
+make[1] : on entre dans le répertoire « /home/dorian/Master/M1/s8/HAI809I_compression_multimedia/compression3D/build/CMakeFiles/CMakeTmp »
+Building C object CMakeFiles/cmTC_cb74f.dir/CheckSymbolExists.c.o
+/usr/bin/cc    -o CMakeFiles/cmTC_cb74f.dir/CheckSymbolExists.c.o   -c /home/dorian/Master/M1/s8/HAI809I_compression_multimedia/compression3D/build/CMakeFiles/CMakeTmp/CheckSymbolExists.c
+Linking C executable cmTC_cb74f
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_cb74f.dir/link.txt --verbose=1
+/usr/bin/cc      -rdynamic CMakeFiles/cmTC_cb74f.dir/CheckSymbolExists.c.o  -o cmTC_cb74f 
+CMakeFiles/cmTC_cb74f.dir/CheckSymbolExists.c.o : Dans la fonction « main » :
+CheckSymbolExists.c:(.text+0x1b) : référence indéfinie vers « pthread_create »
 collect2: error: ld returned 1 exit status
-make[1]: *** [CMakeFiles/cmTC_8c58f.dir/build.make:87 : cmTC_8c58f] Erreur 1
-make[1] : on quitte le répertoire « /home/e20180001518/Master/M1/s8/HAI809I_compression_multimedia/compression3D/build/CMakeFiles/CMakeTmp »
-make: *** [Makefile:121 : cmTC_8c58f/fast] Erreur 2
+CMakeFiles/cmTC_cb74f.dir/build.make:97: recipe for target 'cmTC_cb74f' failed
+make[1]: *** [cmTC_cb74f] Error 1
+make[1] : on quitte le répertoire « /home/dorian/Master/M1/s8/HAI809I_compression_multimedia/compression3D/build/CMakeFiles/CMakeTmp »
+Makefile:126: recipe for target 'cmTC_cb74f/fast' failed
+make: *** [cmTC_cb74f/fast] Error 2
 
-
-Source file was:
+File /home/dorian/Master/M1/s8/HAI809I_compression_multimedia/compression3D/build/CMakeFiles/CMakeTmp/CheckSymbolExists.c:
+/* */
 #include <pthread.h>
 
-void* test_func(void* data)
+int main(int argc, char** argv)
 {
-  return data;
-}
-
-int main(void)
-{
-  pthread_t thread;
-  pthread_create(&thread, NULL, test_func, NULL);
-  pthread_detach(thread);
-  pthread_join(thread, NULL);
-  pthread_atfork(NULL, NULL, NULL);
-  pthread_exit(NULL);
-
+  (void)argv;
+#ifndef pthread_create
+  return ((int*)(&pthread_create))[argc];
+#else
+  (void)argc;
   return 0;
+#endif
 }
 
 Determining if the function pthread_create exists in the pthreads failed with the following output:
-Change Dir: /home/e20180001518/Master/M1/s8/HAI809I_compression_multimedia/compression3D/build/CMakeFiles/CMakeTmp
+Change Dir: /home/dorian/Master/M1/s8/HAI809I_compression_multimedia/compression3D/build/CMakeFiles/CMakeTmp
 
-Run Build Command(s):/usr/bin/make cmTC_42b8b/fast && /usr/bin/make -f CMakeFiles/cmTC_42b8b.dir/build.make CMakeFiles/cmTC_42b8b.dir/build
-make[1] : on entre dans le répertoire « /home/e20180001518/Master/M1/s8/HAI809I_compression_multimedia/compression3D/build/CMakeFiles/CMakeTmp »
-Building C object CMakeFiles/cmTC_42b8b.dir/CheckFunctionExists.c.o
-/usr/bin/cc   -DCHECK_FUNCTION_EXISTS=pthread_create   -o CMakeFiles/cmTC_42b8b.dir/CheckFunctionExists.c.o   -c /usr/share/cmake-3.16/Modules/CheckFunctionExists.c
-Linking C executable cmTC_42b8b
-/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_42b8b.dir/link.txt --verbose=1
-/usr/bin/cc  -DCHECK_FUNCTION_EXISTS=pthread_create    -rdynamic CMakeFiles/cmTC_42b8b.dir/CheckFunctionExists.c.o  -o cmTC_42b8b  -lpthreads 
+Run Build Command:"/usr/bin/make" "cmTC_60cb7/fast"
+/usr/bin/make -f CMakeFiles/cmTC_60cb7.dir/build.make CMakeFiles/cmTC_60cb7.dir/build
+make[1] : on entre dans le répertoire « /home/dorian/Master/M1/s8/HAI809I_compression_multimedia/compression3D/build/CMakeFiles/CMakeTmp »
+Building C object CMakeFiles/cmTC_60cb7.dir/CheckFunctionExists.c.o
+/usr/bin/cc   -DCHECK_FUNCTION_EXISTS=pthread_create   -o CMakeFiles/cmTC_60cb7.dir/CheckFunctionExists.c.o   -c /usr/share/cmake-3.10/Modules/CheckFunctionExists.c
+Linking C executable cmTC_60cb7
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_60cb7.dir/link.txt --verbose=1
+/usr/bin/cc  -DCHECK_FUNCTION_EXISTS=pthread_create    -rdynamic CMakeFiles/cmTC_60cb7.dir/CheckFunctionExists.c.o  -o cmTC_60cb7 -lpthreads 
 /usr/bin/ld : ne peut trouver -lpthreads
 collect2: error: ld returned 1 exit status
-make[1]: *** [CMakeFiles/cmTC_42b8b.dir/build.make:87 : cmTC_42b8b] Erreur 1
-make[1] : on quitte le répertoire « /home/e20180001518/Master/M1/s8/HAI809I_compression_multimedia/compression3D/build/CMakeFiles/CMakeTmp »
-make: *** [Makefile:121 : cmTC_42b8b/fast] Erreur 2
-
+CMakeFiles/cmTC_60cb7.dir/build.make:97: recipe for target 'cmTC_60cb7' failed
+make[1]: *** [cmTC_60cb7] Error 1
+make[1] : on quitte le répertoire « /home/dorian/Master/M1/s8/HAI809I_compression_multimedia/compression3D/build/CMakeFiles/CMakeTmp »
+Makefile:126: recipe for target 'cmTC_60cb7/fast' failed
+make: *** [cmTC_60cb7/fast] Error 2
 
 

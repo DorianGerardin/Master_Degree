@@ -1,8 +1,8 @@
 file(REMOVE_RECURSE
-  "CMakeFiles/heightmap.dir/__/deps/glad.c.o"
   "CMakeFiles/heightmap.dir/heightmap.c.o"
-  "heightmap"
+  "CMakeFiles/heightmap.dir/__/deps/glad.c.o"
   "heightmap.pdb"
+  "heightmap"
 )
 
 # Per-language clean rules from dependency scanning.

@@ -1,4 +1,4 @@
-# Install script for directory: /home/e20180001518/Master/M1/s8/HAI809I_compression_multimedia/compression3D
+# Install script for directory: /home/dorian/Master/M1/s8/HAI809I_compression_multimedia/compression3D
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
@@ -39,7 +39,7 @@ endif()
 
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for each subdirectory.
-  include("/home/e20180001518/Master/M1/s8/HAI809I_compression_multimedia/compression3D/build/external/cmake_install.cmake")
+  include("/home/dorian/Master/M1/s8/HAI809I_compression_multimedia/compression3D/build/external/cmake_install.cmake")
 
 endif()
 
@@ -51,5 +51,5 @@ endif()
 
 string(REPLACE ";" "\n" CMAKE_INSTALL_MANIFEST_CONTENT
        "${CMAKE_INSTALL_MANIFEST_FILES}")
-file(WRITE "/home/e20180001518/Master/M1/s8/HAI809I_compression_multimedia/compression3D/build/${CMAKE_INSTALL_MANIFEST}"
+file(WRITE "/home/dorian/Master/M1/s8/HAI809I_compression_multimedia/compression3D/build/${CMAKE_INSTALL_MANIFEST}"
      "${CMAKE_INSTALL_MANIFEST_CONTENT}")
