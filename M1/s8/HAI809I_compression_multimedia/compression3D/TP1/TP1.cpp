@@ -55,6 +55,23 @@ float rotationNoStop = 0.;
 
 /*******************************************************************************/
 
+int getIndex(std::vector<int> v, int K)
+{
+    auto it = find(v.begin(), v.end(), K);
+ 
+    // If element was found
+    if (it != v.end())
+    {
+        // calculating the index
+        // of K
+        int index = it - v.begin();
+        return index;
+    }
+    else {
+        return -1;
+    }
+}
+
 std::vector<glm::vec3> computeCube(std::vector<glm::vec3> vertices) {
 
         std::vector<glm::vec3> points;
@@ -109,8 +126,7 @@ std::vector<glm::vec3> quantification(std::vector<glm::vec3> vertices, int qp) {
     for (unsigned int i = 0; i < nbVertices; ++i)
     {
         glm::vec3 c = vertices[i]; 
-        //glm::vec3 c_qp = round((glm::vec3(c[0] - BBmin_c[0], c[1] - BBmin_c[1], c[2] - BBmin_c[2])) * (float)((float)pow(2, qp) / (float)range));
-        glm::vec3 c_qp = round((c - BBmin_c) * (float)((float)pow(2, qp) / (float)range));
+        glm::vec3 c_qp = round((c - BBmin_c) * ((float)pow(2, qp) / (float)range));
         newVertices.push_back(c_qp);
     }
     return newVertices;
@@ -149,8 +165,126 @@ float RMSE(std::vector<glm::vec3> vertices, std::vector<glm::vec3> verticesQ) {
     return sum;
 }
 
-int encode_rANS() {
-    return 1;
+
+std::vector<int> createSequence(std::vector<glm::vec3> vertices) {
+    std::vector<int> sequence;
+    unsigned int size = vertices.size();
+    for (int i = 0; i < size; ++i)
+    {
+        sequence.push_back((int)vertices[i][0]);
+        sequence.push_back((int)vertices[i][1]);
+        sequence.push_back((int)vertices[i][2]);
+    }
+    return sequence;
+}
+
+std::vector<int> createAlphabet(std::vector<int> sequence) {
+    std::vector<int> alphabet;
+    unsigned int size = sequence.size();
+    for (int i = 0; i < size; ++i)
+    {
+        if(std::find(alphabet.begin(), alphabet.end(), sequence[i]) == alphabet.end()) {
+            alphabet.push_back(sequence[i]);
+        }
+    }
+    return alphabet;
+}
+
+std::vector<int> createFrequence(std::vector<int> sequence, std::vector<int> alphabet) {
+    std::vector<int> frequence;
+    unsigned int sequenceSize = sequence.size();
+    unsigned int alphabetSize = alphabet.size();
+
+    for (int i = 0; i < alphabetSize; ++i)
+    {
+        int sum = 0;
+        for (int j = 0; j < sequenceSize; ++j)
+        {
+            if(sequence[j] == alphabet[i]) {
+                sum++;
+            }
+        }
+        frequence.push_back(sum);
+    }
+    return frequence;
+}
+
+int getFrequenceSize(std::vector<int> frequence) {
+    unsigned int size = frequence.size();
+    int sum = 0;
+    for (int i = 0; i < size; ++i)
+    {
+        sum += frequence[i];
+    }
+    return sum;
+}
+
+std::vector<int> getFrequenceCumulative(std::vector<int> frequence) {
+    std::vector<int> frequenceCumulative;
+    unsigned int size = frequence.size();
+    int sum = 0;
+    for (int i = 0; i < size; ++i)
+    {
+        frequenceCumulative.push_back(sum);
+        sum += frequence[i];
+    }
+    return frequenceCumulative;
+}
+
+int freqCumulInv(int x, std::vector<int> freqCumul) {
+    unsigned int size = freqCumul.size();
+    for (int i = size; i >= 0; i--)
+    {
+        if(x <= freqCumul[i] && i-1 >= 0 && x >= freqCumul[i-1]) {
+            return min(freqCumul[i], freqCumul[i-1]);
+        }
+    }
+    return freqCumul[size-1];
+}
+
+
+void createArraysForRANS(std::vector<glm::vec3> vertices, std::vector<int> &sequence, std::vector<int> &alphabet, std::vector<int> &frequence) {
+    sequence = createSequence(vertices);
+    alphabet = createAlphabet(sequence);
+    frequence = createFrequence(sequence, alphabet);
+}
+
+int encode_rANS(std::vector<int> alphabet, std::vector<int> sequence, std::vector<int> frequence) {
+    int M = getFrequenceSize(frequence);
+    std::vector<int> Cst = getFrequenceCumulative(frequence);
+    long long int Xt = 0;
+    unsigned int sequenceSize = sequence.size();
+    for (int i = 0; i < sequenceSize; ++i)
+    {
+        std::cout << "Xt : " << Xt << std::endl;
+        int indexElement = getIndex(alphabet, sequence[i]);
+        //std::cout << "frequence : " << frequence[indexElement] << std::endl;
+        Xt = floor(Xt / frequence[indexElement]) * M + Cst[indexElement] + (Xt % frequence[indexElement]);
+    }
+    return Xt;
+}
+
+int decode_rANS(int encode, std::vector<int> alphabet, std::vector<int> sequence, std::vector<int> frequence) {
+    int M = getFrequenceSize(frequence);
+    std::vector<int> Cst = getFrequenceCumulative(frequence);
+    long long int Xt = encode;
+    int St = 0;
+    unsigned int sequenceSize = sequence.size();
+    for (int i = 0; i < Cst.size(); ++i)
+        {
+            std::cout << Cst[i] << ", ";
+        }
+    std::cout << std::endl;
+    for (int i = 0; i < sequenceSize; ++i)
+    {
+        std::cout << "Xt : " << Xt << std::endl;
+        int indexElement = getIndex(alphabet, sequence[i]);
+        std::cout << "slot : " << Xt % M << std::endl;
+        std::cout << "St : " << St << std::endl;
+        Xt = floor(Xt / M) * frequence[St] + (Xt % M) - Cst[St];
+        St = freqCumulInv(Xt % M, Cst);
+    }
+    return Xt;
 }
 
 
@@ -229,15 +363,50 @@ int main( void )
     std::string filename("bunny.off");
     loadOFF(filename, indexed_vertices, indices, triangles );
 
-    for (int i = 5; i <= 30; ++i)
+    /* // ----- BUNNY -----
+    std::vector<int> sequence;
+    std::vector<int> alphabet;
+    std::vector<int> frequence;
+    std::vector<glm::vec3> vertices_q = quantification(indexed_vertices, 3);
+    createArraysForRANS(vertices_q, sequence, alphabet, frequence);
+    int encode = encode_rANS(alphabet, sequence, frequence);
+    std::cout << "encode : " << encode << std::endl;
+    */
+
+      // ----- Exemple Cours -----
+    std::vector<int> sequence{ 0,1,0,2,2,0 };
+    std::vector<int> alphabet = createAlphabet(sequence);
+    std::cout << "taille alphabet : " << alphabet.size() << std::endl;
+    for (int i = 0; i < alphabet.size(); ++i)
+    {
+        std::cout << alphabet[i] << std::endl;
+    }
+    std::vector<int> frequence = createFrequence(sequence, alphabet);
+    std::vector<int> frequenceCumulative = getFrequenceCumulative(frequence);
+    for (int i = 0; i < frequence.size(); ++i)
+    {
+        std::cout << "count de " << i << " : " << frequence[i] << std::endl;
+    }
+    for (int i = 0; i < frequenceCumulative.size(); ++i)
+    {
+        std::cout << frequenceCumulative[i] << std::endl;
+    }
+    std::cout << getFrequenceSize(frequence) << std::endl;
+    int encode = encode_rANS(alphabet, sequence, frequence);
+    std::cout << "encode : " << encode << std::endl;
+    int decode = decode_rANS(encode, alphabet, sequence, frequence);
+    std::cout << "decode : " << decode << std::endl;
+
+
+    /*for (int i = 5; i <= 30; ++i)
     {
         std::vector<glm::vec3> vertices_q = quantification(indexed_vertices, i);
         std::vector<glm::vec3> vertices_dq = dequantification(indexed_vertices, vertices_q, i);
         std::string filename = std::string("quant_deq/bunny_q") + std::to_string(i) + std::string(".off");
         std::string filename_out(filename);
         saveOFF(filename_out, vertices_dq, indices);
-        std::cout << i << " " << RMSE(indexed_vertices, vertices_dq) << std::endl;
-    }
+        //std::cout << i << " " << RMSE(indexed_vertices, vertices_dq) << std::endl;
+    }*/
 
     // Load it into a VBO
 
