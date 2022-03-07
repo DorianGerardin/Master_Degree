@@ -13,6 +13,11 @@ std::vector<glm::vec3> quantification(std::vector<glm::vec3> vertices, int qp)
 Cette fonction prend en paramètre un tableau de vertices ainsi qu'un facteur de quantification.
 Elle retourne un tableau de vertices quantifié en fonction du facteur de quantification passé en paramètre.
 
+Voici quelques exemples de quantifications : 
+![bunny_Q5](images/bunny_Q5.png)
+![bunny_Q7](images/bunny_Q7.png)
+![bunny_Q10](images/bunny_Q10.png)
+
 ### - Déquantification : 
 _Voir dans le code la fonction_ 
 ```c++ 
@@ -28,7 +33,7 @@ _Voir dans le code la fonction_
 float RMSE(std::vector<glm::vec3> vertices, std::vector<glm::vec3> verticesQ) 
 ```
 La courbe du RMSE en fonction du facteur de quantification :
-![RMSE](rmse.png)
+![RMSE](images/rmse.png)
 
 On observe que plus le facteur de quantification est faible, plus nous avons un écart quadratique moyen.
 

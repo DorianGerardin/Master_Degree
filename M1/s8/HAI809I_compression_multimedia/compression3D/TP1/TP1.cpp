@@ -351,7 +351,7 @@ int main( void )
     glBindVertexArray(VertexArrayID);
 
     // Create and compile our GLSL program from the shaders
-    GLuint programID = LoadShaders( "vertex_shader.glsl", "fragment_shader.glsl" );
+    GLuint programID = LoadShaders( "shaders/vertex_shader.glsl", "shaders/fragment_shader.glsl" );
 
     /*****************TODO***********************/
     // Get a handle for our "Model View Projection" matrices uniforms
@@ -377,7 +377,7 @@ int main( void )
     */
 
       // ----- Exemple Cours -----
-    std::vector<int> sequence{ 0,1,0,2,2,0 };
+    std::vector<int> sequence{ 4,6,2,3,7,4 };
     std::vector<int> alphabet = createAlphabet(sequence);
     std::cout << "taille alphabet : " << alphabet.size() << std::endl;
     for (int i = 0; i < alphabet.size(); ++i)
