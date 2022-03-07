@@ -1,7 +1,7 @@
 # TP - Codage et Compression 3D - GERARDIN Dorian
 
-_Dans le dossier "images", on peut retrouver plusieurs images du bunny.off quantifié selon différents facteurs_
-_Dans le dossier "quant_deq", on peut retrouver les fichiers des bunny.off quantifiés puis déquantifiés selon différents facteurs_
+* _Dans le dossier "images", on peut retrouver plusieurs images du bunny.off quantifié selon différents facteurs_
+* _Dans le dossier "quant_deq", on peut retrouver les fichiers des bunny.off quantifiés puis déquantifiés selon différents facteurs_
 
 ## Question 1 :
 
