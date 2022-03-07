@@ -233,13 +233,16 @@ std::vector<int> getFrequenceCumulative(std::vector<int> frequence) {
 
 int freqCumulInv(int x, std::vector<int> freqCumul) {
     unsigned int size = freqCumul.size();
-    for (int i = size; i >= 0; i--)
+    for (int i = size-1; i >= 0; i--)
     {
-        if(x <= freqCumul[i] && i-1 >= 0 && x >= freqCumul[i-1]) {
-            return min(freqCumul[i], freqCumul[i-1]);
+        if(x == freqCumul[i]) {
+            return i;
+        }
+        else if(x <= freqCumul[i] && i-1 >= 0 && x >= freqCumul[i-1]) {
+            return min(i, i-1);
         }
     }
-    return freqCumul[size-1];
+    return size-1;
 }
 
 
@@ -264,27 +267,27 @@ int encode_rANS(std::vector<int> alphabet, std::vector<int> sequence, std::vecto
     return Xt;
 }
 
-int decode_rANS(int encode, std::vector<int> alphabet, std::vector<int> sequence, std::vector<int> frequence) {
+std::vector<int> decode_rANS(int encode, std::vector<int> frequence) {
+    std::vector<int> sequence;
     int M = getFrequenceSize(frequence);
     std::vector<int> Cst = getFrequenceCumulative(frequence);
     long long int Xt = encode;
-    int St = 0;
-    unsigned int sequenceSize = sequence.size();
-    for (int i = 0; i < Cst.size(); ++i)
-        {
-            std::cout << Cst[i] << ", ";
-        }
-    std::cout << std::endl;
-    for (int i = 0; i < sequenceSize; ++i)
+    int St;
+    for (int i = 0; i < M; ++i)
     {
-        std::cout << "Xt : " << Xt << std::endl;
-        int indexElement = getIndex(alphabet, sequence[i]);
-        std::cout << "slot : " << Xt % M << std::endl;
-        std::cout << "St : " << St << std::endl;
-        Xt = floor(Xt / M) * frequence[St] + (Xt % M) - Cst[St];
         St = freqCumulInv(Xt % M, Cst);
+        std::cout << "Xt : " << Xt << std::endl;
+        std::cout << "Slot : " << Xt % M << std::endl;
+        std::cout << "St : " << St << std::endl;
+        std::cout << "Xt"<< " = floor("<< Xt <<"/" << M<< ")*" << frequence[St] << " + (" << Xt << "%" <<M <<") - " 
+        <<Cst[St]<< std::endl;
+        std::cout << floor(Xt / M) * frequence[St] + Xt % M - Cst[St]<<  " = " 
+        << floor(Xt / M) << "*" << frequence[St] << " + (" << Xt % M <<") - " <<Cst[St]<< std::endl;
+        std::cout << std::endl;
+        Xt = floor(Xt / M) * frequence[St] + (Xt % M) - Cst[St];
+        sequence.insert(sequence.begin(), St);   
     }
-    return Xt;
+    return sequence;
 }
 
 
@@ -379,23 +382,23 @@ int main( void )
     std::cout << "taille alphabet : " << alphabet.size() << std::endl;
     for (int i = 0; i < alphabet.size(); ++i)
     {
-        std::cout << alphabet[i] << std::endl;
+        std::cout << "alphabet[" << i << "] : " << alphabet[i] << std::endl;
     }
     std::vector<int> frequence = createFrequence(sequence, alphabet);
     std::vector<int> frequenceCumulative = getFrequenceCumulative(frequence);
     for (int i = 0; i < frequence.size(); ++i)
     {
-        std::cout << "count de " << i << " : " << frequence[i] << std::endl;
+        std::cout << "freq " << i << " : " << frequence[i] << std::endl;
     }
-    for (int i = 0; i < frequenceCumulative.size(); ++i)
-    {
-        std::cout << frequenceCumulative[i] << std::endl;
-    }
-    std::cout << getFrequenceSize(frequence) << std::endl;
     int encode = encode_rANS(alphabet, sequence, frequence);
     std::cout << "encode : " << encode << std::endl;
-    int decode = decode_rANS(encode, alphabet, sequence, frequence);
-    std::cout << "decode : " << decode << std::endl;
+    std::vector<int> decode = decode_rANS(encode, frequence);
+    std::cout << "Sequence : { ";
+    for (int i = 0; i < decode.size(); ++i)
+    {
+        std::cout << decode[i] << " ";
+    }
+    std::cout << "}" << std::endl;
 
 
     /*for (int i = 5; i <= 30; ++i)
