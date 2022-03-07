@@ -14,9 +14,10 @@ Cette fonction prend en paramètre un tableau de vertices ainsi qu'un facteur de
 Elle retourne un tableau de vertices quantifié en fonction du facteur de quantification passé en paramètre.
 
 Voici quelques exemples de quantifications : 
-![bunny_Q5](images/bunny_Q5.png)
-![bunny_Q7](images/bunny_Q7.png)
-![bunny_Q10](images/bunny_Q10.png)
+
+Q = 5           |           Q = 7           |            Q = 10
+:-------------------------:|:-------------------------:|:-------------------------:
+![bunny_Q5](images/bunny_Q5.png)   | ![bunny_Q7](images/bunny_Q7.png)| ![bunny_Q10](images/bunny_Q10.png)
 
 ### - Déquantification : 
 _Voir dans le code la fonction_ 
