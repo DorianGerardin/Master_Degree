@@ -80,8 +80,8 @@ int main(int argc, char* argv[])
 	        if(j-1 >= 0) {
 	          moyenne += ImgIn[i*nW+(j-1)];
 	          k++;
-	  			}
-	  			ImgOut[i*nW+j] = (int)floor(moyenne / k);
+	  		}
+	  		ImgOut[i*nW+j] = (int)floor(moyenne / k);
 	  	}
 	}
 
