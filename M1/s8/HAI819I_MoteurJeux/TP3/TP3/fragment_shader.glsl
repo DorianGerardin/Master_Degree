@@ -15,21 +15,5 @@ uniform sampler2D snowSampler;
 
 
 void main(){
-
-        if (zPos < 1){
-                color = texture( snowSampler, UV ).rgb;
-        }
-        else if (zPos < 2.5){
-                float smoothness = smoothstep(1, 2.5, zPos);
-                color = mix(texture( snowSampler, UV ).rgb, texture( rockSampler, UV ).rgb, smoothness);
-        }
-        else if (zPos < 4.5){
-                float smoothness = smoothstep(2.5, 4.5, zPos);
-                color = mix(texture( rockSampler, UV ).rgb, texture( grassSampler, UV ).rgb, smoothness);
-        }
-        else  {
-                color = texture( grassSampler, UV ).rgb;
-        }
-        //color = texture( hmapSampler, UV ).rgb;
-
+        color = vec3(255., 0.5, 0.);
 }

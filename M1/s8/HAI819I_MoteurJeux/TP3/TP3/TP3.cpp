@@ -119,10 +119,10 @@ void generateGeometryPlane(float size, std::vector<glm::vec3> & indexed_vertices
     }
 }
 
-void drawPlane(GLuint vertexbufferPlane, GLuint elementbufferPlane, std::vector<unsigned short> indicesPlane) {
+void drawSphere(GLuint vertexbuffer, GLuint elementbuffer, std::vector<unsigned short> indices) {
 
     glEnableVertexAttribArray(0);
-    glBindBuffer(GL_ARRAY_BUFFER, vertexbufferPlane);
+    glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
     glVertexAttribPointer(
                 0,                  // attribute
                 3,                  // size
@@ -133,13 +133,13 @@ void drawPlane(GLuint vertexbufferPlane, GLuint elementbufferPlane, std::vector<
                 );
 
     // Index buffer
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementbufferPlane);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementbuffer);
 
     // Draw the triangles !
     glDrawElements(
                 GL_TRIANGLES,      // mode
-                indicesPlane.size(),    // count
-                GL_UNSIGNED_SHORT,   // type
+                indices.size(),    // count
+                GL_UNSIGNED_SHORT, // type
                 (void*)0           // element array buffer offset
                 );
 }
@@ -177,7 +177,7 @@ int main( void )
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
     // Open a window and create its OpenGL context
-    window = glfwCreateWindow( 1024, 768, "TP1 - GLFW", NULL, NULL);
+    window = glfwCreateWindow( 1024, 768, "TP3 - GLFW", NULL, NULL);
     if( window == NULL ){
         fprintf( stderr, "Failed to open GLFW window. If you have an Intel GPU, they are not 3.3 compatible. Try the 2.1 version of the tutorials.\n" );
         getchar();
@@ -230,40 +230,46 @@ int main( void )
 
     /****************************************/
 
-    GLuint TextureHmap = loadBMP_custom("textures/Heightmap_Mountain.bmp");
-    GLuint TextureGrass = loadBMP_custom("textures/grass.bmp");
-    GLuint TextureRock = loadBMP_custom("textures/rock.bmp");
-    GLuint TextureSnow = loadBMP_custom("textures/snowrocks.bmp");
+    // GLuint TextureHmap = loadBMP_custom("textures/Heightmap_Mountain.bmp");
+    // GLuint TextureGrass = loadBMP_custom("textures/grass.bmp");
+    // GLuint TextureRock = loadBMP_custom("textures/rock.bmp");
+    // GLuint TextureSnow = loadBMP_custom("textures/snowrocks.bmp");
 
-    GLuint TextureIDHmap = glGetUniformLocation(programID,"hmapSampler");
-    GLuint TextureIDGrass = glGetUniformLocation(programID,"grassSampler");
-    GLuint TextureIDRock = glGetUniformLocation(programID,"rockSampler");
-    GLuint TextureIDSnow = glGetUniformLocation(programID,"snowSampler");
+    // GLuint TextureIDHmap = glGetUniformLocation(programID,"hmapSampler");
+    // GLuint TextureIDGrass = glGetUniformLocation(programID,"grassSampler");
+    // GLuint TextureIDRock = glGetUniformLocation(programID,"rockSampler");
+    // GLuint TextureIDSnow = glGetUniformLocation(programID,"snowSampler");
 
     // Get a handle for our "LightPosition" uniform
     glUseProgram(programID);
     GLuint LightID = glGetUniformLocation(programID, "LightPosition_worldspace");
 
-
     // For speed computation
     double lastTime = glfwGetTime();
     int nbFrames = 0;
 
-    generateGeometryPlane(planeSize, indexed_verticesPlane, indicesPlane, trianglesPlane, uv_surface);
+    // std::vector<unsigned short> indices_Sun; //Triangles concaténés dans une liste
+    // std::vector<std::vector<unsigned short> > triangles_Sun;
+    // std::vector<glm::vec3> indexed_vertices_Sun;
+    Object *sun = new Object("objects/sphere966.off");
+    // std::string filename("objects/suzanne.off");
+    //loadOFF(filename, indexed_vertices_Sun, indices_Sun, triangles_Sun );
 
-    glGenBuffers(1, &vertexbufferPlane);
-    glBindBuffer(GL_ARRAY_BUFFER, vertexbufferPlane);
-    glBufferData(GL_ARRAY_BUFFER, indexed_verticesPlane.size() * sizeof(glm::vec3), &indexed_verticesPlane[0], GL_STATIC_DRAW);
+    GLuint vertexbuffer_Sun;
+    glGenBuffers(1, &vertexbuffer_Sun);
+    glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer_Sun);
+    glBufferData(GL_ARRAY_BUFFER, sun->indexed_vertices.size() * sizeof(glm::vec3), &sun->indexed_vertices[0], GL_STATIC_DRAW);
 
+    GLuint elementbuffer_Sun;
     // Generate a buffer for the indices as well
-    glGenBuffers(1, &elementbufferPlane);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementbufferPlane);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, indicesPlane.size() * sizeof(unsigned short), &indicesPlane[0] , GL_STATIC_DRAW);
+    glGenBuffers(1, &elementbuffer_Sun);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementbuffer_Sun);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sun->indices.size() * sizeof(unsigned short), &sun->indices[0] , GL_STATIC_DRAW);
 
     //Texture
-    glGenBuffers(1,&uvbuffer);
-    glBindBuffer(GL_ARRAY_BUFFER,uvbuffer);
-    glBufferData(GL_ARRAY_BUFFER,uv_surface.size()*sizeof(float),&uv_surface[0],GL_STATIC_DRAW);
+    // glGenBuffers(1,&uvbuffer);
+    // glBindBuffer(GL_ARRAY_BUFFER,uvbuffer);
+    // glBufferData(GL_ARRAY_BUFFER,uv_surface.size()*sizeof(float),&uv_surface[0],GL_STATIC_DRAW);
 
     do{
 
@@ -285,40 +291,27 @@ int main( void )
         // Use our shader
         glUseProgram(programID);
 
-        glGenBuffers(1, &vertexbufferPlane);
-        glBindBuffer(GL_ARRAY_BUFFER, vertexbufferPlane);
-        glBufferData(GL_ARRAY_BUFFER, indexed_verticesPlane.size() * sizeof(glm::vec3), &indexed_verticesPlane[0], GL_STATIC_DRAW);
+        glGenBuffers(1, &vertexbuffer_Sun);
+        glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer_Sun);
+        glBufferData(GL_ARRAY_BUFFER, sun->indexed_vertices.size() * sizeof(glm::vec3), &sun->indexed_vertices[0], GL_STATIC_DRAW);
 
         // Generate a buffer for the indices as well
-        glGenBuffers(1, &elementbufferPlane);
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementbufferPlane);
-        glBufferData(GL_ELEMENT_ARRAY_BUFFER, indicesPlane.size() * sizeof(unsigned short), &indicesPlane[0] , GL_STATIC_DRAW);
+        glGenBuffers(1, &elementbuffer_Sun);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementbuffer_Sun);
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, sun->indices.size() * sizeof(unsigned short), &sun->indices[0] , GL_STATIC_DRAW);
 
         //Texture
-        glGenBuffers(1,&uvbuffer);
-        glBindBuffer(GL_ARRAY_BUFFER,uvbuffer);
-        glBufferData(GL_ARRAY_BUFFER,uv_surface.size()*sizeof(float),&uv_surface[0],GL_STATIC_DRAW);
+        // glGenBuffers(1,&uvbuffer);
+        // glBindBuffer(GL_ARRAY_BUFFER,uvbuffer);
+        // glBufferData(GL_ARRAY_BUFFER,uv_surface.size()*sizeof(float),&uv_surface[0],GL_STATIC_DRAW);
 
-
-        //Dessiner le plan
-
-        glm::vec3 barycentre = getBarycentre(indexed_verticesPlane);
-        glm::vec3 barycentreInverse = glm::vec3(-barycentre[0], -barycentre[1], -barycentre[2]);
         modelMatrix = glm::mat4(1.0f);
 
         glm::mat4 viewMatrix = glm::lookAt(camera_position, camera_position + camera_target, camera_up);
 
-        switch (displayMode) {
-            case (0):
-                viewMatrix = glm::rotate(viewMatrix, glm::radians(135.0f), glm::vec3(1, 0, 0));
-                rotationNoStop += 0.025;
-                modelMatrix = glm::rotate(modelMatrix, glm::radians(rotationNoStop * speedRotation), glm::vec3(0, 0, 1));
-                break;
-            case (1):
-                viewMatrix = glm::rotate(viewMatrix, glm::radians(rotationX), glm::vec3(1, 0, 0));
-                viewMatrix = glm::rotate(viewMatrix, glm::radians(rotationY), glm::vec3(0, 1, 0));
-                viewMatrix = glm::rotate(viewMatrix, glm::radians(rotationZ), glm::vec3(0, 0, 1));
-        }
+        // viewMatrix = glm::rotate(viewMatrix, glm::radians(rotationX), glm::vec3(1, 0, 0));
+        // viewMatrix = glm::rotate(viewMatrix, glm::radians(rotationY), glm::vec3(0, 1, 0));
+        // viewMatrix = glm::rotate(viewMatrix, glm::radians(rotationZ), glm::vec3(0, 0, 1));
  
         glm::mat4 projectionMatrix = glm::perspective<float>(glm::radians(45.0f), 4.0f / 3.0f, 0.1f, 100.f);
         
@@ -331,27 +324,27 @@ int main( void )
         glUniformMatrix4fv(projectionID, 1, GL_FALSE, &projectionMatrix[0][0]);
 
         //Textures
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D,TextureHmap);
-        glUniform1i(TextureIDHmap,0);
+        // glActiveTexture(GL_TEXTURE0);
+        // glBindTexture(GL_TEXTURE_2D,TextureHmap);
+        // glUniform1i(TextureIDHmap,0);
 
-        glActiveTexture(GL_TEXTURE1);
-        glBindTexture(GL_TEXTURE_2D,TextureGrass);
-        glUniform1i(TextureIDGrass,1);
+        // glActiveTexture(GL_TEXTURE1);
+        // glBindTexture(GL_TEXTURE_2D,TextureGrass);
+        // glUniform1i(TextureIDGrass,1);
 
-        glActiveTexture(GL_TEXTURE2);
-        glBindTexture(GL_TEXTURE_2D,TextureRock);
-        glUniform1i(TextureIDRock,2);
+        // glActiveTexture(GL_TEXTURE2);
+        // glBindTexture(GL_TEXTURE_2D,TextureRock);
+        // glUniform1i(TextureIDRock,2);
 
-        glActiveTexture(GL_TEXTURE3);
-        glBindTexture(GL_TEXTURE_2D,TextureSnow);
-        glUniform1i(TextureIDSnow,3);
+        // glActiveTexture(GL_TEXTURE3);
+        // glBindTexture(GL_TEXTURE_2D,TextureSnow);
+        // glUniform1i(TextureIDSnow,3);
 
-        glEnableVertexAttribArray(1);
-        glBindBuffer(GL_ARRAY_BUFFER,uvbuffer);
-        glVertexAttribPointer(1,2,GL_FLOAT,GL_FALSE,0,(void*)0);
+        // glEnableVertexAttribArray(1);
+        // glBindBuffer(GL_ARRAY_BUFFER,uvbuffer);
+        // glVertexAttribPointer(1,2,GL_FLOAT,GL_FALSE,0,(void*)0);
 
-        drawPlane(vertexbufferPlane, elementbufferPlane, indicesPlane);
+        drawSphere(vertexbuffer_Sun, elementbuffer_Sun, sun->indices);
 
         glDisableVertexAttribArray(0);
 
@@ -364,8 +357,8 @@ int main( void )
            glfwWindowShouldClose(window) == 0 );
 
     // Cleanup VBO and shader
-    glDeleteBuffers(1, &vertexbufferPlane);
-    glDeleteBuffers(1, &elementbufferPlane);
+    glDeleteBuffers(1, &vertexbuffer_Sun);
+    glDeleteBuffers(1, &elementbuffer_Sun);
     glDeleteProgram(programID);
     glDeleteVertexArrays(1, &VertexArrayID);
 
@@ -396,25 +389,17 @@ void processInput(GLFWwindow *window)
     glm::vec3 camera_right = glm::vec3(1.0f, 0.0f,  0.0f);
 
     //rotationX
-    if (displayMode == 1) {
+    if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS) rotationX += 0.1;
+    if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)rotationX -= 0.1;
 
-        if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS) rotationX += 0.1;
-        if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)rotationX -= 0.1;
+    //rotationY
+    if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS) rotationY += .1;
+    if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS) rotationY -= .1;
 
-        //rotationY
-        if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS) rotationY += .1;
-        if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS) rotationY -= .1;
-
-        //rotationZ
-        if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS) rotationZ += .1;
-        if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS) rotationZ -= .1;
-        if (glfwGetKey(window, GLFW_KEY_C) == GLFW_PRESS) displayMode = 0;
-
-    } else if (displayMode == 0) {
-        if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS) speedRotation *= 1.0001;
-        if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS) speedRotation /= 1.0001;
-        if (glfwGetKey(window, GLFW_KEY_C) == GLFW_PRESS) displayMode = 1;
-    }
+    //rotationZ
+    if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS) rotationZ += .1;
+    if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS) rotationZ -= .1;
+    if (glfwGetKey(window, GLFW_KEY_C) == GLFW_PRESS) displayMode = 0;
 
     //Camera zoom in and out
     float cameraSpeed = 10 * deltaTime;
