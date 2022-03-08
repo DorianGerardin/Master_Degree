@@ -33,14 +33,15 @@ class Object {
         vector<unsigned short> indices;
         vector<vector<unsigned short>> triangles;
         vector<float> uv;
+
         Transform *transform;
-        Object* parent;
-        vector<Object*> children;
+        Object* parent = nullptr;
+        vector<unique_ptr<Object>> children;
+
     public:
-        Object(string filename, vector<float> uv) {
+        Object(string filename) {
             loadOFF( filename, this->indexed_vertices, this->indices, this->triangles );
             transform = new Transform();
-            this->uv = uv;
         }
 
         Object(vector<glm::vec3> indexed_vertices, 
@@ -60,21 +61,32 @@ class Object {
             delete this;
         }
 
-        void addChild(Object* o) {
-            this->children.push_back(o);
+        void updateSelfAndChild()
+        {
+            if (parent)
+                this->transform->modelMatrix = parent->transform->modelMatrix * this->transform->getLocalModelMatrix();
+            else
+                this->transform->modelMatrix = this->transform->getLocalModelMatrix();
+
+            for (auto&& child : children)
+            {
+                child->updateSelfAndChild();
+            }
+        }
+
+        void addChild(unique_ptr<Object> o) {
+            this->children.push_back(move(o));
         }
 
         Object* getParent() {
             return this->parent;
         }
 
-        void update() {
+        void update();
 
-        }
+        void draw();
 
-        void draw() {
-
-        }
+        void applyTexture(string filename);
 
     	
 
