@@ -22,7 +22,7 @@ void main(){
 
         vec4 position = vec4(vertices_position_modelspace,1);
 
-        gl_Position = projectionMatrix * viewMatrix * modelMatrix * position;
+        gl_Position = projectionMatrix * viewMatrix * modelMatrix/*  * selfModelMatrix */ * position;
         // TODO : Output position of the vertex, in clip space : MVP * position
         UV = vertexUV;
 }

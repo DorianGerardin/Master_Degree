@@ -269,7 +269,6 @@ int main( void )
     double lastTime = glfwGetTime();
     int nbFrames = 0;
 
-
     // -------------------------------------------------------------------------------------------------
     // |                                         GALAXY MODEL                                          |
     // -------------------------------------------------------------------------------------------------
@@ -373,6 +372,17 @@ int main( void )
     moon->transform->setLocalTranslation(vec3(2, 0., 0.));
     moon->transform->setLocalScale(vec3( 0.3, 0.3, 0.3 ));
 
+
+    /*GLint selfModelID = glGetUniformLocation(programID, "selfModelMatrix");
+    
+    sun->transform->setSelfScale(vec3( 10., 3., 3. ));
+    sun->updateSelf();
+    std::cout << sun->transform->getLocalScale()[0] << std::endl;
+    std::cout << sun->transform->getSelfScale()[0] << std::endl;
+
+    std::cout << earth->transform->getLocalScale()[0] << std::endl;
+    std::cout << earth->transform->getSelfScale()[0] << std::endl;*/
+
     do{
 
         // Measure speed
@@ -402,6 +412,9 @@ int main( void )
         moonRotation += 60. * deltaTime;
 
         GLint modelID = glGetUniformLocation(programID, "modelMatrix");
+
+        //glUniformMatrix4fv(selfModelID, 1, GL_FALSE, &sun->transform->getSelfModelMatrix()[0][0]);
+
         /*glUniformMatrix4fv(modelID, 1, GL_FALSE, &galaxy->transform->getModelMatrix()[0][0]);
         galaxy->generateBuffers(vertexbuffer_Galaxy, elementbuffer_Galaxy);
         galaxy->applyTexture(1, 0, sun_texture, TextureID, uvbuffer_Galaxy, programID);
@@ -428,6 +441,7 @@ int main( void )
         moon->draw(vertexbuffer_Moon, elementbuffer_Moon);
         moon->transform->setLocalRotation(vec3(180., 6.68, moonRotation));
 
+        //sun->updateSelf();
         sun->updateSelfAndChild();
 
         //-------------------------------------------------------------------------------------------------
