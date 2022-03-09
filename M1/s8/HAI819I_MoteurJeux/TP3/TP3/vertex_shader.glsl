@@ -10,6 +10,7 @@ layout(location = 1) in vec2 vertexUV;
 
 //uniform mat4 transfo_mat;
 uniform mat4 modelMatrix;
+uniform mat4 selfModelMatrix;
 uniform mat4 viewMatrix;
 uniform mat4 projectionMatrix;
 

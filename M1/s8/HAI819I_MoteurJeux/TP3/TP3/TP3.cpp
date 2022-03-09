@@ -54,9 +54,9 @@ float speedRotation = 1.;
 
 float sunRotation = 20.;
 float earthRotation = 20.;
+float moonRotation = 20.;
 
 /*******************************************************************************/
-
 
 void generateGeometryPlane(float size, std::vector<glm::vec3> & indexed_vertices,
                                      std::vector<unsigned short> & indices, 
@@ -256,16 +256,10 @@ int main( void )
 
     GLuint sun_texture = loadBMP_custom("textures/sunTexture.bmp");
     GLuint earth_texture = loadBMP_custom("textures/earthTexture.bmp");
+    GLuint moon_texture = loadBMP_custom("textures/moonTexture.bmp");
+    GLuint galaxy_texture = loadBMP_custom("textures/galaxyTexture.bmp");
 
     GLuint TextureID = glGetUniformLocation(programID,"texSampler");
-
-    /*glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D,sun_texture);
-    glUniform1i(TextureID,0);
-
-    glActiveTexture(GL_TEXTURE1);
-    glBindTexture(GL_TEXTURE_2D,earth_texture);
-    glUniform1i(TextureID,1);*/
 
     // Get a handle for our "LightPosition" uniform
     glUseProgram(programID);
@@ -274,6 +268,32 @@ int main( void )
     // For speed computation
     double lastTime = glfwGetTime();
     int nbFrames = 0;
+
+
+    // -------------------------------------------------------------------------------------------------
+    // |                                         GALAXY MODEL                                          |
+    // -------------------------------------------------------------------------------------------------
+    /*std::vector<unsigned short> indices_Galaxy; //Triangles concaténés dans une liste
+    std::vector<std::vector<unsigned short> > triangles_Galaxy;
+    std::vector<glm::vec3> indexed_vertices_Galaxy;
+    std::vector<float> uv_Galaxy;
+    GLuint vertexbuffer_Galaxy;
+    GLuint elementbuffer_Galaxy;
+    GLuint uvbuffer_Galaxy;
+    generateSphere(50, 
+                   indexed_vertices_Galaxy,
+                   indices_Galaxy,
+                   triangles_Galaxy,
+                   uv_Galaxy);
+
+    unique_ptr<Object> galaxy_uniquePtr = make_unique<Object>(indexed_vertices_Galaxy,
+                             indices_Galaxy,
+                             triangles_Galaxy,
+                             uv_Galaxy,
+                             nullptr);
+    Object* galaxy = galaxy_uniquePtr.get();
+    galaxy->transform->setLocalScale(vec3( 100000, 100000, 100000 ));*/
+
 
     // --------------------------------------------------------------------------------------------
     // |                                      SUN MODEL                                           |
@@ -291,15 +311,15 @@ int main( void )
                    indices_Sun,
                    triangles_Sun,
                    uv_Sun);
-    Object *sun = new Object(indexed_vertices_Sun,
+    unique_ptr<Object> sun_uniquePtr = make_unique<Object>(indexed_vertices_Sun,
                              indices_Sun,
                              triangles_Sun,
                              uv_Sun,
                              nullptr);
 
-    const float scale = 0.5;
+    Object* sun = sun_uniquePtr.get();
+    //galaxy->addChild(move(sun_uniquePtr));
     sun->transform->setLocalScale(vec3( 3., 3., 3. ));
-
 
     // -------------------------------------------------------------------------------------------------
     // |                                        EARTH MODEL                                            |
@@ -350,7 +370,7 @@ int main( void )
                              nullptr);
     Object* moon = moon_uniquePtr.get();
     earth->addChild(move(moon_uniquePtr));
-    moon->transform->setLocalTranslation(vec3(1, 0., 0.));
+    moon->transform->setLocalTranslation(vec3(2, 0., 0.));
     moon->transform->setLocalScale(vec3( 0.3, 0.3, 0.3 ));
 
     do{
@@ -373,36 +393,44 @@ int main( void )
         glUseProgram(programID);
 
 
-        // ----------------------
-        // |     SUN MODEL      |
-        // ----------------------
+    // -------------------------------------------------------------------------------------------------
+    // |                                        DRAW MODELS                                            |
+    // -------------------------------------------------------------------------------------------------
 
-        sunRotation += 20. * deltaTime;
+        sunRotation += 40. * deltaTime;
         earthRotation += 60. * deltaTime;
+        moonRotation += 60. * deltaTime;
 
         GLint modelID = glGetUniformLocation(programID, "modelMatrix");
-        glUniformMatrix4fv(modelID, 1, GL_FALSE, &sun->transform->getModelMatrix()[0][0]);
+        /*glUniformMatrix4fv(modelID, 1, GL_FALSE, &galaxy->transform->getModelMatrix()[0][0]);
+        galaxy->generateBuffers(vertexbuffer_Galaxy, elementbuffer_Galaxy);
+        galaxy->applyTexture(1, 0, sun_texture, TextureID, uvbuffer_Galaxy, programID);
+        galaxy->draw(vertexbuffer_Galaxy, elementbuffer_Galaxy);*/
 
+
+        glUniformMatrix4fv(modelID, 1, GL_FALSE, &sun->transform->getModelMatrix()[0][0]);
         sun->generateBuffers(vertexbuffer_Sun, elementbuffer_Sun);
         sun->applyTexture(1, 0, sun_texture, TextureID, uvbuffer_Sun, programID);
         sun->draw(vertexbuffer_Sun, elementbuffer_Sun);
-
         sun->transform->setLocalRotation(vec3(90., sunRotation, 0.));
 
-        modelID = glGetUniformLocation(programID, "modelMatrix");
-        glUniformMatrix4fv(modelID, 1, GL_FALSE, &earth->transform->getModelMatrix()[0][0]);
 
+        glUniformMatrix4fv(modelID, 1, GL_FALSE, &earth->transform->getModelMatrix()[0][0]);
         earth->generateBuffers(vertexbuffer_Earth, elementbuffer_Earth);
         earth->applyTexture(1, 0, earth_texture, TextureID, uvbuffer_Earth, programID);
         earth->draw(vertexbuffer_Earth, elementbuffer_Earth);
+        earth->transform->setLocalRotation(vec3(180., -23.44, earthRotation));
 
-        earth->transform->setLocalRotation(vec3(180., 0., 0.));
+
+        glUniformMatrix4fv(modelID, 1, GL_FALSE, &moon->transform->getModelMatrix()[0][0]);
+        moon->generateBuffers(vertexbuffer_Moon, elementbuffer_Moon);
+        moon->applyTexture(1, 0, moon_texture, TextureID, uvbuffer_Moon, programID);
+        moon->draw(vertexbuffer_Moon, elementbuffer_Moon);
+        moon->transform->setLocalRotation(vec3(180., 6.68, moonRotation));
 
         sun->updateSelfAndChild();
 
-        //-----------------------
-
-        //modelMatrix = glm::mat4(1.0f);
+        //-------------------------------------------------------------------------------------------------
 
         glm::mat4 viewMatrix = glm::lookAt(camera_position, camera_position + camera_target, camera_up);
 
@@ -412,7 +440,6 @@ int main( void )
  
         glm::mat4 projectionMatrix = glm::perspective<float>(glm::radians(45.0f), 4.0f / 3.0f, 0.1f, 100.f);
         
-        //GLint modelID = glGetUniformLocation(programID, "modelMatrix");
         GLint viewID = glGetUniformLocation(programID, "viewMatrix");
         GLint projectionID = glGetUniformLocation(programID, "projectionMatrix");
 

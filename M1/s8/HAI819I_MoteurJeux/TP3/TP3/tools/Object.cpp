@@ -61,7 +61,7 @@ class Object {
             delete this;
         }
 
-        void updatSelf() {
+        /*void updatSelf() {
             if (!this->transform->isDirty())
                 return;
 
@@ -69,8 +69,8 @@ class Object {
         }
 
         void forceUpdateSelf() {
-            this->transform->computeModelMatrix();
-        }
+            this->transform->computeSelfModelMatrix();
+        }*/
 
         void updateSelfAndChild()
         {

@@ -31,6 +31,7 @@ class Transform {
         vec3 translation;  // translation
         //Global space information concatenate in matrix
         mat4 modelMatrix = mat4(1.0f);
+        //mat4 self_modelMatrix = mat4(1.0f);
         bool m_isDirty = true;
 
     protected:
@@ -59,6 +60,12 @@ class Transform {
             this->modelMatrix = getLocalModelMatrix();
             this->m_isDirty = false;
         }
+
+        /*void computeSelfModelMatrix()
+        {
+            this->self_modelMatrix = getLocalModelMatrix();
+            this->m_isDirty = false;
+        }*/
 
         void computeModelMatrix(const mat4& parentGlobalModelMatrix)
         {
@@ -103,6 +110,11 @@ class Transform {
         {
             return this->modelMatrix;
         }
+
+        /*const glm::mat4& getSelfModelMatrix() const
+        {
+            return this->self_modelMatrix;
+        }*/
 
         bool isDirty() const
         {
