@@ -52,20 +52,9 @@ float rotationZ = 0.;
 float rotationNoStop = 0.;
 float speedRotation = 1.;
 
-float planeSize = 16.;
-std::vector<unsigned short> indicesPlane; //Triangles concaténés dans une liste
-std::vector<std::vector<unsigned short>> trianglesPlane;
-std::vector<glm::vec3> indexed_verticesPlane;
-std::vector<float> uv_surface;
+float sunRotation = 20.;
+float earthRotation = 20.;
 
-GLuint vertexbufferPlane;
-GLuint elementbufferPlane;
-
-GLuint vertexbuffer;
-GLuint elementbuffer;
-GLuint uvbuffer;
-
-int displayMode = 0;
 /*******************************************************************************/
 
 
@@ -84,8 +73,6 @@ void generateGeometryPlane(float size, std::vector<glm::vec3> & indexed_vertices
 
     size = (int)floor(size);
     int length = 10;
-
-    //std::cout << "planeSize: " << size << std::endl;
 
     for (int i = 0; i < size; ++i)
     {
@@ -119,46 +106,81 @@ void generateGeometryPlane(float size, std::vector<glm::vec3> & indexed_vertices
     }
 }
 
-void drawSphere(GLuint vertexbuffer, GLuint elementbuffer, std::vector<unsigned short> indices) {
+void generateSphere(float size, std::vector<glm::vec3> & indexed_vertices,
+                                     std::vector<unsigned short> & indices, 
+                                     std::vector<std::vector<unsigned short>> & triangles,
+                                     std::vector<float>& uv) {
 
-    glEnableVertexAttribArray(0);
-    glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
-    glVertexAttribPointer(
-                0,                  // attribute
-                3,                  // size
-                GL_FLOAT,           // type
-                GL_FALSE,           // normalized?
-                0,                  // stride
-                (void*)0            // array buffer offset
-                );
+    indexed_vertices.clear();
+    indices.clear();
+    triangles.clear();
+    uv.clear();
 
-    // Index buffer
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementbuffer);
+    double TWO_PI = M_PI*2;
 
-    // Draw the triangles !
-    glDrawElements(
-                GL_TRIANGLES,      // mode
-                indices.size(),    // count
-                GL_UNSIGNED_SHORT, // type
-                (void*)0           // element array buffer offset
-                );
-}
+    float PI = M_PI;
+    float half_PI = M_PI/2;
+    float teta = 0.0;
+    float phi = -half_PI;
 
-glm::vec3 getBarycentre(std::vector<glm::vec3> vertices) {
-    glm::vec3 barycentre = glm::vec3(0.f, 0.f, 0.f);
-    unsigned int size = vertices.size();
+    for (int j = 0; j < size; j++)
+    {
+        for (int i = 0; i < size; i++){
+            /*if(i == size) {
+                teta = 0.;
+            }*/
+            float x = cos(teta)*cos(phi);
+            float y = sin(teta)*cos(phi);
+            float z = sin(phi);
+            teta += 2*PI/size;
+            indexed_vertices.push_back(vec3(x,y,z));
+            uv.push_back((float)i/(float)(size-1));
+            uv.push_back((float)j/(float)(size-1));
+        }
+        teta = 0.0;
+        phi += PI/(size-1);
+    }
+
     for (int i = 0; i < size; ++i)
     {
-        barycentre[0] += vertices[i][0];
-        barycentre[1] += vertices[i][1];
-        barycentre[2] += vertices[i][2];
-    }
-    barycentre[0] /= size;
-    barycentre[1] /= size;
-    barycentre[2] /= size;
-    return barycentre;
-}
+        for (int j = 0; j < size; ++j)
+        {
+            std::vector<unsigned short> triangle;
+            triangle.push_back(i*size+j);
+            triangle.push_back(i*size+(j+1));
+            triangle.push_back((i+1)*size+j);
+            triangles.push_back(triangle);
 
+            if(j == size-1) {
+                indices.push_back(i*size+j);
+                indices.push_back((i+1)*size+j);
+                indices.push_back(i*size);
+
+                indices.push_back(i*size);
+                indices.push_back((i+1)*size+j);
+                indices.push_back((i+1)*size);
+            } else {
+                indices.push_back(i*size+j);
+                indices.push_back((i+1)*size+j);
+                indices.push_back(i*size+(j+1));
+
+                indices.push_back(i*size+(j+1));
+                indices.push_back((i+1)*size+j);
+                indices.push_back((i+1)*size+(j+1));
+            }
+        }
+    }
+
+    /*for (int i = 0; i < uv.size(); ++i)
+    {
+        std::cout << "uv[" << i << "] : " << uv[i] << std::endl;
+    }
+
+    for (int i = 0; i < indexed_vertices.size(); ++i)
+    {
+        std::cout << "vertex[" << i << "] : " << indexed_vertices[i][0] << " " << indexed_vertices[i][1] << " " << indexed_vertices[i][2] << std::endl;
+    }*/
+}
 
 int main( void )
 {
@@ -205,7 +227,7 @@ int main( void )
     glfwSetCursorPos(window, 1024/2, 768/2);
 
     // Dark blue background
-    glClearColor(0.8f, 0.8f, 0.8f, 0.0f);
+    glClearColor(0.f, 0.f, 0.f, 0.0f);
 
     // Enable depth test
     glEnable(GL_DEPTH_TEST);
@@ -228,17 +250,22 @@ int main( void )
     glm::mat4 viewMatrix;
     glm::mat4 projectionMatrix;
 
-    /****************************************/
+    // --------------------------------------------------------------------------------------------
+    // |                                      TEXTURES                                            |
+    // --------------------------------------------------------------------------------------------
 
-    // GLuint TextureHmap = loadBMP_custom("textures/Heightmap_Mountain.bmp");
-    // GLuint TextureGrass = loadBMP_custom("textures/grass.bmp");
-    // GLuint TextureRock = loadBMP_custom("textures/rock.bmp");
-    // GLuint TextureSnow = loadBMP_custom("textures/snowrocks.bmp");
+    GLuint sun_texture = loadBMP_custom("textures/sunTexture.bmp");
+    GLuint earth_texture = loadBMP_custom("textures/earthTexture.bmp");
 
-    // GLuint TextureIDHmap = glGetUniformLocation(programID,"hmapSampler");
-    // GLuint TextureIDGrass = glGetUniformLocation(programID,"grassSampler");
-    // GLuint TextureIDRock = glGetUniformLocation(programID,"rockSampler");
-    // GLuint TextureIDSnow = glGetUniformLocation(programID,"snowSampler");
+    GLuint TextureID = glGetUniformLocation(programID,"texSampler");
+
+    /*glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D,sun_texture);
+    glUniform1i(TextureID,0);
+
+    glActiveTexture(GL_TEXTURE1);
+    glBindTexture(GL_TEXTURE_2D,earth_texture);
+    glUniform1i(TextureID,1);*/
 
     // Get a handle for our "LightPosition" uniform
     glUseProgram(programID);
@@ -248,28 +275,83 @@ int main( void )
     double lastTime = glfwGetTime();
     int nbFrames = 0;
 
-    // std::vector<unsigned short> indices_Sun; //Triangles concaténés dans une liste
-    // std::vector<std::vector<unsigned short> > triangles_Sun;
-    // std::vector<glm::vec3> indexed_vertices_Sun;
-    Object *sun = new Object("objects/sphere966.off");
-    // std::string filename("objects/suzanne.off");
-    //loadOFF(filename, indexed_vertices_Sun, indices_Sun, triangles_Sun );
-
+    // --------------------------------------------------------------------------------------------
+    // |                                      SUN MODEL                                           |
+    // --------------------------------------------------------------------------------------------
+    std::vector<unsigned short> indices_Sun; //Triangles concaténés dans une liste
+    std::vector<std::vector<unsigned short> > triangles_Sun;
+    std::vector<glm::vec3> indexed_vertices_Sun;
+    std::vector<float> uv_Sun;
     GLuint vertexbuffer_Sun;
-    glGenBuffers(1, &vertexbuffer_Sun);
-    glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer_Sun);
-    glBufferData(GL_ARRAY_BUFFER, sun->indexed_vertices.size() * sizeof(glm::vec3), &sun->indexed_vertices[0], GL_STATIC_DRAW);
-
     GLuint elementbuffer_Sun;
-    // Generate a buffer for the indices as well
-    glGenBuffers(1, &elementbuffer_Sun);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementbuffer_Sun);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sun->indices.size() * sizeof(unsigned short), &sun->indices[0] , GL_STATIC_DRAW);
+    GLuint uvbuffer_Sun;
 
-    //Texture
-    // glGenBuffers(1,&uvbuffer);
-    // glBindBuffer(GL_ARRAY_BUFFER,uvbuffer);
-    // glBufferData(GL_ARRAY_BUFFER,uv_surface.size()*sizeof(float),&uv_surface[0],GL_STATIC_DRAW);
+    generateSphere(20, 
+                   indexed_vertices_Sun,
+                   indices_Sun,
+                   triangles_Sun,
+                   uv_Sun);
+    Object *sun = new Object(indexed_vertices_Sun,
+                             indices_Sun,
+                             triangles_Sun,
+                             uv_Sun,
+                             nullptr);
+
+    const float scale = 0.5;
+    sun->transform->setLocalScale(vec3( 3., 3., 3. ));
+
+
+    // -------------------------------------------------------------------------------------------------
+    // |                                        EARTH MODEL                                            |
+    // -------------------------------------------------------------------------------------------------
+    std::vector<unsigned short> indices_Earth; //Triangles concaténés dans une liste
+    std::vector<std::vector<unsigned short> > triangles_Earth;
+    std::vector<glm::vec3> indexed_vertices_Earth;
+    std::vector<float> uv_Earth;
+    GLuint vertexbuffer_Earth;
+    GLuint elementbuffer_Earth;
+    GLuint uvbuffer_Earth;
+    generateSphere(20, 
+                   indexed_vertices_Earth,
+                   indices_Earth,
+                   triangles_Earth,
+                   uv_Earth);
+
+    unique_ptr<Object> earth_uniquePtr = make_unique<Object>(indexed_vertices_Earth,
+                             indices_Earth,
+                             triangles_Earth,
+                             uv_Earth,
+                             nullptr);
+    Object* earth = earth_uniquePtr.get();
+    sun->addChild(move(earth_uniquePtr));
+    earth->transform->setLocalTranslation(vec3(5, 0., 0.));
+    earth->transform->setLocalScale(vec3( 0.5, 0.5, 0.5 ));
+
+    // -------------------------------------------------------------------------------------------------
+    // |                                        MOON MODEL                                             |
+    // -------------------------------------------------------------------------------------------------
+    std::vector<unsigned short> indices_Moon; //Triangles concaténés dans une liste
+    std::vector<std::vector<unsigned short> > triangles_Moon;
+    std::vector<glm::vec3> indexed_vertices_Moon;
+    std::vector<float> uv_Moon;
+    GLuint vertexbuffer_Moon;
+    GLuint elementbuffer_Moon;
+    GLuint uvbuffer_Moon;
+    generateSphere(20, 
+                   indexed_vertices_Moon,
+                   indices_Moon,
+                   triangles_Moon,
+                   uv_Moon);
+
+    unique_ptr<Object> moon_uniquePtr = make_unique<Object>(indexed_vertices_Moon,
+                             indices_Moon,
+                             triangles_Moon,
+                             uv_Moon,
+                             nullptr);
+    Object* moon = moon_uniquePtr.get();
+    earth->addChild(move(moon_uniquePtr));
+    moon->transform->setLocalTranslation(vec3(1, 0., 0.));
+    moon->transform->setLocalScale(vec3( 0.3, 0.3, 0.3 ));
 
     do{
 
@@ -284,70 +366,63 @@ int main( void )
         // -----
         processInput(window);
 
-
         // Clear the screen
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         // Use our shader
         glUseProgram(programID);
 
-        glGenBuffers(1, &vertexbuffer_Sun);
-        glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer_Sun);
-        glBufferData(GL_ARRAY_BUFFER, sun->indexed_vertices.size() * sizeof(glm::vec3), &sun->indexed_vertices[0], GL_STATIC_DRAW);
 
-        // Generate a buffer for the indices as well
-        glGenBuffers(1, &elementbuffer_Sun);
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementbuffer_Sun);
-        glBufferData(GL_ELEMENT_ARRAY_BUFFER, sun->indices.size() * sizeof(unsigned short), &sun->indices[0] , GL_STATIC_DRAW);
+        // ----------------------
+        // |     SUN MODEL      |
+        // ----------------------
 
-        //Texture
-        // glGenBuffers(1,&uvbuffer);
-        // glBindBuffer(GL_ARRAY_BUFFER,uvbuffer);
-        // glBufferData(GL_ARRAY_BUFFER,uv_surface.size()*sizeof(float),&uv_surface[0],GL_STATIC_DRAW);
+        sunRotation += 20. * deltaTime;
+        earthRotation += 60. * deltaTime;
 
-        modelMatrix = glm::mat4(1.0f);
+        GLint modelID = glGetUniformLocation(programID, "modelMatrix");
+        glUniformMatrix4fv(modelID, 1, GL_FALSE, &sun->transform->getModelMatrix()[0][0]);
+
+        sun->generateBuffers(vertexbuffer_Sun, elementbuffer_Sun);
+        sun->applyTexture(1, 0, sun_texture, TextureID, uvbuffer_Sun, programID);
+        sun->draw(vertexbuffer_Sun, elementbuffer_Sun);
+
+        sun->transform->setLocalRotation(vec3(90., sunRotation, 0.));
+
+        modelID = glGetUniformLocation(programID, "modelMatrix");
+        glUniformMatrix4fv(modelID, 1, GL_FALSE, &earth->transform->getModelMatrix()[0][0]);
+
+        earth->generateBuffers(vertexbuffer_Earth, elementbuffer_Earth);
+        earth->applyTexture(1, 0, earth_texture, TextureID, uvbuffer_Earth, programID);
+        earth->draw(vertexbuffer_Earth, elementbuffer_Earth);
+
+        earth->transform->setLocalRotation(vec3(180., 0., 0.));
+
+        sun->updateSelfAndChild();
+
+        //-----------------------
+
+        //modelMatrix = glm::mat4(1.0f);
 
         glm::mat4 viewMatrix = glm::lookAt(camera_position, camera_position + camera_target, camera_up);
 
-        // viewMatrix = glm::rotate(viewMatrix, glm::radians(rotationX), glm::vec3(1, 0, 0));
-        // viewMatrix = glm::rotate(viewMatrix, glm::radians(rotationY), glm::vec3(0, 1, 0));
-        // viewMatrix = glm::rotate(viewMatrix, glm::radians(rotationZ), glm::vec3(0, 0, 1));
+        viewMatrix = glm::rotate(viewMatrix, glm::radians(rotationX), glm::vec3(1, 0, 0));
+        viewMatrix = glm::rotate(viewMatrix, glm::radians(rotationY), glm::vec3(0, 1, 0));
+        viewMatrix = glm::rotate(viewMatrix, glm::radians(rotationZ), glm::vec3(0, 0, 1));
  
         glm::mat4 projectionMatrix = glm::perspective<float>(glm::radians(45.0f), 4.0f / 3.0f, 0.1f, 100.f);
         
-        GLint modelID = glGetUniformLocation(programID, "modelMatrix");
+        //GLint modelID = glGetUniformLocation(programID, "modelMatrix");
         GLint viewID = glGetUniformLocation(programID, "viewMatrix");
         GLint projectionID = glGetUniformLocation(programID, "projectionMatrix");
 
-        glUniformMatrix4fv(modelID, 1, GL_FALSE, &modelMatrix[0][0]);
+        //glUniformMatrix4fv(modelID, 1, GL_FALSE, &modelMatrix[0][0]);
         glUniformMatrix4fv(viewID, 1, GL_FALSE, &viewMatrix[0][0]);
         glUniformMatrix4fv(projectionID, 1, GL_FALSE, &projectionMatrix[0][0]);
 
-        //Textures
-        // glActiveTexture(GL_TEXTURE0);
-        // glBindTexture(GL_TEXTURE_2D,TextureHmap);
-        // glUniform1i(TextureIDHmap,0);
-
-        // glActiveTexture(GL_TEXTURE1);
-        // glBindTexture(GL_TEXTURE_2D,TextureGrass);
-        // glUniform1i(TextureIDGrass,1);
-
-        // glActiveTexture(GL_TEXTURE2);
-        // glBindTexture(GL_TEXTURE_2D,TextureRock);
-        // glUniform1i(TextureIDRock,2);
-
-        // glActiveTexture(GL_TEXTURE3);
-        // glBindTexture(GL_TEXTURE_2D,TextureSnow);
-        // glUniform1i(TextureIDSnow,3);
-
-        // glEnableVertexAttribArray(1);
-        // glBindBuffer(GL_ARRAY_BUFFER,uvbuffer);
-        // glVertexAttribPointer(1,2,GL_FLOAT,GL_FALSE,0,(void*)0);
-
-        drawSphere(vertexbuffer_Sun, elementbuffer_Sun, sun->indices);
-
         glDisableVertexAttribArray(0);
-
+        glDisableVertexAttribArray(1);
+        glDisableVertexAttribArray(2);
         // Swap buffers
         glfwSwapBuffers(window);
         glfwPollEvents();
@@ -370,7 +445,7 @@ int main( void )
 
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 {
-    float cameraSpeed = 500 * deltaTime;
+    float cameraSpeed = 100 * deltaTime;
     if (yoffset == -1) {
         camera_position -= cameraSpeed * camera_target;
     }
@@ -389,17 +464,16 @@ void processInput(GLFWwindow *window)
     glm::vec3 camera_right = glm::vec3(1.0f, 0.0f,  0.0f);
 
     //rotationX
-    if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS) rotationX += 0.1;
-    if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)rotationX -= 0.1;
+    if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS) rotationX += 1;
+    if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)rotationX -= 1;
 
     //rotationY
-    if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS) rotationY += .1;
-    if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS) rotationY -= .1;
+    if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS) rotationY += 1;
+    if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS) rotationY -= 1;
 
     //rotationZ
-    if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS) rotationZ += .1;
-    if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS) rotationZ -= .1;
-    if (glfwGetKey(window, GLFW_KEY_C) == GLFW_PRESS) displayMode = 0;
+    if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS) rotationZ += 1;
+    if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS) rotationZ -= 1;
 
     //Camera zoom in and out
     float cameraSpeed = 10 * deltaTime;
@@ -414,20 +488,6 @@ void processInput(GLFWwindow *window)
         camera_position += glm::normalize(glm::cross(camera_right, camera_target)) * cameraSpeed;
     if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
         camera_position -= glm::normalize(glm::cross(camera_right, camera_target)) * cameraSpeed;
-
-    //resolution
-    if (glfwGetKey(window, GLFW_KEY_KP_ADD) == GLFW_PRESS) {
-        planeSize+=0.01;
-        generateGeometryPlane(planeSize, indexed_verticesPlane, indicesPlane, trianglesPlane, uv_surface);
-    }
-    if (glfwGetKey(window, GLFW_KEY_KP_SUBTRACT) == GLFW_PRESS) {
-        if(planeSize > 3) {
-            planeSize-=0.01;
-            generateGeometryPlane(planeSize, indexed_verticesPlane, indicesPlane, trianglesPlane, uv_surface);
-        }
-    }
-
-    //change display mode
 }
 
 // glfw: whenever the window size changed (by OS or user resize) this callback function executes

@@ -1,8 +1,8 @@
 file(REMOVE_RECURSE
-  "CMakeFiles/empty.dir/__/deps/tinycthread.c.o"
   "CMakeFiles/empty.dir/empty.c.o"
-  "empty"
+  "CMakeFiles/empty.dir/__/deps/tinycthread.c.o"
   "empty.pdb"
+  "empty"
 )
 
 # Per-language clean rules from dependency scanning.

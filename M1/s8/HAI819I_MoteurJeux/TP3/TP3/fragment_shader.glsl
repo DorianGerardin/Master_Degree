@@ -8,12 +8,9 @@ in float zPos;
 //out vec4 Color;
 out vec3 color;
 
-uniform sampler2D hmapSampler;
-uniform sampler2D grassSampler;
-uniform sampler2D rockSampler;
-uniform sampler2D snowSampler;
 
+uniform sampler2D texSampler;
 
 void main(){
-        color = vec3(255., 0.5, 0.);
+        color = texture( texSampler, UV ).rgb;
 }

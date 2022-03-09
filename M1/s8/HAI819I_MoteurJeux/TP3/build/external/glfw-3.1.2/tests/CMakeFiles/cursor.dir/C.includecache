@@ -60,7 +60,7 @@ GL/glext.h
 GL/glu.h
 -
 
-/home/e20180001518/Master/M1/s8/HAI819I_MoteurJeux/TP3/external/glfw-3.1.2/tests/cursor.c
+/home/dorian/Master/M1/s8/HAI819I_MoteurJeux/TP3/external/glfw-3.1.2/tests/cursor.c
 GLFW/glfw3.h
 -
 math.h

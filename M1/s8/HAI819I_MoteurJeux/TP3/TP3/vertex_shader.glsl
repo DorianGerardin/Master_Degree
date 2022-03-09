@@ -13,14 +13,9 @@ uniform mat4 modelMatrix;
 uniform mat4 viewMatrix;
 uniform mat4 projectionMatrix;
 
-uniform sampler2D hmapSampler;
-uniform sampler2D grassSampler;
-uniform sampler2D rockSampler;
-uniform sampler2D snowSampler;
+uniform sampler2D texSampler;
 
 out vec2 UV;
-out float zPos;
-//out vec2 TexCoord;
 
 void main(){
 
@@ -28,6 +23,6 @@ void main(){
 
         gl_Position = projectionMatrix * viewMatrix * modelMatrix * position;
         // TODO : Output position of the vertex, in clip space : MVP * position
-        //UV = vertexUV;
+        UV = vertexUV;
 }
 
