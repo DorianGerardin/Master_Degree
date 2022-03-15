@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">TP3</string>
+    <string name="nom">Nom : </string>
+    <string name="prenom">Prénom : </string>
+    <string name="age">Age : </string>
+    <string name="mail">Adresse E-mail : </string>
+    <string name="phone">Téléphone : </string>
+    <string name="interests">Centres d\'intérêts : </string>
+</resources>
