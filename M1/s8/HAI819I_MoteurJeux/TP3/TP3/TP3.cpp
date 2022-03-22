@@ -55,6 +55,7 @@ float speedRotation = 1.;
 float sunRotation = 20.;
 float earthRotation = 20.;
 float moonRotation = 20.;
+float galaxyRotation = 20.;
 
 /*******************************************************************************/
 
@@ -102,6 +103,53 @@ void generateGeometryPlane(float size, std::vector<glm::vec3> & indexed_vertices
             indices.push_back(i*size+(j+1));
             indices.push_back((i+1)*size+(j+1));
             indices.push_back((i+1)*size+j);
+        }
+    }
+}
+
+void generateSphere2(float size, std::vector<glm::vec3> & indexed_vertices,
+                                     std::vector<unsigned short> & indices, 
+                                     std::vector<std::vector<unsigned short>> & triangles,
+                                     std::vector<float>& uv) {
+
+    float x, y, z, u, v;
+    float theta, phi;
+
+    indexed_vertices.clear();
+    triangles.clear();
+    uv.clear();
+
+    for(unsigned int i = 0; i < size; i++) {
+
+        u = (float)i / (float)(size-1);
+
+        theta = 2 * M_PI * u;
+
+        for(unsigned int j = 0; j < size; j++) {
+            
+            v = (float)j / (float)(size-1);
+            
+            phi = -M_PI / 2.0f + v * M_PI;
+
+            x = cos(theta) * cos(phi);
+            y = sin(theta) * cos(phi);
+            z = sin(phi);
+
+            indexed_vertices.push_back(glm::vec3(x,y,z));
+            uv.push_back(u);
+            uv.push_back(v);
+            //uv.push_back(glm::vec2(u,v));
+
+            if(i < size-1 && j < size-1) {
+
+                indices.push_back(i+j*size);
+                indices.push_back((i+1)+j*size);
+                indices.push_back((i+1)+(j+1)*size);
+
+                indices.push_back(i+j*size);
+                indices.push_back((i+1)+(j+1)*size);
+                indices.push_back(i+(j+1)*size);
+            }
         }
     }
 }
@@ -272,14 +320,14 @@ int main( void )
     // -------------------------------------------------------------------------------------------------
     // |                                         GALAXY MODEL                                          |
     // -------------------------------------------------------------------------------------------------
-    /*std::vector<unsigned short> indices_Galaxy; //Triangles concaténés dans une liste
+    std::vector<unsigned short> indices_Galaxy; //Triangles concaténés dans une liste
     std::vector<std::vector<unsigned short> > triangles_Galaxy;
     std::vector<glm::vec3> indexed_vertices_Galaxy;
     std::vector<float> uv_Galaxy;
     GLuint vertexbuffer_Galaxy;
     GLuint elementbuffer_Galaxy;
     GLuint uvbuffer_Galaxy;
-    generateSphere(50, 
+    generateSphere2(50, 
                    indexed_vertices_Galaxy,
                    indices_Galaxy,
                    triangles_Galaxy,
@@ -291,7 +339,7 @@ int main( void )
                              uv_Galaxy,
                              nullptr);
     Object* galaxy = galaxy_uniquePtr.get();
-    galaxy->transform->setLocalScale(vec3( 100000, 100000, 100000 ));*/
+    galaxy->transform->setLocalScale(vec3( 50, 50, 50 ));
 
 
     // --------------------------------------------------------------------------------------------
@@ -305,7 +353,7 @@ int main( void )
     GLuint elementbuffer_Sun;
     GLuint uvbuffer_Sun;
 
-    generateSphere(20, 
+    generateSphere2(20, 
                    indexed_vertices_Sun,
                    indices_Sun,
                    triangles_Sun,
@@ -318,7 +366,7 @@ int main( void )
 
     Object* sun = sun_uniquePtr.get();
     //galaxy->addChild(move(sun_uniquePtr));
-    sun->transform->setLocalScale(vec3( 3., 3., 3. ));
+    sun->transform->setLocalScale(vec3( 4, 4, 4 ));
 
     // -------------------------------------------------------------------------------------------------
     // |                                        EARTH MODEL                                            |
@@ -330,7 +378,7 @@ int main( void )
     GLuint vertexbuffer_Earth;
     GLuint elementbuffer_Earth;
     GLuint uvbuffer_Earth;
-    generateSphere(20, 
+    generateSphere2(20, 
                    indexed_vertices_Earth,
                    indices_Earth,
                    triangles_Earth,
@@ -344,7 +392,7 @@ int main( void )
     Object* earth = earth_uniquePtr.get();
     sun->addChild(move(earth_uniquePtr));
     earth->transform->setLocalTranslation(vec3(5, 0., 0.));
-    earth->transform->setLocalScale(vec3( 0.5, 0.5, 0.5 ));
+    earth->transform->setLocalScale(vec3( 0.3, 0.3, 0.3 ));
 
     // -------------------------------------------------------------------------------------------------
     // |                                        MOON MODEL                                             |
@@ -356,7 +404,7 @@ int main( void )
     GLuint vertexbuffer_Moon;
     GLuint elementbuffer_Moon;
     GLuint uvbuffer_Moon;
-    generateSphere(20, 
+    generateSphere2(20, 
                    indexed_vertices_Moon,
                    indices_Moon,
                    triangles_Moon,
@@ -410,15 +458,17 @@ int main( void )
         sunRotation += 40. * deltaTime;
         earthRotation += 60. * deltaTime;
         moonRotation += 60. * deltaTime;
+        galaxyRotation -= 5. * deltaTime;
 
         GLint modelID = glGetUniformLocation(programID, "modelMatrix");
 
         //glUniformMatrix4fv(selfModelID, 1, GL_FALSE, &sun->transform->getSelfModelMatrix()[0][0]);
 
-        /*glUniformMatrix4fv(modelID, 1, GL_FALSE, &galaxy->transform->getModelMatrix()[0][0]);
+        glUniformMatrix4fv(modelID, 1, GL_FALSE, &galaxy->transform->getModelMatrix()[0][0]);
         galaxy->generateBuffers(vertexbuffer_Galaxy, elementbuffer_Galaxy);
-        galaxy->applyTexture(1, 0, sun_texture, TextureID, uvbuffer_Galaxy, programID);
-        galaxy->draw(vertexbuffer_Galaxy, elementbuffer_Galaxy);*/
+        galaxy->applyTexture(1, 0, galaxy_texture, TextureID, uvbuffer_Galaxy, programID);
+        galaxy->draw(vertexbuffer_Galaxy, elementbuffer_Galaxy);
+        galaxy->transform->setLocalRotation(vec3(0., galaxyRotation, 0.));
 
 
         glUniformMatrix4fv(modelID, 1, GL_FALSE, &sun->transform->getModelMatrix()[0][0]);
@@ -426,7 +476,6 @@ int main( void )
         sun->applyTexture(1, 0, sun_texture, TextureID, uvbuffer_Sun, programID);
         sun->draw(vertexbuffer_Sun, elementbuffer_Sun);
         sun->transform->setLocalRotation(vec3(90., sunRotation, 0.));
-
 
         glUniformMatrix4fv(modelID, 1, GL_FALSE, &earth->transform->getModelMatrix()[0][0]);
         earth->generateBuffers(vertexbuffer_Earth, elementbuffer_Earth);
@@ -443,6 +492,7 @@ int main( void )
 
         //sun->updateSelf();
         sun->updateSelfAndChild();
+        galaxy->updateSelfAndChild();
 
         //-------------------------------------------------------------------------------------------------
 
