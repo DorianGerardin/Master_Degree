@@ -138,7 +138,6 @@ void generateSphere2(float size, std::vector<glm::vec3> & indexed_vertices,
             indexed_vertices.push_back(glm::vec3(x,y,z));
             uv.push_back(u);
             uv.push_back(v);
-            //uv.push_back(glm::vec2(u,v));
 
             if(i < size-1 && j < size-1) {
 
@@ -152,82 +151,6 @@ void generateSphere2(float size, std::vector<glm::vec3> & indexed_vertices,
             }
         }
     }
-}
-
-void generateSphere(float size, std::vector<glm::vec3> & indexed_vertices,
-                                     std::vector<unsigned short> & indices, 
-                                     std::vector<std::vector<unsigned short>> & triangles,
-                                     std::vector<float>& uv) {
-
-    indexed_vertices.clear();
-    indices.clear();
-    triangles.clear();
-    uv.clear();
-
-    double TWO_PI = M_PI*2;
-
-    float PI = M_PI;
-    float half_PI = M_PI/2;
-    float teta = 0.0;
-    float phi = -half_PI;
-
-    for (int j = 0; j < size; j++)
-    {
-        for (int i = 0; i < size; i++){
-            /*if(i == size) {
-                teta = 0.;
-            }*/
-            float x = cos(teta)*cos(phi);
-            float y = sin(teta)*cos(phi);
-            float z = sin(phi);
-            teta += 2*PI/size;
-            indexed_vertices.push_back(vec3(x,y,z));
-            uv.push_back((float)i/(float)(size-1));
-            uv.push_back((float)j/(float)(size-1));
-        }
-        teta = 0.0;
-        phi += PI/(size-1);
-    }
-
-    for (int i = 0; i < size; ++i)
-    {
-        for (int j = 0; j < size; ++j)
-        {
-            std::vector<unsigned short> triangle;
-            triangle.push_back(i*size+j);
-            triangle.push_back(i*size+(j+1));
-            triangle.push_back((i+1)*size+j);
-            triangles.push_back(triangle);
-
-            if(j == size-1) {
-                indices.push_back(i*size+j);
-                indices.push_back((i+1)*size+j);
-                indices.push_back(i*size);
-
-                indices.push_back(i*size);
-                indices.push_back((i+1)*size+j);
-                indices.push_back((i+1)*size);
-            } else {
-                indices.push_back(i*size+j);
-                indices.push_back((i+1)*size+j);
-                indices.push_back(i*size+(j+1));
-
-                indices.push_back(i*size+(j+1));
-                indices.push_back((i+1)*size+j);
-                indices.push_back((i+1)*size+(j+1));
-            }
-        }
-    }
-
-    /*for (int i = 0; i < uv.size(); ++i)
-    {
-        std::cout << "uv[" << i << "] : " << uv[i] << std::endl;
-    }
-
-    for (int i = 0; i < indexed_vertices.size(); ++i)
-    {
-        std::cout << "vertex[" << i << "] : " << indexed_vertices[i][0] << " " << indexed_vertices[i][1] << " " << indexed_vertices[i][2] << std::endl;
-    }*/
 }
 
 int main( void )
