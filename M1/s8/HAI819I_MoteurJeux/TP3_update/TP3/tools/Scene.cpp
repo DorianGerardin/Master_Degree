@@ -42,7 +42,7 @@ class Scene {
         CAMERA defaultCamera;
 
 	public:
-        vector<unique_ptr<Object>> objects;
+        vector<Object*> objects;
         vector<CAMERA> cameras;
 
     public:
@@ -58,8 +58,8 @@ class Scene {
             delete this;
         }
 
-        void addObject(unique_ptr<Object> o) {
-            this->objects.push_back(move(o));
+        void addObject(Object* o) {
+            this->objects.push_back(o);
         }
 
         void addCamera(CAMERA cam) {
@@ -67,13 +67,8 @@ class Scene {
         }
         
         void draw() {
-            std::cout << "debut draw scene" << std::endl;
-            std::cout << "size object" << objects.size() << std::endl;
             for (int i = 0; i < objects.size(); i++)
             {
-                //std::cout << "object uv : " << objects[i]->uv[0] << std::endl;
-                std::cout << "object " << i << " : " << std::endl;
-                std::cout << "draw scene : " << objects[i]->mesh->indexed_vertices.size() << std::endl;
                 objects[i]->draw();
             }
         }

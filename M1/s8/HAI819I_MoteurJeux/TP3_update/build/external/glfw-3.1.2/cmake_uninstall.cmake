@@ -1,9 +1,9 @@
 
-if (NOT EXISTS "/home/dorian/TP3_moteur_copy/build/external/glfw-3.1.2/install_manifest.txt")
-  message(FATAL_ERROR "Cannot find install manifest: \"/home/dorian/TP3_moteur_copy/build/external/glfw-3.1.2/install_manifest.txt\"")
+if (NOT EXISTS "/home/dorian/Master/M1/s8/HAI819I_MoteurJeux/TP3_update/build/external/glfw-3.1.2/install_manifest.txt")
+  message(FATAL_ERROR "Cannot find install manifest: \"/home/dorian/Master/M1/s8/HAI819I_MoteurJeux/TP3_update/build/external/glfw-3.1.2/install_manifest.txt\"")
 endif()
 
-file(READ "/home/dorian/TP3_moteur_copy/build/external/glfw-3.1.2/install_manifest.txt" files)
+file(READ "/home/dorian/Master/M1/s8/HAI819I_MoteurJeux/TP3_update/build/external/glfw-3.1.2/install_manifest.txt" files)
 string(REGEX REPLACE "\n" ";" files "${files}")
 
 foreach (file ${files})

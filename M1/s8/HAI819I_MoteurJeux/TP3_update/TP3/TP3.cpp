@@ -38,21 +38,6 @@ const unsigned int SCR_HEIGHT = 600;
 float deltaTime = 0.0f;	// time between current frame and last frame
 float lastFrame = 0.0f;
 
-//rotation
-/*float angle = 0.;
-float zoom = 1.;
-
-float rotationX = 0.;
-float rotationY = 0.;
-float rotationZ = 0.;
-float rotationNoStop = 0.;
-float speedRotation = 1.;
-
-float sunRotation = 20.;
-float earthRotation = 20.;
-float moonRotation = 20.;
-float galaxyRotation = 20.;*/
-
 /*******************************************************************************/
 
 int main( void )
@@ -149,24 +134,19 @@ int main( void )
     // --------------------------------------------------------------------------------------------
 
     Scene *scene = new Scene();
-    CAMERA camera = scene->cameras[0];
-    InputManager *inputManager = new InputManager(window, scene); 
+    InputManager *inputManager = new InputManager(window, scene);
+    CAMERA camera = inputManager->scene->cameras[0]; 
 
     unique_ptr<Object> galaxy_uniquePtr = make_unique<Object>("sphere", 20., galaxy_texture, TextureID, modelID);
-    std::cout << "galaxy crée" << std::endl;
     Object* galaxy = galaxy_uniquePtr.get();
     
     unique_ptr<Object> sun_uniquePtr = make_unique<Object>("sphere", 20., sun_texture, TextureID, modelID);
-    std::cout << "soleil crée" << std::endl;
     Object* sun = sun_uniquePtr.get();
     
     unique_ptr<Object> earth_uniquePtr = make_unique<Object>("sphere", 20., earth_texture, TextureID, modelID);
-    std::cout << "terre crée" << std::endl;
     Object* earth = earth_uniquePtr.get();
-    std::cout << "apres création scene : " << earth->mesh->indexed_vertices.size() << std::endl;
     
     unique_ptr<Object> moon_uniquePtr = make_unique<Object>("sphere", 20., moon_texture, TextureID, modelID);
-    std::cout << "lune crée" << std::endl;
     Object* moon = moon_uniquePtr.get();
 
     sun->addChild(move(earth_uniquePtr));
@@ -179,12 +159,10 @@ int main( void )
     moon->transform->setLocalTranslation(vec3(2, 0., 0.));
     moon->transform->setLocalScale(vec3( 0.3, 0.3, 0.3 ));
 
-    scene->addObject(move(galaxy_uniquePtr));
-    scene->addObject(move(sun_uniquePtr));
-    //scene->addObject(move(earth_uniquePtr));
-    //scene->addObject(move(moon_uniquePtr));
-    std::cout << "object add dans la scene" << std::endl;
-
+    scene->addObject(move(galaxy));
+    scene->addObject(move(sun));
+    scene->addObject(move(earth));
+    scene->addObject(move(moon));
 
     do{
 
@@ -198,6 +176,7 @@ int main( void )
         // input
         // -----
         inputManager->processInput(deltaTime);
+        CAMERA camera = inputManager->scene->cameras[0];
 
         // Clear the screen
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -214,19 +193,13 @@ int main( void )
 
         galaxy->transform->setLocalRotation(vec3(0., galaxyRotation, 0.));
         sun->transform->setLocalRotation(vec3(90., sunRotation, 0.));
-        //earth->transform->setLocalRotation(vec3(180., -23.44, earthRotation));
-        //moon->transform->setLocalRotation(vec3(180., 6.68, moonRotation));
-
-        std::cout << "transformation while" << std::endl;
+        earth->transform->setLocalRotation(vec3(180., -23.44, earthRotation));
+        moon->transform->setLocalRotation(vec3(180., 6.68, moonRotation));
 
         sun->updateSelfAndChild();
         galaxy->updateSelfAndChild();
 
-        std::cout << "update" << std::endl;
-
         scene->draw();
-
-        std::cout << "draw" << std::endl;
 
         //-------------------------------------------------------------------------------------------------
 
@@ -265,61 +238,4 @@ int main( void )
 
     return 0;
 }
-
-/*void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
-{
-    float cameraSpeed = 100 * deltaTime;
-    if (yoffset == -1) {
-        camera_position -= cameraSpeed * camera_target;
-    }
-    if (yoffset == 1) { 
-        camera_position += cameraSpeed * camera_target;
-    }
-}
-
-// process all input: query GLFW whether relevant keys are pressed/released this frame and react accordingly
-// ---------------------------------------------------------------------------------------------------------
-void processInput(GLFWwindow *window)
-{
-    if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
-        glfwSetWindowShouldClose(window, true);
-
-    glm::vec3 camera_right = glm::vec3(1.0f, 0.0f,  0.0f);
-
-    //rotationX
-    if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS) rotationX += 1;
-    if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)rotationX -= 1;
-
-    //rotationY
-    if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS) rotationY += 1;
-    if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS) rotationY -= 1;
-
-    //rotationZ
-    if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS) rotationZ += 1;
-    if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS) rotationZ -= 1;
-
-    //Camera zoom in and out
-    float cameraSpeed = 10 * deltaTime;
-    glfwSetScrollCallback(window, scroll_callback);
-
-    //TODO add translations
-    if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-        camera_position += glm::normalize(glm::cross(camera_up, camera_target)) * cameraSpeed;
-    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-        camera_position -= glm::normalize(glm::cross(camera_up, camera_target)) * cameraSpeed;
-    if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-        camera_position += glm::normalize(glm::cross(camera_right, camera_target)) * cameraSpeed;
-    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-        camera_position -= glm::normalize(glm::cross(camera_right, camera_target)) * cameraSpeed;
-}
-
-// glfw: whenever the window size changed (by OS or user resize) this callback function executes
-// ---------------------------------------------------------------------------------------------
-void framebuffer_size_callback(GLFWwindow* window, int width, int height)
-{
-    // make sure the viewport matches the new window dimensions; note that width and
-    // height will be significantly larger than specified on retina displays.
-    glViewport(0, 0, width, height);
-}*/
-
 

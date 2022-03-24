@@ -1,4 +1,4 @@
-# Install script for directory: /home/dorian/TP3_moteur_copy/external/glfw-3.1.2/src
+# Install script for directory: /home/dorian/Master/M1/s8/HAI819I_MoteurJeux/TP3_update/external/glfw-3.1.2/src
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
@@ -38,6 +38,6 @@ if(NOT DEFINED CMAKE_CROSSCOMPILING)
 endif()
 
 if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)
-  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/lib" TYPE STATIC_LIBRARY FILES "/home/dorian/TP3_moteur_copy/build/external/glfw-3.1.2/src/libglfw3.a")
+  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/lib" TYPE STATIC_LIBRARY FILES "/home/dorian/Master/M1/s8/HAI819I_MoteurJeux/TP3_update/build/external/glfw-3.1.2/src/libglfw3.a")
 endif()
 

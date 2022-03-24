@@ -37,7 +37,6 @@ class Mesh {
             this->texture = tex;
             this->textureID = texID;
             this->modelID = modelID;
-            std::cout << "model id : " << this->modelID << std::endl;
         }
 
         ~Mesh() {
@@ -47,7 +46,6 @@ class Mesh {
     private:
 
         void generateMesh(string meshType) {
-            std::cout << "meshType : " << meshType << std::endl;
             if(meshType.compare("sphere") == 0) this->generateSphere();
             else if(meshType.compare("plane") == 0) this->generatePlane();
             else {
@@ -137,7 +135,6 @@ class Mesh {
                     }
                 }
             }
-            std::cout << "je termine la fonction generate sphere : nb vertices : " << this->indexed_vertices.size() << std::endl;
         }
 
 };

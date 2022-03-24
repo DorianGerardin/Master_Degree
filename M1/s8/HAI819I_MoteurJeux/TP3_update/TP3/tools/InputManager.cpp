@@ -55,7 +55,8 @@ class InputManager {
 	// ---------------------------------------------------------------------------------------------------------
 		void processInput(float deltaTime)
 		{
-			CAMERA camera = this->scene->cameras[0];
+			//CAMERA camera = this->scene->cameras[0];
+			//std::cout << "camera position 0 : " << camera.position[2] << std::endl;
 
 			GLFWwindow* window = this->window;
 		    if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
@@ -78,19 +79,20 @@ class InputManager {
 		    //Camera zoom in and out
 		    float cameraSpeed = 10 * deltaTime;
 
-		    if (glfwGetKey(window, GLFW_KEY_R) == GLFW_PRESS) camera.position -= cameraSpeed * camera.target;
-		    if (glfwGetKey(window, GLFW_KEY_F) == GLFW_PRESS) camera.position += cameraSpeed * camera.target;
+		    if (glfwGetKey(window, GLFW_KEY_F) == GLFW_PRESS) this->scene->cameras[0].position -= cameraSpeed * this->scene->cameras[0].target;
+		    if (glfwGetKey(window, GLFW_KEY_R) == GLFW_PRESS) this->scene->cameras[0].position += cameraSpeed * this->scene->cameras[0].target;
 		    //glfwSetScrollCallback(window, scroll_callback);
 
 		    //TODO add translations
-		    if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-		        camera.position += glm::normalize(glm::cross(camera.up, camera.target)) * cameraSpeed;
 		    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-		        camera.position -= glm::normalize(glm::cross(camera.up, camera.target)) * cameraSpeed;
-		    if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-		        camera.position += glm::normalize(glm::cross(camera_right, camera.target)) * cameraSpeed;
+		        this->scene->cameras[0].position += glm::normalize(glm::cross(this->scene->cameras[0].up, this->scene->cameras[0].target)) * cameraSpeed;
+		    if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+		        this->scene->cameras[0].position -= glm::normalize(glm::cross(this->scene->cameras[0].up, this->scene->cameras[0].target)) * cameraSpeed;
 		    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-		        camera.position -= glm::normalize(glm::cross(camera_right, camera.target)) * cameraSpeed;
+		        this->scene->cameras[0].position += glm::normalize(glm::cross(camera_right, this->scene->cameras[0].target)) * cameraSpeed;
+		    if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+		        this->scene->cameras[0].position -= glm::normalize(glm::cross(camera_right, this->scene->cameras[0].target)) * cameraSpeed;
+		    //std::cout << "camera position 0 : " << camera.position[2] << std::endl;
 		}
 
 		// glfw: whenever the window size changed (by OS or user resize) this callback function executes

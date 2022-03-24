@@ -157,17 +157,17 @@ depend:
 .PHONY : depend
 
 #=============================================================================
-# Target rules for targets named TP2
+# Target rules for targets named TP4
 
 # Build rule for target.
-TP2: cmake_check_build_system
-	$(MAKE) -f CMakeFiles/Makefile2 TP2
-.PHONY : TP2
+TP4: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 TP4
+.PHONY : TP4
 
 # fast build rule for target.
-TP2/fast:
-	$(MAKE) -f CMakeFiles/TP2.dir/build.make CMakeFiles/TP2.dir/build
-.PHONY : TP2/fast
+TP4/fast:
+	$(MAKE) -f CMakeFiles/TP4.dir/build.make CMakeFiles/TP4.dir/build
+.PHONY : TP4/fast
 
 #=============================================================================
 # Target rules for targets named GLEW_1130
@@ -507,32 +507,113 @@ windows/fast:
 	$(MAKE) -f external/glfw-3.1.2/tests/CMakeFiles/windows.dir/build.make external/glfw-3.1.2/tests/CMakeFiles/windows.dir/build
 .PHONY : windows/fast
 
-TP2/TP2.o: TP2/TP2.cpp.o
+TP4/TP4.o: TP4/TP4.cpp.o
 
-.PHONY : TP2/TP2.o
+.PHONY : TP4/TP4.o
 
 # target to build an object file
-TP2/TP2.cpp.o:
-	$(MAKE) -f CMakeFiles/TP2.dir/build.make CMakeFiles/TP2.dir/TP2/TP2.cpp.o
-.PHONY : TP2/TP2.cpp.o
+TP4/TP4.cpp.o:
+	$(MAKE) -f CMakeFiles/TP4.dir/build.make CMakeFiles/TP4.dir/TP4/TP4.cpp.o
+.PHONY : TP4/TP4.cpp.o
 
-TP2/TP2.i: TP2/TP2.cpp.i
+TP4/TP4.i: TP4/TP4.cpp.i
 
-.PHONY : TP2/TP2.i
+.PHONY : TP4/TP4.i
 
 # target to preprocess a source file
-TP2/TP2.cpp.i:
-	$(MAKE) -f CMakeFiles/TP2.dir/build.make CMakeFiles/TP2.dir/TP2/TP2.cpp.i
-.PHONY : TP2/TP2.cpp.i
+TP4/TP4.cpp.i:
+	$(MAKE) -f CMakeFiles/TP4.dir/build.make CMakeFiles/TP4.dir/TP4/TP4.cpp.i
+.PHONY : TP4/TP4.cpp.i
 
-TP2/TP2.s: TP2/TP2.cpp.s
+TP4/TP4.s: TP4/TP4.cpp.s
 
-.PHONY : TP2/TP2.s
+.PHONY : TP4/TP4.s
 
 # target to generate assembly for a file
-TP2/TP2.cpp.s:
-	$(MAKE) -f CMakeFiles/TP2.dir/build.make CMakeFiles/TP2.dir/TP2/TP2.cpp.s
-.PHONY : TP2/TP2.cpp.s
+TP4/TP4.cpp.s:
+	$(MAKE) -f CMakeFiles/TP4.dir/build.make CMakeFiles/TP4.dir/TP4/TP4.cpp.s
+.PHONY : TP4/TP4.cpp.s
+
+TP4/tools/Object.o: TP4/tools/Object.cpp.o
+
+.PHONY : TP4/tools/Object.o
+
+# target to build an object file
+TP4/tools/Object.cpp.o:
+	$(MAKE) -f CMakeFiles/TP4.dir/build.make CMakeFiles/TP4.dir/TP4/tools/Object.cpp.o
+.PHONY : TP4/tools/Object.cpp.o
+
+TP4/tools/Object.i: TP4/tools/Object.cpp.i
+
+.PHONY : TP4/tools/Object.i
+
+# target to preprocess a source file
+TP4/tools/Object.cpp.i:
+	$(MAKE) -f CMakeFiles/TP4.dir/build.make CMakeFiles/TP4.dir/TP4/tools/Object.cpp.i
+.PHONY : TP4/tools/Object.cpp.i
+
+TP4/tools/Object.s: TP4/tools/Object.cpp.s
+
+.PHONY : TP4/tools/Object.s
+
+# target to generate assembly for a file
+TP4/tools/Object.cpp.s:
+	$(MAKE) -f CMakeFiles/TP4.dir/build.make CMakeFiles/TP4.dir/TP4/tools/Object.cpp.s
+.PHONY : TP4/tools/Object.cpp.s
+
+TP4/tools/Scene.o: TP4/tools/Scene.cpp.o
+
+.PHONY : TP4/tools/Scene.o
+
+# target to build an object file
+TP4/tools/Scene.cpp.o:
+	$(MAKE) -f CMakeFiles/TP4.dir/build.make CMakeFiles/TP4.dir/TP4/tools/Scene.cpp.o
+.PHONY : TP4/tools/Scene.cpp.o
+
+TP4/tools/Scene.i: TP4/tools/Scene.cpp.i
+
+.PHONY : TP4/tools/Scene.i
+
+# target to preprocess a source file
+TP4/tools/Scene.cpp.i:
+	$(MAKE) -f CMakeFiles/TP4.dir/build.make CMakeFiles/TP4.dir/TP4/tools/Scene.cpp.i
+.PHONY : TP4/tools/Scene.cpp.i
+
+TP4/tools/Scene.s: TP4/tools/Scene.cpp.s
+
+.PHONY : TP4/tools/Scene.s
+
+# target to generate assembly for a file
+TP4/tools/Scene.cpp.s:
+	$(MAKE) -f CMakeFiles/TP4.dir/build.make CMakeFiles/TP4.dir/TP4/tools/Scene.cpp.s
+.PHONY : TP4/tools/Scene.cpp.s
+
+TP4/tools/Transform.o: TP4/tools/Transform.cpp.o
+
+.PHONY : TP4/tools/Transform.o
+
+# target to build an object file
+TP4/tools/Transform.cpp.o:
+	$(MAKE) -f CMakeFiles/TP4.dir/build.make CMakeFiles/TP4.dir/TP4/tools/Transform.cpp.o
+.PHONY : TP4/tools/Transform.cpp.o
+
+TP4/tools/Transform.i: TP4/tools/Transform.cpp.i
+
+.PHONY : TP4/tools/Transform.i
+
+# target to preprocess a source file
+TP4/tools/Transform.cpp.i:
+	$(MAKE) -f CMakeFiles/TP4.dir/build.make CMakeFiles/TP4.dir/TP4/tools/Transform.cpp.i
+.PHONY : TP4/tools/Transform.cpp.i
+
+TP4/tools/Transform.s: TP4/tools/Transform.cpp.s
+
+.PHONY : TP4/tools/Transform.s
+
+# target to generate assembly for a file
+TP4/tools/Transform.cpp.s:
+	$(MAKE) -f CMakeFiles/TP4.dir/build.make CMakeFiles/TP4.dir/TP4/tools/Transform.cpp.s
+.PHONY : TP4/tools/Transform.cpp.s
 
 common/controls.o: common/controls.cpp.o
 
@@ -540,7 +621,7 @@ common/controls.o: common/controls.cpp.o
 
 # target to build an object file
 common/controls.cpp.o:
-	$(MAKE) -f CMakeFiles/TP2.dir/build.make CMakeFiles/TP2.dir/common/controls.cpp.o
+	$(MAKE) -f CMakeFiles/TP4.dir/build.make CMakeFiles/TP4.dir/common/controls.cpp.o
 .PHONY : common/controls.cpp.o
 
 common/controls.i: common/controls.cpp.i
@@ -549,7 +630,7 @@ common/controls.i: common/controls.cpp.i
 
 # target to preprocess a source file
 common/controls.cpp.i:
-	$(MAKE) -f CMakeFiles/TP2.dir/build.make CMakeFiles/TP2.dir/common/controls.cpp.i
+	$(MAKE) -f CMakeFiles/TP4.dir/build.make CMakeFiles/TP4.dir/common/controls.cpp.i
 .PHONY : common/controls.cpp.i
 
 common/controls.s: common/controls.cpp.s
@@ -558,7 +639,7 @@ common/controls.s: common/controls.cpp.s
 
 # target to generate assembly for a file
 common/controls.cpp.s:
-	$(MAKE) -f CMakeFiles/TP2.dir/build.make CMakeFiles/TP2.dir/common/controls.cpp.s
+	$(MAKE) -f CMakeFiles/TP4.dir/build.make CMakeFiles/TP4.dir/common/controls.cpp.s
 .PHONY : common/controls.cpp.s
 
 common/objloader.o: common/objloader.cpp.o
@@ -567,7 +648,7 @@ common/objloader.o: common/objloader.cpp.o
 
 # target to build an object file
 common/objloader.cpp.o:
-	$(MAKE) -f CMakeFiles/TP2.dir/build.make CMakeFiles/TP2.dir/common/objloader.cpp.o
+	$(MAKE) -f CMakeFiles/TP4.dir/build.make CMakeFiles/TP4.dir/common/objloader.cpp.o
 .PHONY : common/objloader.cpp.o
 
 common/objloader.i: common/objloader.cpp.i
@@ -576,7 +657,7 @@ common/objloader.i: common/objloader.cpp.i
 
 # target to preprocess a source file
 common/objloader.cpp.i:
-	$(MAKE) -f CMakeFiles/TP2.dir/build.make CMakeFiles/TP2.dir/common/objloader.cpp.i
+	$(MAKE) -f CMakeFiles/TP4.dir/build.make CMakeFiles/TP4.dir/common/objloader.cpp.i
 .PHONY : common/objloader.cpp.i
 
 common/objloader.s: common/objloader.cpp.s
@@ -585,7 +666,7 @@ common/objloader.s: common/objloader.cpp.s
 
 # target to generate assembly for a file
 common/objloader.cpp.s:
-	$(MAKE) -f CMakeFiles/TP2.dir/build.make CMakeFiles/TP2.dir/common/objloader.cpp.s
+	$(MAKE) -f CMakeFiles/TP4.dir/build.make CMakeFiles/TP4.dir/common/objloader.cpp.s
 .PHONY : common/objloader.cpp.s
 
 common/shader.o: common/shader.cpp.o
@@ -594,7 +675,7 @@ common/shader.o: common/shader.cpp.o
 
 # target to build an object file
 common/shader.cpp.o:
-	$(MAKE) -f CMakeFiles/TP2.dir/build.make CMakeFiles/TP2.dir/common/shader.cpp.o
+	$(MAKE) -f CMakeFiles/TP4.dir/build.make CMakeFiles/TP4.dir/common/shader.cpp.o
 .PHONY : common/shader.cpp.o
 
 common/shader.i: common/shader.cpp.i
@@ -603,7 +684,7 @@ common/shader.i: common/shader.cpp.i
 
 # target to preprocess a source file
 common/shader.cpp.i:
-	$(MAKE) -f CMakeFiles/TP2.dir/build.make CMakeFiles/TP2.dir/common/shader.cpp.i
+	$(MAKE) -f CMakeFiles/TP4.dir/build.make CMakeFiles/TP4.dir/common/shader.cpp.i
 .PHONY : common/shader.cpp.i
 
 common/shader.s: common/shader.cpp.s
@@ -612,7 +693,7 @@ common/shader.s: common/shader.cpp.s
 
 # target to generate assembly for a file
 common/shader.cpp.s:
-	$(MAKE) -f CMakeFiles/TP2.dir/build.make CMakeFiles/TP2.dir/common/shader.cpp.s
+	$(MAKE) -f CMakeFiles/TP4.dir/build.make CMakeFiles/TP4.dir/common/shader.cpp.s
 .PHONY : common/shader.cpp.s
 
 common/texture.o: common/texture.cpp.o
@@ -621,7 +702,7 @@ common/texture.o: common/texture.cpp.o
 
 # target to build an object file
 common/texture.cpp.o:
-	$(MAKE) -f CMakeFiles/TP2.dir/build.make CMakeFiles/TP2.dir/common/texture.cpp.o
+	$(MAKE) -f CMakeFiles/TP4.dir/build.make CMakeFiles/TP4.dir/common/texture.cpp.o
 .PHONY : common/texture.cpp.o
 
 common/texture.i: common/texture.cpp.i
@@ -630,7 +711,7 @@ common/texture.i: common/texture.cpp.i
 
 # target to preprocess a source file
 common/texture.cpp.i:
-	$(MAKE) -f CMakeFiles/TP2.dir/build.make CMakeFiles/TP2.dir/common/texture.cpp.i
+	$(MAKE) -f CMakeFiles/TP4.dir/build.make CMakeFiles/TP4.dir/common/texture.cpp.i
 .PHONY : common/texture.cpp.i
 
 common/texture.s: common/texture.cpp.s
@@ -639,7 +720,7 @@ common/texture.s: common/texture.cpp.s
 
 # target to generate assembly for a file
 common/texture.cpp.s:
-	$(MAKE) -f CMakeFiles/TP2.dir/build.make CMakeFiles/TP2.dir/common/texture.cpp.s
+	$(MAKE) -f CMakeFiles/TP4.dir/build.make CMakeFiles/TP4.dir/common/texture.cpp.s
 .PHONY : common/texture.cpp.s
 
 common/vboindexer.o: common/vboindexer.cpp.o
@@ -648,7 +729,7 @@ common/vboindexer.o: common/vboindexer.cpp.o
 
 # target to build an object file
 common/vboindexer.cpp.o:
-	$(MAKE) -f CMakeFiles/TP2.dir/build.make CMakeFiles/TP2.dir/common/vboindexer.cpp.o
+	$(MAKE) -f CMakeFiles/TP4.dir/build.make CMakeFiles/TP4.dir/common/vboindexer.cpp.o
 .PHONY : common/vboindexer.cpp.o
 
 common/vboindexer.i: common/vboindexer.cpp.i
@@ -657,7 +738,7 @@ common/vboindexer.i: common/vboindexer.cpp.i
 
 # target to preprocess a source file
 common/vboindexer.cpp.i:
-	$(MAKE) -f CMakeFiles/TP2.dir/build.make CMakeFiles/TP2.dir/common/vboindexer.cpp.i
+	$(MAKE) -f CMakeFiles/TP4.dir/build.make CMakeFiles/TP4.dir/common/vboindexer.cpp.i
 .PHONY : common/vboindexer.cpp.i
 
 common/vboindexer.s: common/vboindexer.cpp.s
@@ -666,7 +747,7 @@ common/vboindexer.s: common/vboindexer.cpp.s
 
 # target to generate assembly for a file
 common/vboindexer.cpp.s:
-	$(MAKE) -f CMakeFiles/TP2.dir/build.make CMakeFiles/TP2.dir/common/vboindexer.cpp.s
+	$(MAKE) -f CMakeFiles/TP4.dir/build.make CMakeFiles/TP4.dir/common/vboindexer.cpp.s
 .PHONY : common/vboindexer.cpp.s
 
 # Help Target
@@ -677,7 +758,7 @@ help:
 	@echo "... depend"
 	@echo "... install/strip"
 	@echo "... edit_cache"
-	@echo "... TP2"
+	@echo "... TP4"
 	@echo "... rebuild_cache"
 	@echo "... list_install_components"
 	@echo "... install/local"
@@ -708,9 +789,18 @@ help:
 	@echo "... empty"
 	@echo "... tearing"
 	@echo "... windows"
-	@echo "... TP2/TP2.o"
-	@echo "... TP2/TP2.i"
-	@echo "... TP2/TP2.s"
+	@echo "... TP4/TP4.o"
+	@echo "... TP4/TP4.i"
+	@echo "... TP4/TP4.s"
+	@echo "... TP4/tools/Object.o"
+	@echo "... TP4/tools/Object.i"
+	@echo "... TP4/tools/Object.s"
+	@echo "... TP4/tools/Scene.o"
+	@echo "... TP4/tools/Scene.i"
+	@echo "... TP4/tools/Scene.s"
+	@echo "... TP4/tools/Transform.o"
+	@echo "... TP4/tools/Transform.i"
+	@echo "... TP4/tools/Transform.s"
 	@echo "... common/controls.o"
 	@echo "... common/controls.i"
 	@echo "... common/controls.s"

@@ -1,4 +1,4 @@
-# Install script for directory: /home/dorian/TP3_moteur_copy
+# Install script for directory: /home/dorian/Master/M1/s8/HAI819I_MoteurJeux/TP3_update
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
@@ -39,7 +39,7 @@ endif()
 
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for each subdirectory.
-  include("/home/dorian/TP3_moteur_copy/build/external/cmake_install.cmake")
+  include("/home/dorian/Master/M1/s8/HAI819I_MoteurJeux/TP3_update/build/external/cmake_install.cmake")
 
 endif()
 
@@ -51,5 +51,5 @@ endif()
 
 string(REPLACE ";" "\n" CMAKE_INSTALL_MANIFEST_CONTENT
        "${CMAKE_INSTALL_MANIFEST_FILES}")
-file(WRITE "/home/dorian/TP3_moteur_copy/build/${CMAKE_INSTALL_MANIFEST}"
+file(WRITE "/home/dorian/Master/M1/s8/HAI819I_MoteurJeux/TP3_update/build/${CMAKE_INSTALL_MANIFEST}"
      "${CMAKE_INSTALL_MANIFEST_CONTENT}")

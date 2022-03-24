@@ -1,4 +1,4 @@
-# Install script for directory: /home/dorian/TP3_moteur_copy/external
+# Install script for directory: /home/dorian/Master/M1/s8/HAI819I_MoteurJeux/TP3_update/external
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
@@ -39,7 +39,7 @@ endif()
 
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for each subdirectory.
-  include("/home/dorian/TP3_moteur_copy/build/external/glfw-3.1.2/cmake_install.cmake")
+  include("/home/dorian/Master/M1/s8/HAI819I_MoteurJeux/TP3_update/build/external/glfw-3.1.2/cmake_install.cmake")
 
 endif()
 

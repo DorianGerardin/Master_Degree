@@ -6,5 +6,5 @@ C_FLAGS =   -Wall
 
 C_DEFINES = -DGLEW_STATIC -DTW_NO_DIRECT3D -DTW_NO_LIB_PRAGMA -DTW_STATIC -D_CRT_SECURE_NO_WARNINGS
 
-C_INCLUDES = -I/home/dorian/TP3_moteur_copy/external/glfw-3.1.2/include -I/home/dorian/TP3_moteur_copy/external/glfw-3.1.2/deps 
+C_INCLUDES = -I/home/dorian/Master/M1/s8/HAI819I_MoteurJeux/TP3_update/external/glfw-3.1.2/include -I/home/dorian/Master/M1/s8/HAI819I_MoteurJeux/TP3_update/external/glfw-3.1.2/deps 
 

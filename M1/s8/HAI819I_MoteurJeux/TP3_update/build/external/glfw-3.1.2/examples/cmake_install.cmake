@@ -1,4 +1,4 @@
-# Install script for directory: /home/dorian/TP3_moteur_copy/external/glfw-3.1.2/examples
+# Install script for directory: /home/dorian/Master/M1/s8/HAI819I_MoteurJeux/TP3_update/external/glfw-3.1.2/examples
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
