@@ -12,7 +12,7 @@ struct Image3D {
 	U_SHORT *data;
 
 	U_SHORT getValue(U_INT i, U_INT j, U_INT k) {
-		return data[i*dimX + j*dimY + k*dimZ];
+		return data[k * (dimX * dimY) + (dimX - 1 - j) * dimX + i];
 	}
 
 	U_SHORT getMin() {
@@ -51,60 +51,57 @@ U_SHORT* mip(U_INT visuAxis, Image3D *img) {
 
 	switch(visuAxis) {
 		case 1:
-
-			std::cout << "mip axe x" << std::endl;
 			sizeFile = img->dimY * img->dimZ;
-			for (int i = 0; i < img->dimZ; ++i)
+			outData = (U_SHORT*) malloc (sizeof(U_SHORT) * sizeFile);
+			for (int i = 0; i < img->dimY; ++i)
 			{	
-				for (int j = 0; j < img->dimY; ++j)
+				for (int j = 0; j < img->dimZ; ++j)
 				{
 					U_INT max = img->data[i*img->dimZ+j];
 					for (int k = 0; k < img->dimX; ++k)
 					{	
-						U_SHORT value = img->getValue(i, j, k);
+						U_SHORT value = img->getValue(k, i, j);
 						if(value > max) max = value;
 					}
-					img->data[i*img->dimZ + j] = max;
+					outData[i*img->dimZ + j] = max;
 				}
 			}
-			std::cout << "fin case 1" << std::endl;
 			break;
 		case 2:
-			std::cout << "mip axe y" << std::endl;
 			sizeFile = img->dimX * img->dimZ;
+			outData = (U_SHORT*) malloc (sizeof(U_SHORT) * sizeFile);
 			for (int i = 0; i < img->dimX; ++i)
 			{	
 				for (int j = 0; j < img->dimZ; ++j)
 				{
-					U_INT max = img->data[i*img->dimX+j];
-					for (int k = 0; k < img->dimX; ++k)
+					U_INT max = img->data[i*img->dimZ+j];
+					for (int k = 0; k < img->dimY; ++k)
 					{	
-						U_SHORT value = img->getValue(i, j, k);
+						U_SHORT value = img->getValue(i, k, j);
 						if(value > max) max = value;
 					}
-					img->data[i*img->dimX + j] = max;
+					outData[i*img->dimZ + j] = max;
 				}
 			}
 			break;
 		case 3:
-			std::cout << "mip axe z" << std::endl;
 			sizeFile = img->dimX * img->dimY;
+			outData = (U_SHORT*) malloc (sizeof(U_SHORT) * sizeFile);
 			for (int i = 0; i < img->dimX; ++i)
 			{	
 				for (int j = 0; j < img->dimY; ++j)
 				{
 					U_INT max = img->data[i*img->dimX+j];
-					for (int k = 0; k < img->dimX; ++k)
+					for (int k = 0; k < img->dimZ; ++k)
 					{	
 						U_SHORT value = img->getValue(i, j, k);
 						if(value > max) max = value;
 					}
-					img->data[i*img->dimX + j] = max;
+					outData[i*img->dimY + j] = max;
 				}
 			}
 			break;
 	}
-	std::cout << "fin mip" << std::endl;
 	return outData;
 }
 
@@ -115,58 +112,116 @@ U_SHORT* minIP(U_INT visuAxis, Image3D *img) {
 
 	switch(visuAxis) {
 		case 1:
-
-			//std::cout << "mip axe x" << std::endl;
 			sizeFile = img->dimY * img->dimZ;
-			//std::cout << "apres sizeFile" << std::endl;
-			for (int i = 0; i < img->dimZ; ++i)
+			outData = (U_SHORT*) malloc (sizeof(U_SHORT) * sizeFile);
+			for (int i = 0; i < img->dimY; ++i)
 			{	
-				for (int j = 0; j < img->dimY; ++j)
+				for (int j = 0; j < img->dimZ; ++j)
 				{
 					U_INT min = img->data[i*img->dimZ+j];
 					for (int k = 0; k < img->dimX; ++k)
 					{	
-						U_SHORT value = img->getValue(i, j, k);
+						U_SHORT value = img->getValue(k, i, j);
 						if(value < min) min = value;
 					}
-					img->data[i*img->dimZ + j] = min;
+					outData[i*img->dimZ + j] = min;
 				}
 			}
 			break;
 		case 2:
 			sizeFile = img->dimX * img->dimZ;
+			outData = (U_SHORT*) malloc (sizeof(U_SHORT) * sizeFile);
 			for (int i = 0; i < img->dimX; ++i)
 			{	
 				for (int j = 0; j < img->dimZ; ++j)
 				{
-					U_INT min = img->data[i*img->dimX+j];
-					for (int k = 0; k < img->dimX; ++k)
+					U_INT min = img->data[i*img->dimZ+j];
+					for (int k = 0; k < img->dimY; ++k)
 					{	
-						U_SHORT value = img->getValue(i, j, k);
+						U_SHORT value = img->getValue(i, k, j);
 						if(value < min) min = value;
 					}
-					img->data[i*img->dimX + j] = min;
+					outData[i*img->dimZ + j] = min;
 				}
 			}
 			break;
 		case 3:
 			sizeFile = img->dimX * img->dimY;
+			outData = (U_SHORT*) malloc (sizeof(U_SHORT) * sizeFile);
 			for (int i = 0; i < img->dimX; ++i)
 			{	
 				for (int j = 0; j < img->dimY; ++j)
 				{
-					U_INT min = img->data[i*img->dimX+j];
-					for (int k = 0; k < img->dimX; ++k)
+					U_INT min = img->data[i*img->dimY+j];
+					for (int k = 0; k < img->dimZ; ++k)
 					{	
 						U_SHORT value = img->getValue(i, j, k);
 						if(value < min) min = value;
 					}
-					img->data[i*img->dimX + j] = min;
+					outData[i*img->dimY + j] = min;
 				}
 			}
 			break;
 	}
-	std::cout << "fin mip" << std::endl;
+	return outData;
+}
+
+U_SHORT* aip(U_INT visuAxis, Image3D *img) {
+
+	U_INT sizeFile;
+	U_SHORT *outData;
+
+	switch(visuAxis) {
+		case 1:
+			sizeFile = img->dimY * img->dimZ;
+			outData = (U_SHORT*) malloc (sizeof(U_SHORT) * sizeFile);
+			for (int i = 0; i < img->dimY; ++i)
+			{	
+				for (int j = 0; j < img->dimZ; ++j)
+				{
+					U_INT moyenne = img->data[i*img->dimZ+j];
+					for (int k = 0; k < img->dimX; ++k)
+					{	
+						moyenne += img->getValue(k, i, j);
+					}
+					outData[i*img->dimZ + j] = moyenne / img->dimX;
+				}
+			}
+			break;
+		case 2:
+			sizeFile = img->dimX * img->dimZ;
+			outData = (U_SHORT*) malloc (sizeof(U_SHORT) * sizeFile);
+			for (int i = 0; i < img->dimX; ++i)
+			{	
+				for (int j = 0; j < img->dimZ; ++j)
+				{
+					U_INT moyenne = img->data[i*img->dimZ+j];
+					for (int k = 0; k < img->dimY; ++k)
+					{	
+						moyenne += img->getValue(i, k, j);
+					}
+					outData[i*img->dimZ + j] = moyenne / img->dimY;
+				}
+			}
+			break;
+		case 3:
+			sizeFile = img->dimX * img->dimY;
+			outData = (U_SHORT*) malloc (sizeof(U_SHORT) * sizeFile);
+			for (int i = 0; i < img->dimX; ++i)
+			{	
+				for (int j = 0; j < img->dimY; ++j)
+				{
+					U_INT moyenne = img->data[i*img->dimY+j];
+					for (int k = 0; k < img->dimZ; ++k)
+					{	
+						U_SHORT value = img->getValue(i, j, k);
+					}
+					outData[i*img->dimY + j] = moyenne / img->dimZ;
+				}
+			}
+			break;
+	}
+	std::cout << "fin aip" << std::endl;
 	return outData;
 }
 
@@ -219,34 +274,40 @@ void writeImg(char *nom_image, Image3D *img, U_INT visuAxis, U_INT visuMode) {
 	U_INT sizeFile;
 	U_SHORT *dataOutput;
 
-	// dataOutput = (U_SHORT*) malloc (sizeof(U_SHORT)*sizeFile);
-	// if (dataOutput == NULL) {
-	// 	printf("\nErreur de mémoire \n");
-	//  	exit(EXIT_FAILURE);
-	// }
+	fprintf(file,"P5\r"); 
 
 	switch(visuAxis) {
-		case 1:
+		case 1:		                         
+			fprintf(file,"%d %d\r255\r", img->dimZ, img->dimY) ;		
 			sizeFile = img->dimY * img->dimZ;
-			if(visuMode == 1) dataOutput = mip(visuAxis, img);
-			std::cout << "get data after mip" << std::endl;
 			break;
-		case 2:
+		case 2:                           
+			fprintf(file,"%d %d\r255\r", img->dimX, img->dimZ);	
 			sizeFile = img->dimX * img->dimZ;
 			break;
-		case 3:
+		case 3:                             
+			fprintf(file,"%d %d\r255\r", img->dimX, img->dimY);	
 			sizeFile = img->dimX * img->dimY;
 			break;
 	}
 
+	if(visuMode == 1) dataOutput = mip(visuAxis, img);
+	else if(visuMode == 2) dataOutput = aip(visuAxis, img);
+	else if(visuMode == 3) dataOutput = minIP(visuAxis, img);
+
+	U_SHORT max = 0;
+	for (int i = 0; i < sizeFile; ++i)
+	{
+		U_SHORT value = dataOutput[i];
+		if(max < value) max = value;
+	}
+	for (int i = 0; i < sizeFile; ++i)
+	{
+		dataOutput[i] = floor(((float)dataOutput[i] / (float)max) * 255);
+		std::cout << "value : " << dataOutput[i] << std::endl;
+	}
+
 	result = fwrite(dataOutput, sizeof(U_SHORT), sizeFile, file);
-	std::cout << "after write" << std::endl;
-	// for (int i = 0; i < sizeFile; ++i)
-	// {	std::cout << i << std::endl;
-	// 	U_SHORT value = dataOutput[i];
-	// 	dataOutput[i] = swich(value);
-	// 	std::cout << "switch" << std::endl;
-	// } std::cout << "after switch octet" << std::endl;
 
   	if (result != sizeFile) {
   		printf("\nErreur d'ecriture \n");
@@ -254,7 +315,6 @@ void writeImg(char *nom_image, Image3D *img, U_INT visuAxis, U_INT visuMode) {
   	}
 
   	fclose (file);
-	
 }
 
 
@@ -272,23 +332,12 @@ int main(int argc, char* argv[]) {
        exit (1) ;
     }
 
-    std::cout << "debut scan" << std::endl;
-
     sscanf (argv[1],"%s", cNomImgLue);
-    std::cout << "1" << std::endl;
-    //sscanf (argv[5],"%s", cNomImgEcrite);
-    //std::cout << cNomImgEcrite << std::endl;
     sscanf (argv[2],"%u", &img->dimX);
-
-    std::cout << "3" << std::endl;
     sscanf (argv[3],"%u", &img->dimY);
-    std::cout << "4" << std::endl;
     sscanf (argv[4],"%u", &img->dimZ);
-    std::cout << "avant visuAxis" << std::endl;
     sscanf (argv[6],"%u", &visuAxis);
     sscanf (argv[7],"%u", &visuMode);
-
-    std::cout << "fin scan" << std::endl;
 
     img->sizeFile = img->dimX * img->dimY * img->dimZ;
 
@@ -297,8 +346,6 @@ int main(int argc, char* argv[]) {
 
     U_SHORT min = img->getMin();
     U_SHORT max = img->getMax();
-
-    std::cout << "fin main" << std::endl;
 
     free(img->data);
 
