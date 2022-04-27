@@ -4,6 +4,8 @@
 #include <fstream>
 #include <string>
 #include <stdio.h>
+#include <climits>  
+#include <algorithm> 
 #include <vector>
 #include "image_ppm.h"
 #include "file.h"
@@ -26,18 +28,166 @@ struct Image {
   }
 
   void impaiting() {
-    for(int i = 0; i < nH; i++) {
-      for(int j = 0; j < nW; j++) {
-        if(data[i*nW+j] == 0 && cannyEdges[i*nW+j] == 255) {
-          cout << "je suis une arete de la target" << endl;
-          if(i*nW+j-1 >= 0) out[i*nW+j] = data[i*nW+j-1];
+    int patchSize = 3;
+    int demiPatchSize = patchSize/2;
+    int offset = 1;
+    for(int i = demiPatchSize; i < nH - demiPatchSize; i+=patchSize) {
+      for(int j = demiPatchSize; j < nW - demiPatchSize; j+=patchSize) {
+        if(data[(i-1)*nW+j-1] == 0 || data[(i-1)*nW+j] == 0 || data[(i-1)*nW+j+1] == 0
+                  || data[i*nW+j-1] == 0 || data[i*nW+j] == 0 || data[i*nW+j+1] == 0
+                  || data[(i+1)*nW+j-1] == 0 || data[(i+1)*nW+j] == 0 || data[(i+1)*nW+j+1] == 0) {
+          vector<int> distances(4,3);
+          //haut
+          for(int t = i-2; t >= 0; t--) {
+            distances[0]++;
+            if(data[t*nW+j] != 0) break;
+            else if(cannyEdges[t*nW+j] == 255) {
+              distances[0] = INT_MAX;
+              break;
+            }
+          }
+
+          //bas
+          for(int b = i+2; b < nH; b++) {
+            distances[1]++;
+            if(data[b*nW+j] != 0) break;
+            else if(cannyEdges[b*nW+j] == 255) {
+              distances[1] = INT_MAX;
+              break;
+            }
+          }
+
+          //gauche
+          for(int l = j-2; l >= 0; l--) {
+            distances[2]++;
+            if(data[(i+1)*nW+l] != 0) break;
+            else if(cannyEdges[i*nW+l] == 255) {
+              distances[2] = INT_MAX;
+              break;
+            }
+          }
+
+          //droites
+          for(int r = j+2; r < nW; r++) {
+            distances[3]++;
+            if(data[(i+1)*nW+r] != 0) break;
+            else if(cannyEdges[i*nW+r] == 255) {
+              distances[3] = INT_MAX;
+              break;
+            }
+          }
+          
+          int minDistance = INT_MAX;
+          for (int c = 0; c < 4; c++) {
+            if(minDistance > distances[c]) minDistance = distances[c];
+              
+          }
+
+          int direction;
+          for (int d = 0; d < 4; ++d) {
+            if(minDistance == distances[d]) direction = d;
+          }
+
+          vector<int> patch;
+
+          //haut
+          if(direction == 0) {
+            vector<int> randomsValueI = { 0, 1, 2 };
+            vector<int> randomsValueJ = { 0, -1, 1, -2, 2 };
+
+            int randomI = randomsValueI[rand() % randomsValueI.size()];
+            int randomJ = randomsValueJ[rand() % randomsValueJ.size()];
+
+            int patchCenterI = (i <= patchSize+1) ? i : i-(minDistance+offset+randomI);
+            int patchCenterJ = (j <= patchSize+1 || j >= nW-patchSize-1) ? j : j+randomJ;
+
+            if(patchCenterI-1 >= 0 && patchCenterI+1 < nH && patchCenterJ-1 >= 0 && patchCenterJ+1 < nW) {
+              for (int k = -(patchSize/2); k <= (patchSize/2); ++k) {
+                for (int l = -(patchSize/2); l <= (patchSize/2); ++l) {
+                  patch.push_back(data[(patchCenterI+k)*nW+patchCenterJ+l]);
+                }
+              }
+            } 
+          }
+          //bas
+          if(direction == 1) {
+            vector<int> randomsValueI = { 0, 1, 2 };
+            vector<int> randomsValueJ = { 0, -1, 1, -2, 2 };
+
+            int randomI = randomsValueI[rand() % randomsValueI.size()];
+            int randomJ = randomsValueJ[rand() % randomsValueJ.size()];
+
+            int patchCenterI = (i >= nH-patchSize-1) ? i : i+(minDistance+offset+randomI);
+            int patchCenterJ = (j == 1 || j >= nW-patchSize-1) ? j : j+randomJ;
+
+            if(patchCenterI-1 >= 0 && patchCenterI+1 < nH && patchCenterJ-1 >= 0 && patchCenterJ+1 < nW) {
+              for (int k = -(patchSize/2); k <= (patchSize/2); ++k) {
+                for (int l = -(patchSize/2); l <= (patchSize/2); ++l) {
+                  patch.push_back(data[(patchCenterI+k)*nW+patchCenterJ+l]);
+                }
+              }
+            }
+          }
+          //gauche
+          if(direction == 2) {
+            vector<int> randomsValueI = { 0, -1, 1, -2, 2 };
+            vector<int> randomsValueJ = { 0, 1, 2 };
+
+            int randomI = randomsValueI[rand() % randomsValueI.size()];
+            int randomJ = randomsValueJ[rand() % randomsValueJ.size()];
+
+            int patchCenterI = (i == 1 || i >= nH-patchSize-1) ? i : i+randomI;
+            int patchCenterJ = (j <= patchSize+2) ? j : j-(minDistance+offset+randomJ);
+
+            if(patchCenterI-1 >= 0 && patchCenterI+1 < nH && patchCenterJ-1 >= 0 && patchCenterJ+1 < nW) {
+              for (int k = -(patchSize/2); k <= (patchSize/2); ++k) {
+                for (int l = -(patchSize/2); l <= (patchSize/2); ++l) {
+                  patch.push_back(data[(patchCenterI+k)*nW+patchCenterJ+l]);
+                }
+              }
+            }
+          }
+          //droite
+          if(direction == 3) {
+            vector<int> randomsValueI = { 0, -1, 1, -2, 2 };
+            vector<int> randomsValueJ = { 0, 1, 2 };
+
+            int randomI = randomsValueI[rand() % randomsValueI.size()];
+            int randomJ = randomsValueJ[rand() % randomsValueJ.size()];
+
+            int patchCenterI = (i == 1 || i >= nH-patchSize-1) ? i : i+randomI;
+            int patchCenterJ = (j >= nW-patchSize-4) ? j : j+(minDistance+offset+randomJ);
+
+            if(patchCenterI-1 >= 0 && patchCenterI+1 < nH && patchCenterJ-1 >= 0 && patchCenterJ+1 < nW) {
+              for (int k = -(patchSize/2); k <= (patchSize/2); ++k) {
+                for (int l = -(patchSize/2); l <= (patchSize/2); ++l) {
+                  patch.push_back(data[(patchCenterI+k)*nW+patchCenterJ+l]);
+                }
+              }
+            }
+          }
+
+          int voisinIndex = 0;
+          if(i-demiPatchSize >= 0 && i+demiPatchSize < nH && j-demiPatchSize >= 0 && j+demiPatchSize < nW) {
+            //cout << "je remplis" << endl;
+            for (int k = -(patchSize/2); k <= (patchSize/2); ++k) {
+              for (int l = -(patchSize/2); l <= (patchSize/2); ++l) {
+                out[(i+k)*nW+j+l] = patch[voisinIndex];
+                voisinIndex++;
+              }
+            }
+          } else out[i*nW+j] = data[i*nW+j];
         } else {
-          out[i*nW+j] = data[i*nW+j];
+          for (int k = -(patchSize/2); k <= (patchSize/2); ++k) {
+            for (int l = -(patchSize/2); l <= (patchSize/2); ++l) {
+              out[(i+k)*nW+j+l] = data[(i+k)*nW+j+l];
+            }
+          }
         }
       }
     }
+    updateData();
   }
-
 };
 
 int main(int argc, char* argv[])
@@ -81,6 +231,8 @@ int main(int argc, char* argv[])
   lire_image_pgm(img->filename, img->data, nH * nW);
   lire_image_pgm(filename1, img->cannyEdges, nH * nW);
 
+  img->impaiting();
+  img->impaiting();
   img->impaiting();
 
   ecrire_image_pgm(cNomImgEcrite, img->out, img->nH, img->nW);

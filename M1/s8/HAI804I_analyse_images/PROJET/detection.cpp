@@ -101,7 +101,7 @@ struct Image {
 
     for (int i = 0; i < 256; ++i) {
       ddp[i] = (float)histo[i]/(float)size;
-      //cout << ddp[i] << endl;
+      cout << ddp[i] << endl;
     }
   }
 
@@ -111,15 +111,15 @@ struct Image {
         int histoLocale[256] = {0};
         float ddpLocale[256] = {0.};
 
-        if(i-1 >= 0 && i+1 < nH && j-1 >= 0 && j+1 < nW) {
-          for (int k = -15; k <= 15; ++k){
-            for (int l = -15; l <= 15; ++l) {
+        if(i-5 >= 0 && i+5 < nH && j-5 >= 0 && j+5 < nW) {
+          for (int k = -5; k <= 5; ++k){
+            for (int l = -5; l <= 5; ++l) {
               histoLocale[dataNoise[(i+k)*nW+(j+l)]]++ ;
             }
           }
 
           for (int k = 0; k < 256; k++) {
-            ddpLocale[k] = (float)histoLocale[k]/225.;
+            ddpLocale[k] = (float)histoLocale[k]/100.;
           }
           float sum = 0 ;
           float difference[256];
@@ -129,9 +129,8 @@ struct Image {
           }
           float meanDiff = sum / 256.;
           cout << "meanDiff : " << meanDiff << endl; 
-          cout << "seuil : " << seuil << endl; 
           if (meanDiff > seuil) {
-            out[i*nW+j] = 10;
+            out[i*nW+j] = 255;
           } else {
             out[i*nW+j] = data[i*nW+j] ;
           }
@@ -189,10 +188,10 @@ int main(int argc, char* argv[])
   img->applyGaussianFilter();*/
   img->blur();
   img->noise();
-  img->density();
-  img->detect();
+  // img->density();
+  // img->detect();
 
-  ecrire_image_pgm(cNomImgEcrite, img->out, img->nH, img->nW);
+  ecrire_image_pgm(cNomImgEcrite, img->dataNoise, img->nH, img->nW);
   free(img->data);
   free(img->out);
   free(img->filteredData);
