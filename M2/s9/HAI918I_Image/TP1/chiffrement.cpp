@@ -43,7 +43,7 @@ struct Image {
   char* filename;
   int size, nW, nH;
 
-  void pixelShuffle(unsigned int key) {
+  void permutation(unsigned int key) {
     int posMap[size];
     srand(key);
     for (int i = 0; i < size; ++i)
@@ -63,7 +63,7 @@ struct Image {
     }
   }
 
-  void decodeShuffle(unsigned int key) {
+  void decryptPermutation(unsigned int key) {
     int posMap[size];
     srand(key);
     for (int i = 0; i < size; ++i)
@@ -95,7 +95,7 @@ struct Image {
     }
   }
 
-  void decodeSubstitution(unsigned int key) {
+  void decryptSubstitution(unsigned int key) {
     srand(key);
     int k;
     k = rand() % 256;
@@ -112,7 +112,7 @@ struct Image {
     int bestImg = 1;
     for (int i = 1; i < 256; ++i)
     {
-      decodeSubstitution(i);
+      decryptSubstitution(i);
       int histo[256];
       histogram(out, size, histo);
       float e = entropy(histo, size);
@@ -122,20 +122,20 @@ struct Image {
       }
     }
     printf("La clé est : %i\n", bestImg);
-    decodeSubstitution(bestImg);
+    decryptSubstitution(bestImg);
   }
 
 };
 
 int main(int argc, char* argv[])
 {
-  char cNomImgLue[250], cNomImgEcrite[250];
+  char cNomImgLue[250], cNomImgEcrite[250], mode[100];
   int nH, nW, nTaille; 
   unsigned int key;
 
-  if (argc != 4) 
+  if (argc != 5) 
      {
-       printf("Usage: ImageIn ImageOut key\n"); 
+       printf("Usage: ImageIn ImageOut key mode\n"); 
        exit (1) ;
      }
 
@@ -146,8 +146,9 @@ int main(int argc, char* argv[])
   char* filename1 = stringToCharArray(s1);
   char* filename2 = stringToCharArray(s2);
    
-  sscanf (filename1,"%s",cNomImgLue);
-  sscanf (filename2,"%s",cNomImgEcrite);
+  sscanf (filename1,"%s", cNomImgLue);
+  sscanf (filename2,"%s", cNomImgEcrite);
+  sscanf (argv[4],"%s", mode);
   sscanf (argv[3],"%u", &key);
 
   lire_nb_lignes_colonnes_image_pgm(cNomImgLue, &nH, &nW);
@@ -165,11 +166,15 @@ int main(int argc, char* argv[])
   allocation_tableau(img->out, OCTET, img->size);
   lire_image_pgm(img->filename, img->data, img->nH * img->nW);
 
-  //img->pixelShuffle(key);
-  //img->decodeShuffle(key);
-  //img->substitution(key);
-  //img->decodeSubstitution(key);
-  img->bruteForceSubstitution();
+  if(strcmp(mode, "perm") == 0) img->permutation(key);
+  else if(strcmp(mode, "sub") == 0) img->substitution(key);
+  else if(strcmp(mode, "decPerm") == 0) img->decryptPermutation(key);
+  else if(strcmp(mode, "decSub") == 0) img->decryptSubstitution(key);
+  else if(strcmp(mode, "bruteForce") == 0) img->bruteForceSubstitution();
+  else {
+    printf("Incorrect mode\n"); 
+    exit (1) ;
+  }
 
   ecrire_image_pgm(cNomImgEcrite, img->out, img->nH, img->nW);
   free(img->data);
