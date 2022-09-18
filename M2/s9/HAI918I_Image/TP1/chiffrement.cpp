@@ -135,6 +135,15 @@ struct Image {
     out = aes.EncryptECB(plain, plainLen, key);
   }
 
+  void decryptAES() {
+    unsigned char *plain = data;
+    unsigned char key[] = { 0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f }; //key example
+    unsigned int plainLen = size*sizeof(unsigned char);  //bytes in plaintext
+
+    AES aes(AESKeyLength::AES_128);  ////128 - key length, can be 128, 192 or 256
+    out = aes.DecryptECB(plain, plainLen, key);
+  }
+
 };
 
 int main(int argc, char* argv[])
@@ -182,6 +191,7 @@ int main(int argc, char* argv[])
   else if(strcmp(mode, "ds") == 0) img->decryptSubstitution(key);
   else if(strcmp(mode, "bf") == 0) img->bruteForceSubstitution();
   else if(strcmp(mode, "aes") == 0) img->encryptAES();
+  else if(strcmp(mode, "daes") == 0) img->decryptAES();
   else {
     printf("Incorrect mode\n"); 
     exit (1) ;
