@@ -122,7 +122,7 @@ public:
             double weightSum = 0.;
             for (unsigned int j = 0; j < bonesSize; ++j)
             {
-                unsigned int n = 1;
+                unsigned int n = 8;
                 double weight;
                 Articulation a0 = articulations[ bones[j].joints[0] ];
                 Articulation a1 = articulations[ bones[j].joints[1] ];

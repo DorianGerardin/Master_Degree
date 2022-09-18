@@ -12,6 +12,7 @@
 #include <cfloat>
 #include "image_ppm.h"
 #include "file.h"
+#include "AES.h"
 
 using namespace std;
 
@@ -125,6 +126,15 @@ struct Image {
     decryptSubstitution(bestImg);
   }
 
+  void encryptAES() {
+    unsigned char *plain = data;
+    unsigned char key[] = { 0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f }; //key example
+    unsigned int plainLen = size*sizeof(unsigned char);  //bytes in plaintext
+
+    AES aes(AESKeyLength::AES_128);  ////128 - key length, can be 128, 192 or 256
+    out = aes.EncryptECB(plain, plainLen, key);
+  }
+
 };
 
 int main(int argc, char* argv[])
@@ -166,11 +176,12 @@ int main(int argc, char* argv[])
   allocation_tableau(img->out, OCTET, img->size);
   lire_image_pgm(img->filename, img->data, img->nH * img->nW);
 
-  if(strcmp(mode, "perm") == 0) img->permutation(key);
-  else if(strcmp(mode, "sub") == 0) img->substitution(key);
-  else if(strcmp(mode, "decPerm") == 0) img->decryptPermutation(key);
-  else if(strcmp(mode, "decSub") == 0) img->decryptSubstitution(key);
-  else if(strcmp(mode, "bruteForce") == 0) img->bruteForceSubstitution();
+  if(strcmp(mode, "p") == 0) img->permutation(key);
+  else if(strcmp(mode, "s") == 0) img->substitution(key);
+  else if(strcmp(mode, "dp") == 0) img->decryptPermutation(key);
+  else if(strcmp(mode, "ds") == 0) img->decryptSubstitution(key);
+  else if(strcmp(mode, "bf") == 0) img->bruteForceSubstitution();
+  else if(strcmp(mode, "aes") == 0) img->encryptAES();
   else {
     printf("Incorrect mode\n"); 
     exit (1) ;
