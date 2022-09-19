@@ -126,22 +126,68 @@ struct Image {
     decryptSubstitution(bestImg);
   }
 
-  void encryptAES() {
-    unsigned char *plain = data;
+  void encryptAES_ECB() {
     unsigned char key[] = { 0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f }; //key example
-    unsigned int plainLen = size*sizeof(unsigned char);  //bytes in plaintext
+    unsigned int dataLen = size*sizeof(unsigned char);  //bytes in plaintext
 
     AES aes(AESKeyLength::AES_128);  ////128 - key length, can be 128, 192 or 256
-    out = aes.EncryptECB(plain, plainLen, key);
+    out = aes.EncryptECB(data, dataLen, key);
   }
 
-  void decryptAES() {
-    unsigned char *plain = data;
+  void decryptAES_ECB() {
     unsigned char key[] = { 0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f }; //key example
-    unsigned int plainLen = size*sizeof(unsigned char);  //bytes in plaintext
+    unsigned int dataLen = size*sizeof(unsigned char);  //bytes in plaintext
 
     AES aes(AESKeyLength::AES_128);  ////128 - key length, can be 128, 192 or 256
-    out = aes.DecryptECB(plain, plainLen, key);
+    out = aes.DecryptECB(data, dataLen, key);
+  }
+
+  void encryptAES_CBC() {
+    unsigned char key[] = { 0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f }; //key example
+    unsigned int dataLen = size*sizeof(unsigned char);  //bytes in plaintext
+
+    AES aes(AESKeyLength::AES_128);  ////128 - key length, can be 128, 192 or 256
+    out = aes.EncryptCBC(data, dataLen, key, key);
+  }
+
+  void decryptAES_CBC() {
+    unsigned char key[] = { 0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f }; //key example
+    unsigned int dataLen = size*sizeof(unsigned char);  //bytes in plaintext
+
+    AES aes(AESKeyLength::AES_128);  ////128 - key length, can be 128, 192 or 256
+    out = aes.DecryptCBC(data, dataLen, key, key);
+  }
+
+  void encryptAES_CFB() {
+    unsigned char key[] = { 0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f }; //key example
+    unsigned int dataLen = size*sizeof(unsigned char);  //bytes in plaintext
+
+    AES aes(AESKeyLength::AES_128);  ////128 - key length, can be 128, 192 or 256
+    out = aes.EncryptCFB(data, dataLen, key, key);
+  }
+
+  void decryptAES_CFB() {
+    unsigned char key[] = { 0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f }; //key example
+    unsigned int dataLen = size*sizeof(unsigned char);  //bytes in plaintext
+
+    AES aes(AESKeyLength::AES_128);  ////128 - key length, can be 128, 192 or 256
+    out = aes.DecryptCFB(data, dataLen, key, key);
+  }
+
+  void encryptAES_OFB() {
+    unsigned char key[] = { 0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f }; //key example
+    unsigned int dataLen = size*sizeof(unsigned char);  //bytes in plaintext
+
+    AES aes(AESKeyLength::AES_128);  ////128 - key length, can be 128, 192 or 256
+    out = aes.EncryptOFB(data, dataLen, key, key);
+  }
+
+  void decryptAES_OFB() {
+    unsigned char key[] = { 0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f }; //key example
+    unsigned int dataLen = size*sizeof(unsigned char);  //bytes in plaintext
+
+    AES aes(AESKeyLength::AES_128);  ////128 - key length, can be 128, 192 or 256
+    out = aes.DecryptOFB(data, dataLen, key, key);
   }
 
 };
@@ -153,10 +199,10 @@ int main(int argc, char* argv[])
   unsigned int key;
 
   if (argc != 5) 
-     {
-       printf("Usage: ImageIn ImageOut key mode\n"); 
-       exit (1) ;
-     }
+  {
+     printf("Usage: ImageIn ImageOut key mode\n"); 
+     exit (1) ;
+  }
 
   const char *folder = "./images/";
   const char *extension = ".pgm";
@@ -183,22 +229,40 @@ int main(int argc, char* argv[])
 
   allocation_tableau(img->data, OCTET, img->size);
   allocation_tableau(img->out, OCTET, img->size);
-  lire_image_pgm(img->filename, img->data, img->nH * img->nW);
+  lire_image_pgm(img->filename, img->data, img->size );
 
   if(strcmp(mode, "p") == 0) img->permutation(key);
   else if(strcmp(mode, "s") == 0) img->substitution(key);
   else if(strcmp(mode, "dp") == 0) img->decryptPermutation(key);
   else if(strcmp(mode, "ds") == 0) img->decryptSubstitution(key);
   else if(strcmp(mode, "bf") == 0) img->bruteForceSubstitution();
-  else if(strcmp(mode, "aes") == 0) img->encryptAES();
-  else if(strcmp(mode, "daes") == 0) img->decryptAES();
+  else if(strcmp(mode, "ecb") == 0) img->encryptAES_ECB();
+  else if(strcmp(mode, "decb") == 0) img->decryptAES_ECB();
+  else if(strcmp(mode, "cbc") == 0) img->encryptAES_CBC();
+  else if(strcmp(mode, "dcbc") == 0) img->decryptAES_CBC();
+  else if(strcmp(mode, "cfb") == 0) img->encryptAES_CFB();
+  else if(strcmp(mode, "dcfb") == 0) img->decryptAES_CFB();
+  else if(strcmp(mode, "ofb") == 0) img->encryptAES_OFB();
+  else if(strcmp(mode, "dofb") == 0) img->decryptAES_OFB();
+  else if(strcmp(mode, "e") == 0) {
+    int histo[256];
+    histogram(img->data, img->size, histo);
+    printf("Entropie : %f\n", entropy(histo, img->size));
+  }
   else {
     printf("Incorrect mode\n"); 
+    free(img->data);
+    free(img->out);
+    free(filename1);
+    free(filename2);
     exit (1) ;
   }
 
   ecrire_image_pgm(cNomImgEcrite, img->out, img->nH, img->nW);
+
   free(img->data);
   free(img->out);
+  free(filename1);
+  free(filename2);
   return 1;
 }

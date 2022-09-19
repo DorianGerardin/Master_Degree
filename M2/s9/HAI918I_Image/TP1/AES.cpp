@@ -129,6 +129,96 @@ unsigned char *AES::DecryptCFB(const unsigned char in[], unsigned int inLen,
   return out;
 }
 
+unsigned char *AES::EncryptOFB(const unsigned char in[], unsigned int inLen,
+                               const unsigned char key[],
+                               const unsigned char *iv) {
+  CheckLength(inLen);
+  unsigned char *out = new unsigned char[inLen];
+  unsigned char block[blockBytesLen];
+  unsigned char encryptedBlock[blockBytesLen];
+  unsigned char *roundKeys = new unsigned char[4 * Nb * (Nr + 1)];
+  KeyExpansion(key, roundKeys);
+  memcpy(block, iv, blockBytesLen);
+  for (unsigned int i = 0; i < inLen; i += blockBytesLen) {
+    EncryptBlock(block, encryptedBlock, roundKeys);
+    XorBlocks(in + i, encryptedBlock, out + i, blockBytesLen);
+    memcpy(block, encryptedBlock, blockBytesLen);
+  }
+
+  delete[] roundKeys;
+
+  return out;
+}
+
+unsigned char *AES::DecryptOFB(const unsigned char in[], unsigned int inLen,
+                               const unsigned char key[],
+                               const unsigned char *iv) {
+  CheckLength(inLen);
+  unsigned char *out = new unsigned char[inLen];
+  unsigned char block[blockBytesLen];
+  unsigned char encryptedBlock[blockBytesLen];
+  unsigned char *roundKeys = new unsigned char[4 * Nb * (Nr + 1)];
+  KeyExpansion(key, roundKeys);
+  memcpy(block, iv, blockBytesLen);
+  for (unsigned int i = 0; i < inLen; i += blockBytesLen) {
+    EncryptBlock(block, encryptedBlock, roundKeys);
+    XorBlocks(in + i, encryptedBlock, out + i, blockBytesLen);
+    memcpy(block, in+i, blockBytesLen);
+  }
+
+  delete[] roundKeys;
+
+  return out;
+}
+
+unsigned char *AES::EncryptCTR(const unsigned char in[], unsigned int inLen,
+                               const unsigned char key[], unsigned char *iv) {
+  CheckLength(inLen);
+  unsigned char *out = new unsigned char[inLen];
+  unsigned char block[blockBytesLen];
+  unsigned char encryptedBlock[blockBytesLen];
+  unsigned char *roundKeys = new unsigned char[4 * Nb * (Nr + 1)];
+  KeyExpansion(key, roundKeys);
+  memcpy(block, iv, blockBytesLen);
+
+  unsigned int ctr = 0;
+  for (unsigned int i = 0; i < inLen; i += blockBytesLen) {
+    EncryptBlock(block + i, encryptedBlock, roundKeys);
+    XorBlocks(in + i, encryptedBlock, out + i, blockBytesLen);
+    incrementCounter(iv, ctr);
+    memcpy(block, iv, blockBytesLen);
+    ctr++;
+  }
+
+  delete[] roundKeys;
+
+  return out;
+}
+
+void incrementCounter(unsigned char *iv, unsigned int index) {
+    if (++iv[index] != 0) ++iv[index];
+}
+
+unsigned char *AES::DecryptCTR(const unsigned char in[], unsigned int inLen,
+                               const unsigned char key[], const unsigned char *iv) {
+  CheckLength(inLen);
+  unsigned char *out = new unsigned char[inLen];
+  unsigned char block[blockBytesLen];
+  unsigned char encryptedBlock[blockBytesLen];
+  unsigned char *roundKeys = new unsigned char[4 * Nb * (Nr + 1)];
+  KeyExpansion(key, roundKeys);
+  memcpy(block, iv, blockBytesLen);
+  for (unsigned int i = 0; i < inLen; i += blockBytesLen) {
+    EncryptBlock(block + i, encryptedBlock, roundKeys);
+    XorBlocks(in + i, encryptedBlock, out + i, blockBytesLen);
+    memcpy(block, in+i, blockBytesLen);
+  }
+
+  delete[] roundKeys;
+
+  return out;
+}
+
 void AES::CheckLength(unsigned int len) {
   if (len % blockBytesLen != 0) {
     throw std::length_error("Plaintext length must be divisible by " +

@@ -64,6 +64,8 @@ class AES {
  public:
   explicit AES(const AESKeyLength keyLength = AESKeyLength::AES_256);
 
+  void incrementCounter(unsigned char* iv, unsigned int ctr);
+
   unsigned char *EncryptECB(const unsigned char in[], unsigned int inLen,
                             const unsigned char key[]);
 
@@ -80,6 +82,18 @@ class AES {
                             const unsigned char key[], const unsigned char *iv);
 
   unsigned char *DecryptCFB(const unsigned char in[], unsigned int inLen,
+                            const unsigned char key[], const unsigned char *iv);
+
+  unsigned char *EncryptOFB(const unsigned char in[], unsigned int inLen,
+                            const unsigned char key[], const unsigned char *iv);
+
+  unsigned char *DecryptOFB(const unsigned char in[], unsigned int inLen,
+                            const unsigned char key[], const unsigned char *iv);
+
+  unsigned char *EncryptCTR(const unsigned char in[], unsigned int inLen,
+                            const unsigned char key[], unsigned char *iv);
+
+  unsigned char *DecryptCTR(const unsigned char in[], unsigned int inLen,
                             const unsigned char key[], const unsigned char *iv);
 
   std::vector<unsigned char> EncryptECB(std::vector<unsigned char> in,
