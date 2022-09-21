@@ -195,7 +195,7 @@ unsigned char *AES::EncryptCTR(const unsigned char in[], unsigned int inLen,
   return out;
 }
 
-void incrementCounter(unsigned char *iv, unsigned int index) {
+void AES::incrementCounter(unsigned char *iv, unsigned int index) {
     if (++iv[index] != 0) ++iv[index];
 }
 

@@ -190,6 +190,22 @@ struct Image {
     out = aes.DecryptOFB(data, dataLen, key, key);
   }
 
+  void encryptAES_CTR() {
+    unsigned char key[] = { 0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f }; //key example
+    unsigned int dataLen = size*sizeof(unsigned char);  //bytes in plaintext
+
+    AES aes(AESKeyLength::AES_128);  ////128 - key length, can be 128, 192 or 256
+    out = aes.EncryptCTR(data, dataLen, key, key);
+  }
+
+  void decryptAES_CTR() {
+    unsigned char key[] = { 0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f }; //key example
+    unsigned int dataLen = size*sizeof(unsigned char);  //bytes in plaintext
+
+    AES aes(AESKeyLength::AES_128);  ////128 - key length, can be 128, 192 or 256
+    out = aes.DecryptCTR(data, dataLen, key, key);
+  }
+
 };
 
 int main(int argc, char* argv[])
@@ -244,6 +260,8 @@ int main(int argc, char* argv[])
   else if(strcmp(mode, "dcfb") == 0) img->decryptAES_CFB();
   else if(strcmp(mode, "ofb") == 0) img->encryptAES_OFB();
   else if(strcmp(mode, "dofb") == 0) img->decryptAES_OFB();
+  else if(strcmp(mode, "ctr") == 0) img->encryptAES_OFB();
+  else if(strcmp(mode, "dctr") == 0) img->decryptAES_OFB();
   else if(strcmp(mode, "e") == 0) {
     int histo[256];
     histogram(img->data, img->size, histo);
