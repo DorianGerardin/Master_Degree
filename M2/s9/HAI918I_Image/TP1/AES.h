@@ -94,7 +94,7 @@ class AES {
                             const unsigned char key[], unsigned char *iv);
 
   unsigned char *DecryptCTR(const unsigned char in[], unsigned int inLen,
-                            const unsigned char key[], const unsigned char *iv);
+                            const unsigned char key[], unsigned char *iv);
 
   std::vector<unsigned char> EncryptECB(std::vector<unsigned char> in,
                                         std::vector<unsigned char> key);

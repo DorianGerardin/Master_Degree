@@ -126,6 +126,43 @@ struct Image {
     decryptSubstitution(bestImg);
   }
 
+  // void noise(int sizeBlock) {
+  //   for (int i = 0; i < size; ++i)
+  //   {   
+  //     if(i%sizeBlock == 0 && i != 0) {
+  //       int randomPixel = rand() % sizeBlock;
+  //       int color = rand()%2 == 1 ? 50 : 200;
+  //       out[i - sizeBlock + randomPixel] = color; 
+  //     } 
+  //     out[i] = data[i];
+  //   }
+  // }
+
+  void noise() {
+    int posBit;
+    int posByte;
+    OCTET byte;
+    srand(42);
+    for (size_t i = 0; i < size; i++)
+    {
+        out[i] = data[i];
+    }
+    for (size_t i = 0; i < size; i += 16)
+    {
+        // Itère sur chaque blocs de 16 octets = 128 bits
+        if (rand() % 5 == 0)
+        {
+            // 1 chance sur 5 de flip 1 bit au hasard parmi ce bloc
+            posByte = rand() % 16;
+            byte = out[i + posByte];
+            posBit = rand() % 8;
+            byte ^= 1UL << posBit;
+
+            out[i + posByte] = byte;
+        }
+    }
+  }
+
   void encryptAES_ECB() {
     unsigned char key[] = { 0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f }; //key example
     unsigned int dataLen = size*sizeof(unsigned char);  //bytes in plaintext
@@ -251,6 +288,7 @@ int main(int argc, char* argv[])
   else if(strcmp(mode, "s") == 0) img->substitution(key);
   else if(strcmp(mode, "dp") == 0) img->decryptPermutation(key);
   else if(strcmp(mode, "ds") == 0) img->decryptSubstitution(key);
+  else if(strcmp(mode, "n") == 0) img->noise();
   else if(strcmp(mode, "bf") == 0) img->bruteForceSubstitution();
   else if(strcmp(mode, "ecb") == 0) img->encryptAES_ECB();
   else if(strcmp(mode, "decb") == 0) img->decryptAES_ECB();
@@ -276,7 +314,7 @@ int main(int argc, char* argv[])
     exit (1) ;
   }
 
-  ecrire_image_pgm(cNomImgEcrite, img->out, img->nH, img->nW);
+  if(strcmp(mode, "e") != 0) ecrire_image_pgm(cNomImgEcrite, img->out, img->nH, img->nW);
 
   free(img->data);
   free(img->out);

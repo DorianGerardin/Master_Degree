@@ -163,7 +163,7 @@ unsigned char *AES::DecryptOFB(const unsigned char in[], unsigned int inLen,
   for (unsigned int i = 0; i < inLen; i += blockBytesLen) {
     EncryptBlock(block, encryptedBlock, roundKeys);
     XorBlocks(in + i, encryptedBlock, out + i, blockBytesLen);
-    memcpy(block, in+i, blockBytesLen);
+    memcpy(block, encryptedBlock, blockBytesLen);
   }
 
   delete[] roundKeys;
@@ -200,7 +200,7 @@ void AES::incrementCounter(unsigned char *iv, unsigned int index) {
 }
 
 unsigned char *AES::DecryptCTR(const unsigned char in[], unsigned int inLen,
-                               const unsigned char key[], const unsigned char *iv) {
+                               const unsigned char key[], unsigned char *iv) {
   CheckLength(inLen);
   unsigned char *out = new unsigned char[inLen];
   unsigned char block[blockBytesLen];
@@ -208,10 +208,14 @@ unsigned char *AES::DecryptCTR(const unsigned char in[], unsigned int inLen,
   unsigned char *roundKeys = new unsigned char[4 * Nb * (Nr + 1)];
   KeyExpansion(key, roundKeys);
   memcpy(block, iv, blockBytesLen);
+
+  unsigned int ctr = 0;
   for (unsigned int i = 0; i < inLen; i += blockBytesLen) {
     EncryptBlock(block + i, encryptedBlock, roundKeys);
     XorBlocks(in + i, encryptedBlock, out + i, blockBytesLen);
-    memcpy(block, in+i, blockBytesLen);
+    incrementCounter(iv, ctr);
+    memcpy(block, iv, blockBytesLen);
+    ctr++;
   }
 
   delete[] roundKeys;
