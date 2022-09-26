@@ -44,6 +44,13 @@ struct Image {
   char* filename;
   int size, nW, nH;
 
+  void resetOctetArray(OCTET* arr, unsigned int size) {
+    for (int i = 0; i < size; ++i)
+    {
+      arr[i] = 0;
+    }
+  }
+
   void extract(unsigned int key, unsigned int lsb) {
     srand(key);
     unsigned int littleImgSize = 64*64;
@@ -59,6 +66,27 @@ struct Image {
     }
   }
 
+  void findKey(unsigned int lsb) {
+    float minEntropy = FLT_MAX;
+    int key = 1;
+    unsigned int littleImgSize = 64*64;
+    for (int i = 1; i < 256; ++i)
+    {
+      extract(i, lsb);
+      int histo[256];
+      histogram(out, littleImgSize, histo);
+      float e = entropy(histo, littleImgSize);
+      printf("i : %i   entropy : %f\n", i, e);
+      if(e < minEntropy) {
+        minEntropy = e;
+        key = i;
+      }
+      resetOctetArray(out, littleImgSize);
+    }
+    printf("La clé est : %i\n", key);
+    extract(key, lsb);
+  }
+
 };
 
 int main(int argc, char* argv[])
@@ -67,9 +95,9 @@ int main(int argc, char* argv[])
   int nH, nW, nTaille; 
   unsigned int key, lsb;
 
-  if (argc != 5) 
+  if (argc != 4) 
   {
-     printf("Usage: ImageIn ImageOut key lsb\n"); 
+     printf("Usage: ImageIn ImageOut lsb\n"); 
      exit (1) ;
   }
 
@@ -79,11 +107,10 @@ int main(int argc, char* argv[])
   string s2 = string(folder) + string(argv[2]) + string(extension);
   char* filename1 = stringToCharArray(s1);
   char* filename2 = stringToCharArray(s2);
-   
+ 
   sscanf (filename1,"%s", cNomImgLue);
   sscanf (filename2,"%s", cNomImgEcrite);
-  sscanf (argv[3],"%u", &key);
-  sscanf (argv[4],"%u", &lsb);
+  sscanf (argv[3],"%u", &lsb);
 
   lire_nb_lignes_colonnes_image_pgm(cNomImgLue, &nH, &nW);
   nTaille = nH * nW;
@@ -97,16 +124,15 @@ int main(int argc, char* argv[])
   };
 
   allocation_tableau(img->data, OCTET, img->size);
-  allocation_tableau(img->out, OCTET, 64*64);
-  lire_image_pgm(img->filename, img->data, img->size );
+  allocation_tableau(img->out, OCTET, img->size);
+  lire_image_pgm(img->filename, img->data, 64*64 );
 
-  img->extract(key, lsb);
+  img->findKey(lsb);
 
   ecrire_image_pgm(cNomImgEcrite, img->out, 64, 64);
 
   free(img->data);
   free(img->out);
   free(filename1);
-  free(filename2);
   return 1;
 }
