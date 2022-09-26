@@ -157,7 +157,6 @@ struct Image {
             byte = out[i + posByte];
             posBit = rand() % 8;
             byte ^= 1UL << posBit;
-
             out[i + posByte] = byte;
         }
     }
