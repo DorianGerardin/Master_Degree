@@ -44,13 +44,6 @@ struct Image {
   char* filename;
   int size, nW, nH;
 
-  void resetOctetArray(OCTET* arr, unsigned int size) {
-    for (int i = 0; i < size; ++i)
-    {
-      arr[i] = 0;
-    }
-  }
-
   void extract(unsigned int key, unsigned int lsb) {
     srand(key);
     unsigned int littleImgSize = 64*64;
@@ -76,12 +69,10 @@ struct Image {
       int histo[256];
       histogram(out, littleImgSize, histo);
       float e = entropy(histo, littleImgSize);
-      printf("i : %i   entropy : %f\n", i, e);
       if(e < minEntropy) {
         minEntropy = e;
         key = i;
       }
-      resetOctetArray(out, littleImgSize);
     }
     printf("La clé est : %i\n", key);
     extract(key, lsb);
@@ -124,8 +115,8 @@ int main(int argc, char* argv[])
   };
 
   allocation_tableau(img->data, OCTET, img->size);
-  allocation_tableau(img->out, OCTET, img->size);
-  lire_image_pgm(img->filename, img->data, 64*64 );
+  allocation_tableau(img->out, OCTET, 64*64);
+  lire_image_pgm(img->filename, img->data, img->size );
 
   img->findKey(lsb);
 
