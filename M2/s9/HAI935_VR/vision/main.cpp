@@ -71,7 +71,7 @@ struct Segment {
   	Point *start;
   	Point *end;
 
-  	void drawLine(CImg<unsigned char> img, CImgDisplay &imgDisp) {
+  	void drawLine(CImg<unsigned char> &img, CImgDisplay &imgDisp) {
   		int x_inter[2], y_inter[2] ;
   		double L[3];
 
