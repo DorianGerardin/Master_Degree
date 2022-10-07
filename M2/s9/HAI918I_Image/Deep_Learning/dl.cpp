@@ -75,27 +75,28 @@ struct Image {
   void CNN(int nbIteration, int nbFilter) {
     double passeHaut[3][3] = {{-1.,0.,1.}, {-1.,0.,1.}, {-1.,0.,1.}};
     double passeBas[3][3] = {{4.,-1.,-3.}, {2.,0.,-1.}, {1.,-2.,0.}};
-    
+
     vector<Image*> imgArray;
-    for (int i = 0; i < nbIteration; ++i)
-    {
-      for (int j = 0; j < nbFilter; ++j)
+    for (int j = 0; j < nbFilter; ++j) {
+      Image *img = new Image();
       {
-        Image *img = new Image();
-        {
-          img->size = nTaille;
-          img->nH = nH;
-          img->nW = nW;
-        };
+        img->size = nTaille;
+        img->nH = nH;
+        img->nW = nW;
+      };
+      allocation_tableau(img->data, OCTET, img->size);
+      imgArray.push_back(img);
+    }
+    
+    for (int i = 0; i < nbIteration; ++i) {
+      for (int j = 0; j < nbFilter; ++j) {
         if(j%2 == 0) {
-          img->applyFilter(passeHaut);
+          imgArray[j]->applyFilter(passeHaut);
         } else {
-          img->applyFilter(passeBas);
+          imgArray[j]->applyFilter(passeBas);
         }
-        imgArray.push_back(img);
       }
-      for (int j = 0; j < imgArray.size(); ++j)
-      {
+      for (int j = 0; j < imgArray.size(); ++j){
         imgArray[i]->downSample(2);
       }
     }
