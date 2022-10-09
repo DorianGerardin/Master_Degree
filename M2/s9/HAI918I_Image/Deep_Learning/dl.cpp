@@ -40,7 +40,8 @@ struct Image {
   OCTET *data;
   OCTET *out;
   char* filename;
-  char* filenameOut;
+  char* path;
+  char* pathOut;
   int size, nW, nH;
 
   void updateData() {
@@ -64,11 +65,12 @@ struct Image {
               moyenne += (int)floor(data[(i+k)*nW+(j+l)] * kernel[k+1][l+1]);
             }
             if(moyenne < 0) moyenne = 0;
+            if(moyenne > 255) moyenne = 255;
           } out[i*nW+j] = moyenne;
         } else out[i*nW+j] = 0;
       }
     }
-    //ecrire_image_pgm(filenameOut, out, nH, nW);
+    //ecrire_image_pgm(pathOut, out, nH, nW);
     updateData();
     free(out);
   }
@@ -87,7 +89,7 @@ struct Image {
         out[i/sample*nW/sample+j/sample] = maxValue;
       }
     }
-    //ecrire_image_pgm(filenameOut, out, nH/2, nW/2);
+    //ecrire_image_pgm(pathOut, out, nH/2, nW/2);
     updateData();
     //free(out);
   }
@@ -111,9 +113,9 @@ struct Image {
   void CNN(int nbLayers) {
     int nbFilters = 5;
     double d = 1./9.;
-    double gaussianFilter[3][3]; getGaussianFilter(gaussianFilter);
+    //double gaussianFilter[3][3]; getGaussianFilter(gaussianFilter);
     double filters[5][3][3] = {
-      {{1.,0.,-1.}, {2.,0.,-2.}, {1.,0.,-1.}},  // passe haut (Sobel H)
+      {{-1.,0.,1.}, {-2.,0.,2.}, {-1.,0.,1.}},  // passe haut (Sobel H)
       {{1.,2.,1.}, {0.,0.,0.}, {-1.,-2.,-1.}},  // passe haut (Sobel V)
       {{0.0751136, 0.123841, 0.0751136}, {0.123841, 0.20418, 0.123841}, {0.0751136, 0.123841, 0.0751136}}, // passe bas (gaussian)
       {{d,d,d}, {d,d,d}, {d,d,d}},              // passe bas (blur)
@@ -121,7 +123,7 @@ struct Image {
     };
 
     int sample = 2;
-    int imgSize = nH;
+    int imgH = nH;
     vector<Image*> newImages;
 
     for (int i = 0; i < nbLayers; ++i) {
@@ -145,22 +147,46 @@ struct Image {
         }
         newImages = tempNewImages;
       }
-      imgSize /= sample;
+      imgH /= sample;
     }
 
-    const char *folder = "./test/";
-    const char *extension = ".pgm";
-    for (int i = 0; i < newImages.size(); ++i)
+    int imgSize = imgH*imgH;
+    Image *vecteur = new Image();
     {
-      string s = string(folder) + to_string(i) + string(extension);
-      char* filename = stringToCharArray(s);
-      ecrire_image_pgm(filename, newImages[i]->out, imgSize, imgSize);
-      free(filename);
+      vecteur->size = newImages.size()*imgSize;
+      vecteur->nH = 1;
+      vecteur->nW = newImages.size()*imgSize;
+    };
+    allocation_tableau(vecteur->data, OCTET, vecteur->size);
+
+    for (int i = 0; i < newImages.size(); ++i) {
+      for (int j = 0; j < imgSize; ++j) {
+        vecteur->data[i*imgSize + j] = newImages[i]->data[j];
+      }
+    }
+    const char *folder = "./boarVectorTest/";
+    const char *extension = ".pgm";
+    string s = string(folder) + string(filename) + string(extension);
+    char* vec_filename = stringToCharArray(s);
+    ecrire_image_pgm(vec_filename, vecteur->data, vecteur->nH, vecteur->nW);
+    free(vec_filename);
+    free(vecteur->data);
+
+    // for (int i = 0; i < newImages.size(); ++i)
+    // {
+    //   string s = string(folder) + to_string(i) + string(extension);
+    //   char* imgFilename = stringToCharArray(s);
+    //   ecrire_image_pgm(imgFilename, newImages[i]->out, imgH, imgH);
+    //   free(imgFilename);
+    // }
+
+    for (int j = 0; j < newImages.size(); ++j) {
+      free(newImages[j]->data);
+      free(newImages[j]->out);
     }
 
-    for (int j = 0; j < newImages.size(); ++j) free(newImages[j]);
+    cout << "fin" << endl;
   }
-
 };
 
 int main(int argc, char* argv[])
@@ -179,31 +205,32 @@ int main(int argc, char* argv[])
   const char *extension = ".pgm";
   string s1 = string(folder) + string(argv[1]) + string(extension);
   string s2 = string(folder) + string(argv[2]) + string(extension);
-  char* filename1 = stringToCharArray(s1);
-  char* filename2 = stringToCharArray(s2);
+  char* path1 = stringToCharArray(s1);
+  char* path2 = stringToCharArray(s2);
    
-  sscanf (filename1,"%s", cNomImgLue);
-  sscanf (filename2,"%s", cNomImgEcrite);
+  sscanf (path1,"%s", cNomImgLue);
+  sscanf (path2,"%s", cNomImgEcrite);
 
   lire_nb_lignes_colonnes_image_pgm(cNomImgLue, &nH, &nW);
   nTaille = nH * nW;
 
   Image *img = new Image();
   {
-    img->filename = cNomImgLue;
-    img->filenameOut = cNomImgEcrite;
+    img->filename = argv[1];
+    img->path = cNomImgLue;
+    img->pathOut = cNomImgEcrite;
     img->size = nTaille;
     img->nH = nH;
     img->nW = nW;
   };
 
   allocation_tableau(img->data, OCTET, img->size);
-  lire_image_pgm(img->filename, img->data, img->size);
+  lire_image_pgm(img->path, img->data, img->size);
 
-  img->CNN(3);
+  img->CNN(2);
 
   free(img->data);
-  free(filename1);
-  free(filename2);
+  free(path1);
+  free(path2);
   return 1;
 }
