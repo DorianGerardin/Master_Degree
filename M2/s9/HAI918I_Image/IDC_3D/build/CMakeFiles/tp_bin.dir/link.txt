@@ -1,0 +1,1 @@
+/usr/bin/c++  -fPIC CMakeFiles/tp_bin.dir/tp/main.cpp.o -o tp_bin  /usr/lib/x86_64-linux-gnu/libGLX.so /usr/lib/x86_64-linux-gnu/libOpenGL.so glad/libglad.a glfw/src/libglfw3.a /usr/lib/x86_64-linux-gnu/librt.a -lm -ldl /usr/lib/x86_64-linux-gnu/libX11.so 
