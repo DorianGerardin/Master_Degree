@@ -28,7 +28,7 @@ CFLAGS = -Wall -O3
 CXXFLAGS = -Wall -O3 
 
 # option du preprocesseur
-CPPFLAGS =  -I$(INCDIR) 
+CPPFLAGS =  -I$(INCDIR) -Wfatal-errors
 
 # options du linker et liste des bibliothèques à charger
 LDFLAGS = -L/usr/X11R6/lib              

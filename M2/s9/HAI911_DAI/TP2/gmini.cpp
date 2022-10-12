@@ -20,6 +20,8 @@
 #include <string>
 #include <cstdio>
 #include <cstdlib>
+#include <climits>
+#include <float.h>
 
 #include <algorithm>
 #include <GL/glut.h>
@@ -30,6 +32,8 @@
 #include "src/LaplacianWeights.h"
 #include "extern/eigen3/Eigen/SVD"
 #include "extern/eigen3/Eigen/Geometry"
+#include "extern/freeglut/freeglut.h"
+
 
 
 using namespace std;
@@ -50,6 +54,10 @@ static bool mouseZoomPressed = false;
 static int lastX=0, lastY=0, lastZoom=0;
 static unsigned int FPS = 0;
 static bool fullScreen = false;
+static float defaultRadius = 0.01;
+static float radius = defaultRadius;
+static unsigned int lastVertexClicked = -1;
+static bool hasToDrawShpereBrush = false;
 
 enum ViewerState {
     ViewerState_NORMAL ,
@@ -78,7 +86,6 @@ bool handlesWereChanged = false; // if they are changed, we need to update the s
 std::vector< bool > verticesAreMarkedForCurrentHandle;
 std::vector< int > verticesHandles;
 double spheresSize = 0.01;
-
 
 
 
@@ -448,6 +455,45 @@ void finalizeEditingOfCurrentHandle() {
     handlesWereChanged = true;
 }
 
+
+unsigned int getVertexFromClick(GLdouble mouseX, GLdouble mouseY) {
+    Vec3 clickPosition = Vec3(0., 0., 0.);
+    GLdouble modelView[16];  glGetDoublev(GL_MODELVIEW_MATRIX , modelView);
+    GLdouble projection[16]; glGetDoublev(GL_PROJECTION_MATRIX , projection);
+    GLint view[4]; glGetIntegerv(GL_VIEWPORT, view);
+
+    float depth;
+    glReadPixels(mouseX, view[3]-mouseY, 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &depth);
+    gluUnProject(mouseX, view[3]-mouseY, depth, modelView, projection, view, &clickPosition[0], &clickPosition[1], &clickPosition[2]);
+    
+    double minDistance = DBL_MAX;
+    unsigned int vertexIndex = 0;
+    size_t nbVertices = mesh.V.size();
+    for (unsigned int i = 0; i < nbVertices; ++i)
+    {
+        Vec3 vecDiff = mesh.V[i].p - clickPosition;
+        double distance = vecDiff.length();
+        if(distance < minDistance) {
+            minDistance = distance;
+            vertexIndex = i;
+        }
+    }
+    return vertexIndex;
+}
+
+void setNeighborsInRadiusFromVertex(unsigned int vertexIndex) {
+    size_t nbVertices = mesh.V.size();
+    for (int i = 0; i < nbVertices; ++i)
+    {
+        Vec3 vecDiff = mesh.V[i] - mesh.V[vertexIndex];
+        double distance = vecDiff.length();
+        if(distance < radius) {
+            verticesAreMarkedForCurrentHandle[i] = true;
+        } else verticesAreMarkedForCurrentHandle[i] = false;
+    }
+}
+
+
 void printUsage () {
     cerr << endl
          << "Usage : ./gmini [<file.off>]" << endl
@@ -639,6 +685,17 @@ void drawHandles() {
     }
 }
 
+void deleteSphereBrush() {
+    radius = defaultRadius;
+    lastVertexClicked = -1;
+    hasToDrawShpereBrush = false;
+}
+
+void drawSphereBrush() {
+    Vec3 v = mesh.V[lastVertexClicked];
+    drawSphere( v[0] , v[1] , v[2] , radius , 10 , 10 );
+}
+
 
 void draw () {
     glEnable(GL_DEPTH);
@@ -649,6 +706,7 @@ void draw () {
     mesh.draw();
     drawHandles();
     rectangleSelectionTool.draw();
+    if(hasToDrawShpereBrush) drawSphereBrush();
 }
 
 void display () {
@@ -774,6 +832,7 @@ void key (unsigned char keyPressed, int x, int y) {
         if( viewerState == ViewerState_EDITINGHANDLE ) {
             viewerState = ViewerState_NORMAL;
             finalizeEditingOfCurrentHandle();
+            deleteSphereBrush();
         }
         break;
 
@@ -791,6 +850,14 @@ void key (unsigned char keyPressed, int x, int y) {
         }
         break;
 
+    case 'd':
+        for (int i = 0; i < verticesAreMarkedForCurrentHandle.size(); ++i)
+        {
+            deleteSphereBrush();
+            verticesAreMarkedForCurrentHandle[i] = false;
+        }
+        break;
+        
     case 'g':
         if( viewerState == ViewerState_NORMAL   ||   viewerState == ViewerState_ROTATINGHANDLE ) {
             if( activeHandleIsValid() ) {
@@ -812,6 +879,13 @@ void key (unsigned char keyPressed, int x, int y) {
         break;
     }
     idle ();
+}
+
+void mouseRoutine(int x, int y) {
+    if(hasToDrawShpereBrush) {
+        lastVertexClicked = getVertexFromClick(x, y);
+        setNeighborsInRadiusFromVertex(lastVertexClicked);
+    }
 }
 
 
@@ -836,6 +910,23 @@ void mouse (int button, int state, int x, int y) {
         }
     }
     else {
+        if(lastVertexClicked != -1 && (button == 3 || button == 4)) {
+            float maxRadius = 2.;
+            float minRadius = defaultRadius;
+            float changeValue = 0.01;
+
+            if(button == 3) {
+                if(radius + changeValue <= maxRadius) radius += changeValue;
+            } else {
+                if(radius - changeValue >= minRadius) radius -= changeValue;
+            }
+            setNeighborsInRadiusFromVertex(lastVertexClicked);
+        }
+
+        if(button == GLUT_LEFT_BUTTON && state == GLUT_DOWN) {
+            hasToDrawShpereBrush = true;
+            lastVertexClicked = getVertexFromClick(x, y);
+        }
         // moving the camera:
         if (state == GLUT_UP) {
             mouseMovePressed = false;
@@ -865,6 +956,7 @@ void mouse (int button, int state, int x, int y) {
     }
     idle ();
 }
+
 
 void motion (int x, int y) {
     if( viewerState == ViewerState_EDITINGHANDLE  &&  rectangleSelectionTool.isActive ) {
@@ -910,6 +1002,7 @@ int main (int argc, char ** argv) {
     glutReshapeFunc (reshape);
     glutMotionFunc (motion);
     glutMouseFunc (mouse);
+    glutPassiveMotionFunc(mouseRoutine);
     glutSpecialFunc(SpecialInput);
     key ('?', 0, 0);
 
@@ -918,7 +1011,9 @@ int main (int argc, char ** argv) {
     verticesHandles.resize( mesh.V.size() , -1 );
     edgeAndVertexWeights.buildClippedCotangentWeightsOfTriangleMesh( mesh.V , mesh.T );
     Eigen::MatrixXd idMatrix(3,3);
-    idMatrix(0,0) = 1.0;   idMatrix(1,1) = 1.0;   idMatrix(2,2) = 1.0;
+    idMatrix(0,0) = 1.0;   idMatrix(0,1) = 0.0;   idMatrix(0,2) = 0.0;
+    idMatrix(1,0) = 0.0;   idMatrix(1,1) = 1.0;   idMatrix(1,2) = 0.0;
+    idMatrix(2,0) = 0.0;   idMatrix(2,1) = 0.0;   idMatrix(2,2) = 1.0;
     vertexRotationMatrices.resize( mesh.V.size() , idMatrix );
 
     glutMainLoop ();
