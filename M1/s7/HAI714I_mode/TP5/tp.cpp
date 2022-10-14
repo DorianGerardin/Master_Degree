@@ -275,7 +275,7 @@ struct Mesh {
         Vec3 normal;
 
         for (unsigned int i = 0; i < gridPoints.size()-1; ++i)
-         {
+        {
             for (unsigned int j = 0; j < gridPoints[i].size()-1; ++j)
              {
                 for (unsigned int k = 0; k < gridPoints[j].size()-1; ++k)
