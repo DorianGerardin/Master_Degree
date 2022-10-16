@@ -8,8 +8,8 @@ project(eigen-download NONE)
 include(ExternalProject)
 ExternalProject_Add(eigen-download
                     TLS_VERIFY;OFF;GIT_CONFIG;advice.detachedHead=false;GIT_REPOSITORY;https://github.com/eigenteam/eigen-git-mirror.git;GIT_TAG;3.3.7
-                    SOURCE_DIR          "/home/e20180001518/Master/M2/s9/HAI918I_Image/IDC_3D/libigl/cmake/../external/eigen"
-                    BINARY_DIR          "/home/e20180001518/Master/M2/s9/HAI918I_Image/IDC_3D/build/eigen-build"
+                    SOURCE_DIR          "/home/dorian/UNIV/MASTER/git/Master/M2/s9/HAI918I_Image/IDC_3D/libigl/cmake/../external/eigen"
+                    BINARY_DIR          "/home/dorian/UNIV/MASTER/git/Master/M2/s9/HAI918I_Image/IDC_3D/build/eigen-build"
                     CONFIGURE_COMMAND   ""
                     BUILD_COMMAND       ""
                     INSTALL_COMMAND     ""

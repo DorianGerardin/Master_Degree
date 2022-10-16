@@ -8,8 +8,8 @@ project(glad-download NONE)
 include(ExternalProject)
 ExternalProject_Add(glad-download
                     TLS_VERIFY;OFF;GIT_CONFIG;advice.detachedHead=false;GIT_REPOSITORY;https://github.com/libigl/libigl-glad.git;GIT_TAG;09b4969c56779f7ddf8e6176ec1873184aec890f
-                    SOURCE_DIR          "/home/e20180001518/Master/M2/s9/HAI918I_Image/IDC_3D/libigl/cmake/../external/glad"
-                    BINARY_DIR          "/home/e20180001518/Master/M2/s9/HAI918I_Image/IDC_3D/build/glad-build"
+                    SOURCE_DIR          "/home/dorian/UNIV/MASTER/git/Master/M2/s9/HAI918I_Image/IDC_3D/libigl/cmake/../external/glad"
+                    BINARY_DIR          "/home/dorian/UNIV/MASTER/git/Master/M2/s9/HAI918I_Image/IDC_3D/build/glad-build"
                     CONFIGURE_COMMAND   ""
                     BUILD_COMMAND       ""
                     INSTALL_COMMAND     ""

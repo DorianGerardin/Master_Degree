@@ -1,4 +1,4 @@
-# Install script for directory: /home/e20180001518/Master/M2/s9/HAI918I_Image/IDC_3D
+# Install script for directory: /home/dorian/UNIV/MASTER/git/Master/M2/s9/HAI918I_Image/IDC_3D
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
@@ -37,15 +37,10 @@ if(NOT DEFINED CMAKE_CROSSCOMPILING)
   set(CMAKE_CROSSCOMPILING "FALSE")
 endif()
 
-# Set default install directory permissions.
-if(NOT DEFINED CMAKE_OBJDUMP)
-  set(CMAKE_OBJDUMP "/usr/bin/objdump")
-endif()
-
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for each subdirectory.
-  include("/home/e20180001518/Master/M2/s9/HAI918I_Image/IDC_3D/build/glad/cmake_install.cmake")
-  include("/home/e20180001518/Master/M2/s9/HAI918I_Image/IDC_3D/build/glfw/cmake_install.cmake")
+  include("/home/dorian/UNIV/MASTER/git/Master/M2/s9/HAI918I_Image/IDC_3D/build/glad/cmake_install.cmake")
+  include("/home/dorian/UNIV/MASTER/git/Master/M2/s9/HAI918I_Image/IDC_3D/build/glfw/cmake_install.cmake")
 
 endif()
 
@@ -57,5 +52,5 @@ endif()
 
 string(REPLACE ";" "\n" CMAKE_INSTALL_MANIFEST_CONTENT
        "${CMAKE_INSTALL_MANIFEST_FILES}")
-file(WRITE "/home/e20180001518/Master/M2/s9/HAI918I_Image/IDC_3D/build/${CMAKE_INSTALL_MANIFEST}"
+file(WRITE "/home/dorian/UNIV/MASTER/git/Master/M2/s9/HAI918I_Image/IDC_3D/build/${CMAKE_INSTALL_MANIFEST}"
      "${CMAKE_INSTALL_MANIFEST_CONTENT}")
