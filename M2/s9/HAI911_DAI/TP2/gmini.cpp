@@ -216,7 +216,6 @@ void updateSystem() {
 }
 
 
-
 void updateMeshVertexPositionsFromARAPSolver() {
     //return; // TODO : COMMENT THIS LINE WHEN YOU START THE EXERCISE  (setup of the matrix A for the linear system A.X=B)
     updateSystem();
@@ -481,16 +480,68 @@ unsigned int getVertexFromClick(GLdouble mouseX, GLdouble mouseY) {
     return vertexIndex;
 }
 
-void setNeighborsInRadiusFromVertex(unsigned int vertexIndex) {
+void collectOneRing (vector<MeshVertex> const & vertices,
+                       vector<MeshTriangle> const & triangles,
+                       vector<vector<unsigned int> > & oneRing) {
+    //one-ring of each vertex, i.e. a list of vertices with which it shares an edge
+    //Initialiser le vecetur de o_one_ring de la taille du vecteur vertices
+    oneRing.clear();
+    oneRing.resize(vertices.size());
+    //Parcourir les triangles et ajouter les voisins dans le 1-voisinage
+    for (unsigned int i = 0; i < triangles.size(); ++i) {
+        for (unsigned int j = 0; j < 3; ++j) { //sommet courant
+            for (unsigned int k = 0; k < 3; ++k) { //sommets voisins
+                if(j != k) {
+                    if(std::find(oneRing[triangles[i][j]].begin(), oneRing[triangles[i][j]].end(), triangles[i][k]) == oneRing[triangles[i][j]].end()) {
+                        oneRing[triangles[i][j]].push_back(triangles[i][k]);
+                    }
+                }
+            }
+        }
+    }
+}
+
+unsigned int getRightPositionToAddInQueue(vector<pair<unsigned int, float>> queue, float distance) {
+    size_t queueSize = queue.size();
+    unsigned int index = 0;
+    for (int i = 0; i < queueSize; ++i) {
+        if(distance <= queue[i].second) {
+            index++;
+        } else break;
+    } return index;
+}
+
+void handleNeighborsInTreshold(float treshold) {
+    vector<pair<unsigned int, float>> queue;
+    queue.insert(queue.begin(), make_pair(lastVertexClicked, 0.));
+    vector<bool> alreadyVisited;
     size_t nbVertices = mesh.V.size();
+    alreadyVisited.resize(nbVertices, false);
+
+    vector<vector<unsigned int>> oneRing;
+    collectOneRing(mesh.V, mesh.T, oneRing);
+    while(queue.size() != 0) {
+        pair<unsigned int, float> current = queue[queue.size() - 1];
+        queue.pop_back();
+        float cumulDistance = current.second;
+        for (unsigned int i = 0; i < oneRing[current.first].size(); ++i) {
+            unsigned int neighbor = oneRing[current.first][i];
+            cumulDistance += (mesh.V[neighbor] - mesh.V[current.first]).length();
+            if(!alreadyVisited[neighbor] && cumulDistance <= treshold) {
+                unsigned int queueIndex = getRightPositionToAddInQueue(queue, cumulDistance);
+                queue.insert(queue.begin() + queueIndex, make_pair(neighbor, cumulDistance));
+                alreadyVisited.insert(alreadyVisited.begin() + current.first, true);
+            }
+        }
+    }
     for (int i = 0; i < nbVertices; ++i)
     {
-        Vec3 vecDiff = mesh.V[i] - mesh.V[vertexIndex];
-        double distance = vecDiff.length();
-        if(distance < radius) {
-            verticesAreMarkedForCurrentHandle[i] = true;
-        } else verticesAreMarkedForCurrentHandle[i] = false;
+        verticesAreMarkedForCurrentHandle[i] = alreadyVisited[i];
     }
+}
+
+void setNeighborsInRadiusFromVertex() {
+    handleNeighborsInTreshold(radius);
 }
 
 
@@ -693,7 +744,7 @@ void deleteSphereBrush() {
 
 void drawSphereBrush() {
     Vec3 v = mesh.V[lastVertexClicked];
-    drawSphere( v[0] , v[1] , v[2] , radius , 10 , 10 );
+    drawSphere( v[0] , v[1] , v[2] , defaultRadius , 10 , 10 );
 }
 
 
@@ -884,7 +935,7 @@ void key (unsigned char keyPressed, int x, int y) {
 void mouseRoutine(int x, int y) {
     if(hasToDrawShpereBrush) {
         lastVertexClicked = getVertexFromClick(x, y);
-        setNeighborsInRadiusFromVertex(lastVertexClicked);
+        setNeighborsInRadiusFromVertex();
     }
 }
 
@@ -911,7 +962,7 @@ void mouse (int button, int state, int x, int y) {
     }
     else {
         if(lastVertexClicked != -1 && (button == 3 || button == 4)) {
-            float maxRadius = 2.;
+            float maxRadius = 0.5;
             float minRadius = defaultRadius;
             float changeValue = 0.01;
 
@@ -920,7 +971,7 @@ void mouse (int button, int state, int x, int y) {
             } else {
                 if(radius - changeValue >= minRadius) radius -= changeValue;
             }
-            setNeighborsInRadiusFromVertex(lastVertexClicked);
+            setNeighborsInRadiusFromVertex();
         }
 
         if(button == GLUT_LEFT_BUTTON && state == GLUT_DOWN) {
