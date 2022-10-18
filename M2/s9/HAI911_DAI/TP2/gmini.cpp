@@ -17,6 +17,7 @@
 #include <iostream>
 #include <fstream>
 #include <vector>
+#include <queue>
 #include <string>
 #include <cstdio>
 #include <cstdlib>
@@ -501,19 +502,18 @@ void collectOneRing (vector<MeshVertex> const & vertices,
     }
 }
 
-unsigned int getRightPositionToAddInQueue(vector<pair<unsigned int, float>> queue, float distance) {
-    size_t queueSize = queue.size();
-    unsigned int index = 0;
-    for (int i = 0; i < queueSize; ++i) {
-        if(distance <= queue[i].second) {
-            index++;
-        } else break;
-    } return index;
-}
+void setNeighborsInRadiusFromVertex() {
+    struct Pair {
+        float cumulDistance;
+        unsigned int index;
 
-void handleNeighborsInTreshold(float treshold) {
-    vector<pair<unsigned int, float>> queue;
-    queue.insert(queue.begin(), make_pair(lastVertexClicked, 0.));
+        bool operator<(Pair p1) const {
+            return cumulDistance > p1.cumulDistance;
+        }        
+    };
+
+    priority_queue<Pair> queue;
+    queue.push(Pair{0., lastVertexClicked});
     vector<bool> alreadyVisited;
     size_t nbVertices = mesh.V.size();
     alreadyVisited.resize(nbVertices, false);
@@ -521,16 +521,16 @@ void handleNeighborsInTreshold(float treshold) {
     vector<vector<unsigned int>> oneRing;
     collectOneRing(mesh.V, mesh.T, oneRing);
     while(queue.size() != 0) {
-        pair<unsigned int, float> current = queue[queue.size() - 1];
-        queue.pop_back();
-        float cumulDistance = current.second;
-        for (unsigned int i = 0; i < oneRing[current.first].size(); ++i) {
-            unsigned int neighbor = oneRing[current.first][i];
-            cumulDistance += (mesh.V[neighbor] - mesh.V[current.first]).length();
-            if(!alreadyVisited[neighbor] && cumulDistance <= treshold) {
-                unsigned int queueIndex = getRightPositionToAddInQueue(queue, cumulDistance);
-                queue.insert(queue.begin() + queueIndex, make_pair(neighbor, cumulDistance));
-                alreadyVisited.insert(alreadyVisited.begin() + current.first, true);
+        Pair current = queue.top();
+        queue.pop();
+        float cumulDistance = current.cumulDistance;
+        for (unsigned int i = 0; i < oneRing[current.index].size(); ++i) {
+            unsigned int neighbor = oneRing[current.index][i];
+            cumulDistance += (mesh.V[neighbor] - mesh.V[current.index]).length();
+            if(!alreadyVisited[neighbor] && cumulDistance <= radius) {
+                queue.push(Pair{cumulDistance, neighbor});
+                alreadyVisited[current.index] = true;
+                cumulDistance = current.cumulDistance;
             }
         }
     }
@@ -540,8 +540,15 @@ void handleNeighborsInTreshold(float treshold) {
     }
 }
 
-void setNeighborsInRadiusFromVertex() {
-    handleNeighborsInTreshold(radius);
+void setNeighborsInRadiusFromVertexNaive() {
+    size_t nbVertices = mesh.V.size();
+    for (int i = 0; i < nbVertices; ++i) {
+        Vec3 vecDiff = mesh.V[i] - mesh.V[lastVertexClicked];
+        double distance = vecDiff.length();
+        if(distance < radius) {
+            verticesAreMarkedForCurrentHandle[i] = true;
+        } else verticesAreMarkedForCurrentHandle[i] = false;
+    }
 }
 
 
@@ -962,7 +969,7 @@ void mouse (int button, int state, int x, int y) {
     }
     else {
         if(lastVertexClicked != -1 && (button == 3 || button == 4)) {
-            float maxRadius = 0.5;
+            float maxRadius = 3.;
             float minRadius = defaultRadius;
             float changeValue = 0.01;
 
