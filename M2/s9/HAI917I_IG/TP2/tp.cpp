@@ -32,13 +32,15 @@
 #include "src/jmkdtree.h"
 
 
-
+using namespace std;
 
 std::vector< Vec3 > positions;
 std::vector< Vec3 > normals;
 
 std::vector< Vec3 > positions2;
 std::vector< Vec3 > normals2;
+
+std::vector<Vec3> dualContouringPoints;
 
 std::vector<Vec3> gridPoints;
 std::vector<float> signs;
@@ -249,12 +251,16 @@ void drawPointSet( std::vector< Vec3 > const & i_positions , std::vector< Vec3 >
 void draw () {
     glPointSize(2); // for example...
 
-    glColor3f(0.8,0.8,1);
-    drawPointSet(positions , normals);
+    // glColor3f(0.8,0.8,1);
+    // drawPointSet(positions , normals);
 
-    glPointSize(4);
-    glColor3f(1,0.5,0.5);
-    drawPointSet(positions2 , normals2);
+    // glPointSize(2);
+    // glColor3f(1,0.5,0.5);
+    // drawPointSet(positions2 , normals2);
+
+    //glPointSize(4);
+    glColor3f(0.5,0.5,1.0);
+    drawPointSet(dualContouringPoints , normals2);
 
     if(display_grid){
         DrawGrid(gridPoints, gridPoints.size());
@@ -517,25 +523,84 @@ std::vector<float> MLS(std::vector<Vec3> grid, BasicANNkdTree const &kdTree) {
     return mls;
 }
 
+struct Cell {
+    vector<unsigned int> c_vertices;
+    bool hasDifferentSigns;
 
+    Vec3 getBarycentre(vector<Vec3> grid) {
+        Vec3 barycentre = Vec3(0., 0., 0.);
+        for (int i = 0; i < 8; ++i)
+        {
+            barycentre += grid[c_vertices[i]];
+        }
+        return barycentre/8.;
+    }
+};
 
-std::vector<Vec3> dualContouring(std::vector<Vec3> grid, std::vector<float> signs, unsigned int resolution, std::vector<unsigned int> &triangles) {
+void computeCells(vector<Cell> &cells, vector<Vec3> grid, vector<float> signs, unsigned int resolution) {
+    for (unsigned int i = 0; i < resolution-1; ++i) {
+        for (unsigned int j = 0; j < resolution-1; ++j) {
+            for (unsigned int k = 0; k < resolution-1; ++k) {
+                vector<unsigned int> cellVertices;   
+                cellVertices.push_back(i*resolution*resolution+j*resolution+k);
+                cellVertices.push_back(i*resolution*resolution+j*resolution+k+1);
+                cellVertices.push_back((i+1)*resolution*resolution+j*resolution+k+1);
+                cellVertices.push_back((i+1)*resolution*resolution+j*resolution+k);
+                cellVertices.push_back(i*resolution*resolution+(j+1)*resolution+k);
+                cellVertices.push_back(i*resolution*resolution+(j+1)*resolution+k+1);
+                cellVertices.push_back((i+1)*resolution*resolution+(j+1)*resolution+k+1);
+                cellVertices.push_back((i+1)*resolution*resolution+(j+1)*resolution+k);
+                Cell c; 
+                {
+                    c.c_vertices = cellVertices;
+                    c.hasDifferentSigns = false;
+                }
+                for (unsigned int s = 0; s < 8; ++s)
+                {
+                    if(signs[c.c_vertices[s]] * signs[c.c_vertices[0]] < 0) {
+                        c.hasDifferentSigns = true;
+                        break;
+                    }
+                }
+                cells.push_back(c);
+            }
+        }
+    }
+}
+
+std::vector<Vec3> dualContouring(std::vector<Vec3> grid, std::vector<float> signs, unsigned int resolution/*, std::vector<unsigned int> &triangles*/) {
+    
     size_t gridSize = grid.size();
     vector<bool> alreadyComputed;
     alreadyComputed.resize(gridSize, false);
 
-    for (int i = 0; i < resolution; ++i) {
-        for (int j = 0; j < resolution; ++j) {
-            for (int k = 0; k < resolution; ++k) {
-                for (int n = 1; n < 8; ++n) {
-                    std::vector<Vec3> cell;
-                    if(signs[0]*signs[n] < 0 && !alreadyComputed[i*resolution+j*resolution+k]) {
-                        cell.push_back(signs[i*resolution+j*resolution+k+n]);
-                    }
+    for (unsigned int i = 0; i < resolution-1; ++i) {
+        for (unsigned int j = 0; j < resolution-1; ++j) {
+            for (unsigned int k = 0; k < resolution-1; ++k) {
+                if(grid[i*resolution*resolution+j*resolution+k] * grid[i*resolution*resolution+j*resolution+k+1] < 0) {
+
+                }
+                if(grid[i*resolution*resolution+j*resolution+k] * grid[(i+1)*resolution*resolution+j*resolution+k] < 0) {
+                   
+                }
+                if(grid[i*resolution*resolution+j*resolution+k] * grid[i*resolution*resolution+(j+1)*resolution+k] < 0) {
+                    
                 }
             }
         }
     }
+
+    // vector<Vec3> points;
+    // vector<Cell> cells;
+    // computeCells(cells, grid, signs, resolution);
+    // size_t cellsSize = cells.size();
+    // for (unsigned int i = 0; i < cellsSize; ++i)
+    // {
+    //     if(cells[i].hasDifferentSigns) {
+    //         points.push_back(cells[i].getBarycentre(grid));
+    //     }
+    // }
+    // return points;
 }
 
 int main (int argc, char ** argv) {
@@ -587,10 +652,7 @@ int main (int argc, char ** argv) {
         int resolution = 32;
         gridPoints = computeGrid(scale, resolution);
         signs = MLS(gridPoints, kdtree);
-        for (int i = 0; i < signs.size(); ++i)
-        {
-            std::cout << signs[i] << std::endl;
-        }
+        dualContouringPoints = dualContouring(gridPoints, signs, resolution);
     }
 
 
