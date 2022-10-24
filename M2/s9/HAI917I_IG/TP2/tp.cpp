@@ -41,6 +41,7 @@ std::vector< Vec3 > positions2;
 std::vector< Vec3 > normals2;
 
 std::vector<Vec3> dualContouringPoints;
+std::vector<unsigned int> triangles;
 
 std::vector<Vec3> gridPoints;
 std::vector<float> signs;
@@ -197,8 +198,8 @@ void initLight () {
 void init () {
     camera.resize (SCREENWIDTH, SCREENHEIGHT);
     initLight ();
-    glCullFace (GL_BACK);
-    glEnable (GL_CULL_FACE);
+    //glCullFace (GL_BACK);
+    //glEnable (GL_CULL_FACE);
     glDepthFunc (GL_LESS);
     glEnable (GL_DEPTH_TEST);
     glClearColor (0.2f, 0.2f, 0.3f, 1.0f);
@@ -212,7 +213,12 @@ void DrawGrid(std::vector<Vec3> points, long nbPoints) {
     glPointSize(2);
     glBegin(GL_POINTS);
     for (unsigned int i = 0; i < points.size(); ++i) {
-        if(signs[i] < 0) glColor3f(1., 0., 0.);
+        if(signs[i] < 0) {
+            glColor3f(1., 0., 0.);
+            // glVertex3f(points[i][0],
+            //     points[i][1],
+            //     points[i][2]);
+        }
         else if (signs[i] > 0) glColor3f(0., 0., 1.);
         else glColor3f(0.5, 0.5, 0.5);
         glVertex3f(points[i][0],
@@ -226,9 +232,9 @@ void DrawGrid(std::vector<Vec3> points, long nbPoints) {
 void drawTriangleMesh( std::vector< Vec3 > const & i_positions , std::vector< unsigned int > const & i_triangles ) {
     glBegin(GL_TRIANGLES);
     for(unsigned int tIt = 0 ; tIt < i_triangles.size() / 3 ; ++tIt) {
-        Vec3 p0 = i_positions[3*tIt];
-        Vec3 p1 = i_positions[3*tIt+1];
-        Vec3 p2 = i_positions[3*tIt+2];
+        Vec3 p0 = i_positions[i_triangles[3*tIt]];
+        Vec3 p1 = i_positions[i_triangles[3*tIt+1]];
+        Vec3 p2 = i_positions[i_triangles[3*tIt+2]];
         Vec3 n = Vec3::cross(p1-p0 , p2-p0);
         n.normalize();
         glNormal3f( n[0] , n[1] , n[2] );
@@ -261,6 +267,8 @@ void draw () {
     //glPointSize(4);
     glColor3f(0.5,0.5,1.0);
     drawPointSet(dualContouringPoints , normals2);
+
+    drawTriangleMesh(positions2, triangles);
 
     if(display_grid){
         DrawGrid(gridPoints, gridPoints.size());
@@ -462,9 +470,6 @@ void HPSS3(Vec3 &inputPoint, Vec3 &outputPoint, Vec3 &outputNormal, std::vector<
 std::vector<Vec3> computeGrid(float scale, unsigned int resolution) {
 
     std::vector<Vec3> result;
-    std::vector<std::vector<Vec3>> grid2D;
-    std::vector<Vec3> line;
-
     std::vector<Vec3> cubePoints;
     Vec3 extremBottomPoint, extremTopPoint;
     float minX = FLT_MAX, minY = FLT_MAX, minZ = FLT_MAX;
@@ -523,84 +528,221 @@ std::vector<float> MLS(std::vector<Vec3> grid, BasicANNkdTree const &kdTree) {
     return mls;
 }
 
-struct Cell {
-    vector<unsigned int> c_vertices;
-    bool hasDifferentSigns;
+// std::vector<Vec3> dualContouring(std::vector<Vec3> grid, std::vector<float> signs, unsigned int resolution, std::vector<unsigned int> &triangles) {
+    
+//     vector<Vec3> points;
+//     size_t gridSize = grid.size();
+//     vector<bool> alreadyComputed;
+//     alreadyComputed.resize(gridSize, false);
+//     Vec3 extremBottomPoint = grid[0];
+//     Vec3 extremTopPoint = grid[grid.size() - 1];
+//     float dx = extremTopPoint[0] - extremBottomPoint[0];
+//     cout << "dx : " << dx << endl;
+//     float dy = extremTopPoint[1] - extremBottomPoint[1];
+//     cout << "dy : " << dy << endl;
+//     float dz = extremTopPoint[2] - extremBottomPoint[2];
+//     cout << "dz : " << dz << endl;
 
-    Vec3 getBarycentre(vector<Vec3> grid) {
-        Vec3 barycentre = Vec3(0., 0., 0.);
-        for (int i = 0; i < 8; ++i)
-        {
-            barycentre += grid[c_vertices[i]];
-        }
-        return barycentre/8.;
+//     for (unsigned int i = 0; i < resolution-1; ++i) {
+//         for (unsigned int j = 0; j < resolution-1; ++j) {
+//             for (unsigned int k = 0; k < resolution-1; ++k) {
+//                 Vec3 currentVec = grid[i*resolution*resolution+j*resolution+k];
+//                 float currentSign = signs[i*resolution*resolution+j*resolution+k];
+//                 if(currentSign * signs[i*resolution*resolution+j*resolution+k+1] < 0) {
+//                     points.push_back(currentVec + Vec3( dx/(resolution*2), dy/(resolution*2), dz/(resolution*2) ));
+//                     points.push_back(currentVec + Vec3( dx/(resolution*2), dy/(resolution*2), -dz/(resolution*2) ));
+//                     points.push_back(currentVec + Vec3( dx/(resolution*2), -dy/(resolution*2), -dz/(resolution*2) ));
+//                     points.push_back(currentVec + Vec3( dx/(resolution*2), -dy/(resolution*2), dz/(resolution*2) ));
+
+//                     triangles.push_back(points.size()-4);
+//                     triangles.push_back(points.size()-3);
+//                     triangles.push_back(points.size()-2);
+
+//                     triangles.push_back(points.size()-2);
+//                     triangles.push_back(points.size()-1);
+//                     triangles.push_back(points.size()-4);
+//                 }
+//                 if(currentSign * signs[(i+1)*resolution*resolution+j*resolution+k] < 0) {
+//                     points.push_back(currentVec + Vec3( dx/(resolution*2), dy/(resolution*2), dz/(resolution*2) ));
+//                     points.push_back(currentVec + Vec3( -dx/(resolution*2), dy/(resolution*2), dz/(resolution*2) ));
+//                     points.push_back(currentVec + Vec3( -dx/(resolution*2), -dy/(resolution*2), dz/(resolution*2) ));
+//                     points.push_back(currentVec + Vec3( dx/(resolution*2), -dy/(resolution*2), dz/(resolution*2) ));
+
+//                     triangles.push_back(points.size()-4);
+//                     triangles.push_back(points.size()-3);
+//                     triangles.push_back(points.size()-2);
+
+//                     triangles.push_back(points.size()-2);
+//                     triangles.push_back(points.size()-1);
+//                     triangles.push_back(points.size()-4);
+//                 }
+//                 if(currentSign * signs[i*resolution*resolution+(j+1)*resolution+k] < 0) {
+//                     points.push_back(currentVec + Vec3( dx/(resolution*2), dy/(resolution*2), dz/(resolution*2) ));
+//                     points.push_back(currentVec + Vec3( -dx/(resolution*2), dy/(resolution*2), dz/(resolution*2) ));
+//                     points.push_back(currentVec + Vec3( -dx/(resolution*2), dy/(resolution*2), -dz/(resolution*2) ));
+//                     points.push_back(currentVec + Vec3( dx/(resolution*2), dy/(resolution*2), -dz/(resolution*2) ));
+
+//                     triangles.push_back(points.size()-4);
+//                     triangles.push_back(points.size()-3);
+//                     triangles.push_back(points.size()-2);
+
+//                     triangles.push_back(points.size()-2);
+//                     triangles.push_back(points.size()-1);
+//                     triangles.push_back(points.size()-4);
+//                 }
+//             }
+//         }
+//     }
+
+//     return points;
+// }
+
+
+// -----------------------------------------------------------------------------------------
+//                                          CAMILLE CODE
+// -----------------------------------------------------------------------------------------
+
+
+void addFace(int axis, int startPos, int squaredResolution, int resolution){
+    if(axis == 0){
+        triangles.push_back(startPos);
+        triangles.push_back(startPos+resolution);
+        triangles.push_back(startPos+resolution+1);
+        
+        triangles.push_back(startPos);
+        triangles.push_back(startPos+resolution+1);
+        triangles.push_back(startPos+1);
     }
-};
+    if(axis == 1){
+        triangles.push_back(startPos);
+        triangles.push_back(startPos+squaredResolution);
+        triangles.push_back(startPos+squaredResolution+1);
+        
+        triangles.push_back(startPos);
+        triangles.push_back(startPos+squaredResolution+1);
+        triangles.push_back(startPos+1);
+        
+    }
+    if(axis == 2){
+        triangles.push_back(startPos);
+        triangles.push_back(startPos+resolution);
+        triangles.push_back(startPos+resolution+squaredResolution);
+        
+        triangles.push_back(startPos);
+        triangles.push_back(startPos+squaredResolution+resolution);
+        triangles.push_back(startPos+squaredResolution);
 
-void computeCells(vector<Cell> &cells, vector<Vec3> grid, vector<float> signs, unsigned int resolution) {
-    for (unsigned int i = 0; i < resolution-1; ++i) {
-        for (unsigned int j = 0; j < resolution-1; ++j) {
-            for (unsigned int k = 0; k < resolution-1; ++k) {
-                vector<unsigned int> cellVertices;   
-                cellVertices.push_back(i*resolution*resolution+j*resolution+k);
-                cellVertices.push_back(i*resolution*resolution+j*resolution+k+1);
-                cellVertices.push_back((i+1)*resolution*resolution+j*resolution+k+1);
-                cellVertices.push_back((i+1)*resolution*resolution+j*resolution+k);
-                cellVertices.push_back(i*resolution*resolution+(j+1)*resolution+k);
-                cellVertices.push_back(i*resolution*resolution+(j+1)*resolution+k+1);
-                cellVertices.push_back((i+1)*resolution*resolution+(j+1)*resolution+k+1);
-                cellVertices.push_back((i+1)*resolution*resolution+(j+1)*resolution+k);
-                Cell c; 
-                {
-                    c.c_vertices = cellVertices;
-                    c.hasDifferentSigns = false;
-                }
-                for (unsigned int s = 0; s < 8; ++s)
-                {
-                    if(signs[c.c_vertices[s]] * signs[c.c_vertices[0]] < 0) {
-                        c.hasDifferentSigns = true;
-                        break;
-                    }
-                }
-                cells.push_back(c);
-            }
+    }
+}
+
+void computeBoundingBox(double &minX, double &maxX, double &minY, double &maxY, double &minZ, double &maxZ){
+    maxX = -999.;
+    minX = 999.;
+
+    maxY = -999.;
+    minY = 999.;
+
+    maxZ = -999.;
+    minZ = 999.;
+
+    size_t loop = positions.size();
+    for(int i = 0 ; i < loop; i++){
+
+        if(positions[i][0] < minX){
+            minX = positions[i][0];
+        }
+        if(positions[i][1] < minY){
+            minY = positions[i][1];
+        }
+        if(positions[i][2] < minZ){
+            minZ = positions[i][2];
+        }
+
+        if(positions[i][0] > maxX){
+            maxX = positions[i][0];
+        }
+        if(positions[i][1] > maxY){
+            maxY = positions[i][1];
+        }
+        if(positions[i][2] > maxZ){
+            maxZ = positions[i][2];
         }
     }
 }
 
-std::vector<Vec3> dualContouring(std::vector<Vec3> grid, std::vector<float> signs, unsigned int resolution/*, std::vector<unsigned int> &triangles*/) {
+void dualContouring(BasicANNkdTree const & kdtree){
+    double minX, maxX, minY, maxY, minZ, maxZ = 0.0;
+    computeBoundingBox(minX, maxX, minY, maxY, minZ, maxZ);
+    minX -= 0.1;
+    minY -= 0.1;
+    minZ -= 0.1;
+
+    maxX += 0.1;
+    maxY += 0.1;
+    maxZ += 0.1;
+    std::cout<<minX<<" "<<maxX<<std::endl;
+    std::cout<<minY<<" "<<maxY<<std::endl;
+    std::cout<<minZ<<" "<<maxZ<<std::endl;
+
+    std::vector<Vec3> gridPoints = std::vector<Vec3>();
     
-    size_t gridSize = grid.size();
-    vector<bool> alreadyComputed;
-    alreadyComputed.resize(gridSize, false);
+    
+    int gridResolution = 128;
 
-    for (unsigned int i = 0; i < resolution-1; ++i) {
-        for (unsigned int j = 0; j < resolution-1; ++j) {
-            for (unsigned int k = 0; k < resolution-1; ++k) {
-                if(grid[i*resolution*resolution+j*resolution+k] * grid[i*resolution*resolution+j*resolution+k+1] < 0) {
+    std::vector<std::vector<std::vector<bool>>> insideMesh;
+    insideMesh.resize(gridResolution);
 
+    positions2.resize(gridResolution*gridResolution*gridResolution);
+    normals2.resize(positions2.size());
+    for(int i = 0; i < gridResolution; i++){
+        insideMesh[i] = std::vector<std::vector<bool>>();
+        insideMesh[i].resize(gridResolution);
+        for(int j = 0; j < gridResolution; j++){
+            insideMesh[i][j] = std::vector<bool>();
+            insideMesh[i][j].resize(gridResolution);
+            for(int k = 0; k < gridResolution; k++){
+
+                double x = minX + ( ((double)i * (maxX-minX)) / (double)gridResolution);
+                double y = minY + ( ((double)j * (maxY-minY)) / (double)gridResolution);
+                double z = minZ + ( ((double)k * (maxZ-minZ)) / (double)gridResolution);
+
+                Vec3 currentGridPoint = Vec3(x, y, z);
+                Vec3 outputPoint;
+                Vec3 outputNormal;
+
+                HPSS(currentGridPoint, outputPoint, outputNormal, positions, normals, kdtree, 1, 1.0f, 20, 20);
+                Vec3 vecDiff = (currentGridPoint - outputPoint);
+
+                double fx = vecDiff[0] * outputNormal[0] + vecDiff[1] * outputNormal[1] + vecDiff[2] * outputNormal[2];
+
+                insideMesh[i][j][k] = (fx <= 0);
+
+                positions2[i*gridResolution*gridResolution+j*gridResolution+k] = currentGridPoint + Vec3(-0.5/(double)gridResolution, -0.5/(double)gridResolution, -0.5/(double)gridResolution);
+                normals2[i*gridResolution*gridResolution+j*gridResolution+k] = outputNormal;
+
+            }
+        }         
+    }
+
+    int squaredResolution = gridResolution * gridResolution;
+    
+    for(int i = 1; i < gridResolution-1; i++){
+        for(int j = 1; j < gridResolution-1; j++){
+            for(int k = 1; k < gridResolution-1; k++){
+
+                if(insideMesh[i][j][k] != insideMesh[i-1][j][k]){
+                    addFace(0, i*squaredResolution+j*gridResolution+k, squaredResolution, gridResolution);
                 }
-                if(grid[i*resolution*resolution+j*resolution+k] * grid[(i+1)*resolution*resolution+j*resolution+k] < 0) {
-                   
+                if(insideMesh[i][j][k] != insideMesh[i][j-1][k]){
+                    addFace(1, i*squaredResolution+j*gridResolution+k, squaredResolution, gridResolution);
                 }
-                if(grid[i*resolution*resolution+j*resolution+k] * grid[i*resolution*resolution+(j+1)*resolution+k] < 0) {
-                    
+                if(insideMesh[i][j][k] != insideMesh[i][j][k-1]){
+                    addFace(2, i*squaredResolution+j*gridResolution+k, squaredResolution, gridResolution);
                 }
             }
         }
     }
 
-    // vector<Vec3> points;
-    // vector<Cell> cells;
-    // computeCells(cells, grid, signs, resolution);
-    // size_t cellsSize = cells.size();
-    // for (unsigned int i = 0; i < cellsSize; ++i)
-    // {
-    //     if(cells[i].hasDifferentSigns) {
-    //         points.push_back(cells[i].getBarycentre(grid));
-    //     }
-    // }
-    // return points;
 }
 
 int main (int argc, char ** argv) {
@@ -644,15 +786,16 @@ int main (int argc, char ** argv) {
 
         // PROJECT USING MLS (HPSS and APSS):
         // TODO
-        for( unsigned int pIt = 0 ; pIt < positions2.size() ; ++pIt ) {
-            HPSS3(positions2[pIt], positions2[pIt], normals2[pIt], positions, normals, kdtree, 2);
-        }
+        // for( unsigned int pIt = 0 ; pIt < positions2.size() ; ++pIt ) {
+        //     HPSS3(positions2[pIt], positions2[pIt], normals2[pIt], positions, normals, kdtree, 2);
+        // }
 
-        float scale = 0.05;
-        int resolution = 32;
-        gridPoints = computeGrid(scale, resolution);
-        signs = MLS(gridPoints, kdtree);
-        dualContouringPoints = dualContouring(gridPoints, signs, resolution);
+        // float scale = 0.05;
+        // int resolution = 32;
+        // gridPoints = computeGrid(scale, resolution);
+        // signs = MLS(gridPoints, kdtree);
+        // dualContouringPoints = dualContouring(gridPoints, signs, resolution, triangles);
+        dualContouring(kdtree);
     }
 
 
