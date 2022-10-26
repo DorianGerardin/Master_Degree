@@ -392,17 +392,67 @@ void HPSS3(Vec3 &inputPoint, Vec3 &outputPoint, Vec3 &outputNormal, std::vector<
         delete [] square_distances_to_neighbors;
 }
 
-void ICP(vector<Vec3> const & ps, vector<Vec3> const & nps, vector<Vec3> const & qs, vector<Vec3> const & nqs,
-         BasicANNkdTree const & qsKdTree, Mat3 & rotation, Vec3 & translation, unsigned int nbIterations) {
+Vec3 getBarycentre(vector<Vec3> points) {
+    Vec3 barycentre = Vec3(0., 0., 0.);
+    size_t pointsSize = points.size();
+    for (unsigned int i = 0; i < points.size(); ++i) {
+        barycentre += points[i];
+    }
+    return barycentre / (float)pointsSize;
+}
 
-    size_t positions2Size = positions2.size();
-    for (int i = 0; i < nbIterations; ++i) {
-        float argmin = FLT_MAX;
-        float w = 1.;
-        float value = w * ( pow((rotation * positions2[i] + translation - project(positions2[i], positions[i])).length(), 2) );
-        if(value < argmin) {
-            argmin = value;
-            rotation.setRotation();
+void translatePoints(vector<Vec3> &points, Vec3 translation) {
+    size_t pointsSize = points.size();
+    for (unsigned int i = 0; i < pointsSize; ++i) {
+        points[i] += translation;
+    }
+}
+
+Mat3 multiply2Vectors(vector<Vec3> P, vector<Vec3> Qt) {
+
+    float m0 = 0., m1 = 0., m2 = 0., m3 = 0., m4 = 0., m5 = 0., m6 = 0., m7 = 0., m8 = 0.;
+    for (unsigned int i = 0; i < P.size(); ++i) {
+        m0 += P[i][0] * Qt[i][0];
+        m1 += P[i][0] * Qt[i][1]; 
+        m2 += P[i][0] * Qt[i][2]; 
+        m3 += P[i][1] * Qt[i][0]; 
+        m4 += P[i][1] * Qt[i][1]; 
+        m5 += P[i][1] * Qt[i][2]; 
+        m6 += P[i][2] * Qt[i][0]; 
+        m7 += P[i][2] * Qt[i][1]; 
+        m8 += P[i][2] * Qt[i][2]; 
+    }
+    return Mat3(m0, m1, m2, m3, m4, m5, m6, m7, m8);
+}
+
+void ICP(vector<Vec3> & ps, vector<Vec3> & nps, vector<Vec3> & qs, vector<Vec3> & nqs,
+         BasicANNkdTree & qsKdTree, Mat3 & rotation, Vec3 & translation, unsigned int nbIterations) {
+
+    size_t psSize = ps.size();
+    for (unsigned int i = 0; i < nbIterations; ++i) {
+
+        Vec3 cs = getBarycentre(ps);
+        Vec3 ct = getBarycentre(qs);
+        vector<Vec3> matP, matQ;
+        Mat3 M;
+
+        for (unsigned int j = 0; j < psSize; ++j) {
+
+            vector<Vec3> piNearest;
+            piNearest.resize(psSize);
+
+            float w = 1.;
+            //HPSS3(ps[j], piNearest[j], nps[j], qs, nqs, qsKdTree, 1);
+            piNearest[j] = ps[qsKdTree.nearest(ps[j])];
+
+            matP.push_back(ps[j] - cs);
+            matQ.push_back(piNearest[j] - ct);
+        }
+
+        M = multiply2Vectors(matP, matQ);
+        M.setRotation();
+        for (unsigned int j = 0; j < psSize; ++j) {
+            ps[j] = ct + M * (ps[j] - cs);
         }
     }
 }
@@ -428,15 +478,25 @@ int main (int argc, char ** argv) {
 
     {
         // Load a first pointset, and build a kd-tree:
-        loadPN("pointsets/dino.pn" , positions , normals);
-        loadPN("pointsets/dino2.pn" , positions2 , normals2);
+        loadPN("pointsets/dino_subsampled.pn" , positions , normals);
+        loadPN("pointsets/dino.pn" , positions2 , normals2);
+
+        srand (time(NULL));
+        Mat3 ICProtation = Mat3::RandRotation();
+        Vec3 ICPtranslation = Vec3(-1.0+2.0*((double)(rand())/(double)(RAND_MAX)),-1.0+2.0*((double)(rand())/(double)(RAND_MAX)),-1.0+2.0*((double)(rand())/(double)(RAND_MAX)));
+
+        for (unsigned int pIt = 0; pIt < positions2.size() ; ++pIt){
+            positions2[pIt] = ICProtation * positions2[pIt] + ICPtranslation;
+            normals2[pIt] = ICProtation * normals2[pIt];
+        }
 
         BasicANNkdTree kdtree;
         kdtree.build(positions);
-        
+
+        Mat3 rotation = Mat3::RandRotation();
+        Vec3 translation = Vec3::Rand();
+        ICP(positions2, normals2, positions, normals, kdtree, rotation, translation, 10);
     }
-
-
 
     glutMainLoop ();
     return EXIT_SUCCESS;
