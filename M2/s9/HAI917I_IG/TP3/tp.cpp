@@ -388,7 +388,6 @@ void HPSS3(Vec3 &inputPoint, Vec3 &outputPoint, Vec3 &outputNormal, std::vector<
             outputNormal = n;
 
         }
-
         delete [] id_nearest_neighbors;
         delete [] square_distances_to_neighbors;
 }

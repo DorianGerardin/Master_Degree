@@ -65,6 +65,14 @@ TextureDockWidget::TextureDockWidget(TextureViewer * _viewer, QWidget * parent )
 
     connect(viewer, SIGNAL(setMaxCutPlanes(int,int,int)), this, SLOT(setMaxCutPlanes(int,int,int)));
 
+    connect(xHSlider, SIGNAL(valueChanged(int)), viewer, SLOT(setXCut(int)));
+    connect(yHSlider, SIGNAL(valueChanged(int)), viewer, SLOT(setYCut(int)));
+    connect(zHSlider, SIGNAL(valueChanged(int)), viewer, SLOT(setZCut(int)));
+
+    connect(displayXCut, SIGNAL(clicked(bool)), viewer, SLOT(setXCutDisplay(bool)));
+    connect(displayYCut, SIGNAL(clicked(bool)), viewer, SLOT(setYCutDisplay(bool)));
+    connect(displayZCut, SIGNAL(clicked(bool)), viewer, SLOT(setZCutDisplay(bool)));
+
     displayImageGroupBox = new QGroupBox("Label display", this);
 
     QVBoxLayout * segIVLayout = new QVBoxLayout(displayImageGroupBox);

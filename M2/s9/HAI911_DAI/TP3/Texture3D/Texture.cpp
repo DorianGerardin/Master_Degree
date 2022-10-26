@@ -62,7 +62,7 @@ void Texture::init(){
 }
 
 void Texture::initGLSL(){
-    std::string path = "/home/p00000378348/Documents/Texture3D/GLSL/shaders/";
+    std::string path = "/home/e20180001518/Master/M2/s9/HAI911_DAI/TP3/Texture3D/GLSL/shaders/";
     std::string vShaderPath = path + "volume.vert";
     std::string fShaderPath = path + "volume.frag";
 
