@@ -528,6 +528,10 @@ std::vector<float> MLS(std::vector<Vec3> grid, BasicANNkdTree const &kdTree) {
     return mls;
 }
 
+// -----------------------------------------------------------------------------------------
+//                  Mon code ne marche pas (je ne comprends pas ce qui est mauvais)
+// -----------------------------------------------------------------------------------------
+
 // std::vector<Vec3> dualContouring(std::vector<Vec3> grid, std::vector<float> signs, unsigned int resolution, std::vector<unsigned int> &triangles) {
     
 //     vector<Vec3> points;
@@ -784,17 +788,6 @@ int main (int argc, char ** argv) {
             positions2[pIt] = 0.6 * positions2[pIt];
         }
 
-        // PROJECT USING MLS (HPSS and APSS):
-        // TODO
-        // for( unsigned int pIt = 0 ; pIt < positions2.size() ; ++pIt ) {
-        //     HPSS3(positions2[pIt], positions2[pIt], normals2[pIt], positions, normals, kdtree, 2);
-        // }
-
-        // float scale = 0.05;
-        // int resolution = 32;
-        // gridPoints = computeGrid(scale, resolution);
-        // signs = MLS(gridPoints, kdtree);
-        // dualContouringPoints = dualContouring(gridPoints, signs, resolution, triangles);
         dualContouring(kdtree);
     }
 
