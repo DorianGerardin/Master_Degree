@@ -31,7 +31,10 @@
 using namespace std;
 
 void calcUniformMeanCurvature();
+void calcMeanCurvature();
+void calcTriangleQuality();
 void uniformSmooth(unsigned int nIteration);
+void uniformLBSmooth(unsigned int nIteration);
 
 enum DisplayMode{ WIRE=0, SOLID=1, LIGHTED_WIRE=2, LIGHTED=3 };
 
@@ -61,11 +64,17 @@ struct Triangle {
 struct Mesh {
     std::vector< Vec3 > vertices; //array of mesh vertices positions
     std::vector< Vec3 > Lu;
+    std::vector< Vec3 > Lbu;
+    std::vector< Vec3 > G;
     std::vector< float > vunicurvature;
+    std::vector< float > vcurvature;
+    std::vector< float > vgausscurvature;
     std::vector< Vec3 > normals; //array of vertices normals useful for the display
     std::vector< Triangle > triangles; //array of mesh triangles
     std::vector < float > tshape;
+    float minQ, maxQ;
     std::vector< Vec3 > triangle_normals; //triangle normals to display face normals
+    std::vector<std::vector<unsigned int> > oneRing;
 
     //Compute face normals for the display
     void computeTrianglesNormals(){
@@ -97,23 +106,30 @@ struct Mesh {
         computeVerticesNormals();
     }
 
-    void update() {
+    void updateL() {
         calcUniformMeanCurvature();
+        calcTriangleQuality();
+        computeNormals();
+    }
+
+    void updateLB() {
+        calcMeanCurvature();
+        calcTriangleQuality();
         computeNormals();
     }
 
     void addNoise(){
-    for( unsigned int i = 0 ; i < vertices.size() ; i ++ ) {
+        for( unsigned int i = 0 ; i < vertices.size() ; i ++ ) {
 
-        float factor = 0.03;
-        const Vec3 & p = vertices[i];
-        const Vec3 & n = normals[i];
-        vertices[i] = Vec3( p[0] + factor*((double)(rand()) / (double)
-        (RAND_MAX))*n[0], p[1] + factor*((double)(rand()) / (double)
-        (RAND_MAX))*n[1], p[2] + factor*((double)(rand()) / (double)
-        (RAND_MAX))*n[2]);
+            float factor = 0.03;
+            const Vec3 & p = vertices[i];
+            const Vec3 & n = normals[i];
+            vertices[i] = Vec3( p[0] + factor*((double)(rand()) / (double)
+            (RAND_MAX))*n[0], p[1] + factor*((double)(rand()) / (double)
+            (RAND_MAX))*n[1], p[2] + factor*((double)(rand()) / (double)
+            (RAND_MAX))*n[2]);
+        }
     }
-}
 };
 
 
@@ -171,7 +187,7 @@ void normalizeValue(float &value, float min, float max) {
     value = abs(value - min) / length;
 }
 
-void normalizeCurvatures() {
+void normalizeUniCurvatures() {
     size_t nVertices = mesh.vertices.size();
     float max = FLT_MIN; float min = FLT_MAX;
     for (unsigned int k = 0; k < nVertices; ++k) {
@@ -183,6 +199,30 @@ void normalizeCurvatures() {
     }
 }
 
+void normalizeCurvatures() {
+    size_t nVertices = mesh.vertices.size();
+    float max = FLT_MIN; float min = FLT_MAX;
+    for (unsigned int k = 0; k < nVertices; ++k) {
+        if(mesh.vcurvature[k] < min) min = mesh.vcurvature[k];
+        if(mesh.vcurvature[k] > max) max = mesh.vcurvature[k];
+    }
+    for (unsigned int k = 0; k < nVertices; ++k) {
+        normalizeValue(mesh.vcurvature[k], min, max);
+    }
+}
+
+void normalizeGaussCurvatures() {
+    size_t nVertices = mesh.vertices.size();
+    float max = FLT_MIN; float min = FLT_MAX;
+    for (unsigned int k = 0; k < nVertices; ++k) {
+        if(mesh.vgausscurvature[k] < min) min = mesh.vgausscurvature[k];
+        if(mesh.vgausscurvature[k] > max) max = mesh.vgausscurvature[k];
+    }
+    for (unsigned int k = 0; k < nVertices; ++k) {
+        normalizeValue(mesh.vgausscurvature[k], min, max);
+    }
+}
+
 void calcUniformMeanCurvature() {
 
     mesh.vunicurvature.clear();
@@ -190,22 +230,21 @@ void calcUniformMeanCurvature() {
     size_t nVertices = mesh.vertices.size();
     mesh.vunicurvature.resize(nVertices);
     mesh.Lu.resize(nVertices);
-    vector<vector<unsigned int>> oneRing;
-    collect_one_ring(mesh.vertices, mesh.triangles, oneRing);
 
     for (unsigned int i = 0; i < nVertices; ++i) {
 
-        size_t nNeighbours = oneRing[i].size();
+        size_t nNeighbours = mesh.oneRing[i].size();
         Vec3 sumNeighboors = Vec3(0., 0., 0.);
 
         for (unsigned int j = 0; j < nNeighbours; ++j) {
 
-            sumNeighboors += mesh.vertices[oneRing[i][j]];
+            sumNeighboors += mesh.vertices[mesh.oneRing[i][j]];
         }
         mesh.Lu[i] = ((sumNeighboors / (float) nNeighbours) - mesh.vertices[i]);
         mesh.vunicurvature[i] = mesh.Lu[i].length() / 2.0;
     }
-    normalizeCurvatures();
+    normalizeUniCurvatures();
+    current_field = mesh.vunicurvature;
 }
 
 void uniformSmooth(unsigned int nIteration) {
@@ -220,7 +259,7 @@ void uniformSmooth(unsigned int nIteration) {
             newVertices[j] = mesh.vertices[j] + 0.5 * mesh.Lu[j];
         }
         mesh.vertices = newVertices;
-        mesh.update();
+        mesh.updateL();
     }
 }
 
@@ -235,7 +274,7 @@ void taubinSmooth(float lambda, float mu, unsigned int nIteration) {
             newVertices[j] = mesh.vertices[j] + lambda * mesh.Lu[j];
         }
         mesh.vertices = newVertices;
-        mesh.update();
+        mesh.updateL();
         newVertices.clear();
         newVertices.resize(nVertices);
 
@@ -244,22 +283,164 @@ void taubinSmooth(float lambda, float mu, unsigned int nIteration) {
             newVertices[j] = mesh.vertices[j] + mu * mesh.Lu[j];
         }
         mesh.vertices = newVertices;
-        mesh.update();
+        mesh.updateL();
     }
 }
 
 void calcTriangleQuality() {
 
     size_t nTriangles = mesh.triangles.size();
-    for (int i = 0; i < nTriangles; ++i)
+    mesh.tshape.clear();
+    mesh.tshape.resize(nTriangles);
+
+    float maxQ = FLT_MIN; float minQ = FLT_MAX;
+    for (unsigned int i = 0; i < nTriangles; ++i)
     {
-        Vec3 a = (mesh.vertices[mesh.triangles[i][0]] - mesh.vertices[mesh.triangles[i][1]]).length(); 
-        Vec3 b = (mesh.vertices[mesh.triangles[i][1]] - mesh.vertices[mesh.triangles[i][2]]).length(); 
-        Vec3 c = (mesh.vertices[mesh.triangles[i][0]] - mesh.vertices[mesh.triangles[i][2]]).length(); 
+        Vec3 a = (mesh.vertices[mesh.triangles[i][1]] - mesh.vertices[mesh.triangles[i][0]]); 
+        Vec3 b = (mesh.vertices[mesh.triangles[i][2]] - mesh.vertices[mesh.triangles[i][0]]); 
+        Vec3 c = (mesh.vertices[mesh.triangles[i][1]] - mesh.vertices[mesh.triangles[i][2]]);
+        float minEdge = min(min(a.length(), b.length()), c.length()); 
 
-        
+        float area = Vec3::cross(a, b).length() / 2.0;
+        float r = (a.length() * b.length() * c.length()) / (4.0 * area); 
+        mesh.tshape[i] = r / minEdge;
+        if(mesh.tshape[i] < minQ) minQ = mesh.tshape[i];
+        if(mesh.tshape[i] > maxQ) maxQ = mesh.tshape[i];
     }
+    mesh.maxQ = maxQ;
+    mesh.minQ = minQ;
+}
 
+vector<float> getOppositeAngles(unsigned int vertexIndex, unsigned int neighborIndex) {
+
+    vector<float> angles;
+    size_t nTriangles = mesh.triangles.size();
+    for (unsigned int i = 0; i < nTriangles; ++i)
+    {
+        if(mesh.triangles[i][0] == vertexIndex && mesh.triangles[i][1] == neighborIndex) {
+            Vec3 o = mesh.vertices[mesh.triangles[i][2]];
+            angles.push_back(acos(Vec3::dot( (mesh.vertices[mesh.triangles[i][0]] - o) , (mesh.vertices[mesh.triangles[i][1]] - o) )));
+        }
+        else if(mesh.triangles[i][1] == vertexIndex && mesh.triangles[i][0] == neighborIndex) {
+            Vec3 o = mesh.vertices[mesh.triangles[i][2]];
+            angles.push_back(acos(Vec3::dot( (mesh.vertices[mesh.triangles[i][0]] - o) , (mesh.vertices[mesh.triangles[i][1]] - o) )));
+        }
+        else if(mesh.triangles[i][0] == vertexIndex && mesh.triangles[i][2] == neighborIndex) {
+            Vec3 o = mesh.vertices[mesh.triangles[i][1]];
+            angles.push_back(acos(Vec3::dot( (mesh.vertices[mesh.triangles[i][0]] - o) , (mesh.vertices[mesh.triangles[i][2]] - o) )));
+        }
+        else if(mesh.triangles[i][2] == vertexIndex && mesh.triangles[i][0] == neighborIndex) {
+            Vec3 o = mesh.vertices[mesh.triangles[i][1]];
+            angles.push_back(acos(Vec3::dot( (mesh.vertices[mesh.triangles[i][0]] - o) , (mesh.vertices[mesh.triangles[i][2]] - o) )));
+        }
+        else if(mesh.triangles[i][1] == vertexIndex && mesh.triangles[i][2] == neighborIndex) {
+            Vec3 o = mesh.vertices[mesh.triangles[i][0]];
+            angles.push_back(acos(Vec3::dot( (mesh.vertices[mesh.triangles[i][1]] - o) , (mesh.vertices[mesh.triangles[i][2]] - o) )));
+        }
+        else if(mesh.triangles[i][2] == vertexIndex && mesh.triangles[i][1] == neighborIndex) {
+            Vec3 o = mesh.vertices[mesh.triangles[i][0]];
+            angles.push_back(acos(Vec3::dot( (mesh.vertices[mesh.triangles[i][1]] - o) , (mesh.vertices[mesh.triangles[i][2]] - o) )));
+        }
+        if(angles.size() == 2) return angles;
+    }
+    return angles;
+}
+
+void calcMeanCurvature() {
+
+    mesh.vcurvature.clear();
+    mesh.Lbu.clear();
+    size_t nVertices = mesh.vertices.size();
+    mesh.vcurvature.resize(nVertices);
+    mesh.Lbu.resize(nVertices);
+
+    for (unsigned int i = 0; i < nVertices; ++i) {
+
+        size_t nNeighbours = mesh.oneRing[i].size();
+        Vec3 sum = Vec3(0., 0., 0.);
+        float weightSum = 0.;
+
+        for (unsigned int j = 0; j < nNeighbours; ++j) {
+
+            vector<float> angles = getOppositeAngles(i, mesh.oneRing[i][j]);
+            float alpha = angles[0];
+            float beta = angles[1];
+
+            float cotAlpha = cos(alpha) / sin(alpha);
+            float cotBeta = cos(beta) / sin(beta);
+            float weight = 0.5 * (cotAlpha + cotBeta);
+
+            weightSum += weight;
+            sum += weight * (mesh.vertices[mesh.oneRing[i][j]] - mesh.vertices[i]);  
+        }
+        mesh.Lbu[i] = ((float)1. / (float)weightSum) * sum;
+        mesh.vcurvature[i] = mesh.Lbu[i].length() * 0.5;
+    }
+    normalizeCurvatures();
+    current_field = mesh.vcurvature;
+}
+
+void taubinLBSmooth(float lambda, float mu, unsigned int nIteration) {
+    size_t nVertices = mesh.vertices.size();
+    for (unsigned int i = 0; i < nIteration; ++i) {
+
+        vector<Vec3> newVertices(nVertices);
+
+        for (unsigned int j = 0; j < nVertices; ++j) {
+
+            newVertices[j] = mesh.vertices[j] + lambda * mesh.Lbu[j];
+        }
+        mesh.vertices = newVertices;
+        mesh.updateLB();
+        newVertices.clear();
+        newVertices.resize(nVertices);
+
+        for (unsigned int j = 0; j < nVertices; ++j) {
+
+            newVertices[j] = mesh.vertices[j] + mu * mesh.Lbu[j];
+        }
+        mesh.vertices = newVertices;
+        mesh.updateLB();
+    }
+}
+
+float getSumAnglesForVertex(unsigned int vertexIndex) {
+
+    float anglesSum = 0.;
+    size_t nTriangles = mesh.triangles.size();
+    for (unsigned int i = 0; i < nTriangles; ++i)
+    {
+        if(mesh.triangles[i][0] == vertexIndex) {
+            Vec3 current = mesh.vertices[mesh.triangles[i][0]];
+            anglesSum += (acos(Vec3::dot( (mesh.vertices[mesh.triangles[i][2]] - current) , (mesh.vertices[mesh.triangles[i][1]] - current) )));
+        }
+        else if(mesh.triangles[i][1] == vertexIndex) {
+            Vec3 current = mesh.vertices[mesh.triangles[i][1]];
+            anglesSum += (acos(Vec3::dot( (mesh.vertices[mesh.triangles[i][0]] - current) , (mesh.vertices[mesh.triangles[i][2]] - current) )));
+        }
+        else if(mesh.triangles[i][2] == vertexIndex) {
+            Vec3 current = mesh.vertices[mesh.triangles[i][2]];
+            anglesSum += (acos(Vec3::dot( (mesh.vertices[mesh.triangles[i][0]] - current) , (mesh.vertices[mesh.triangles[i][1]] - current) )));
+        }
+    }
+    return anglesSum;
+}
+
+void calcGaussCurvature() {
+
+    mesh.vgausscurvature.clear();
+    mesh.G.clear();
+    size_t nVertices = mesh.vertices.size();
+    mesh.vgausscurvature.resize(nVertices);
+    mesh.G.resize(nVertices);
+
+    for (unsigned int i = 0; i < nVertices; ++i) {
+
+        float sumAngles = getSumAnglesForVertex(i);
+        mesh.vgausscurvature[i] = 2 * M_PI - sumAngles;
+    }
+    normalizeGaussCurvatures();
+    current_field = mesh.vgausscurvature;
 }
 
 
@@ -535,13 +716,18 @@ void drawTriangleMesh( Mesh const & i_mesh , bool draw_field = false  ) {
     glBegin(GL_TRIANGLES);
     for(unsigned int tIt = 0 ; tIt < i_mesh.triangles.size(); ++tIt) {
         const Vec3 & n = i_mesh.triangle_normals[ tIt ]; //Triangle normal
+
+        //RGB color = scalarToRGB((i_mesh.tshape[tIt] - i_mesh.minQ) / (i_mesh.maxQ - i_mesh.minQ));
+        RGB color = scalarToRGB(i_mesh.tshape[tIt]);
+        glColor3f(color.r, color.g, color.b);
+
         for(unsigned int i = 0 ; i < 3 ; i++) {
             const Vec3 & p = i_mesh.vertices[i_mesh.triangles[tIt][i]]; //Vertex position
 
-            if( draw_field && current_field.size() > 0 ){
-                RGB color = scalarToRGB( current_field[i_mesh.triangles[tIt][i]] );
-                glColor3f( color.r, color.g, color.b );
-            }
+            // if( draw_field && current_field.size() > 0 ){
+            //     RGB color = scalarToRGB( current_field[i_mesh.triangles[tIt][i]] );
+            //     glColor3f( color.r, color.g, color.b );
+            // }
             glNormal3f( n[0] , n[1] , n[2] );
             glVertex3f( p[0] , p[1] , p[2] );
         }
@@ -690,12 +876,23 @@ void key (unsigned char keyPressed, int x, int y) {
         break;
 
     case 'c': //Draw curvature of each vertices
-        calcUniformMeanCurvature();
         current_field = mesh.vunicurvature;
+        break;
+
+    case 'g': //Draw curvature of each vertices
+        current_field = mesh.vgausscurvature;
+        break;
+
+    case 'm': //Draw curvature of each vertices
+        current_field = mesh.vcurvature;
         break;
 
     case 'l': //Switches between face normals and vertices normals
         uniformSmooth(1);
+        break;
+
+    case 'b': //Switches between face normals and vertices normals
+        taubinLBSmooth(0.330, -0.331, 1);
         break;
 
     case 't': //Switches between face normals and vertices normals
@@ -793,7 +990,15 @@ int main (int argc, char ** argv) {
 
     //Completer les fonction de calcul de normals
     mesh.computeNormals();
-    //mesh.addNoise();
+
+    collect_one_ring(mesh.vertices, mesh.triangles, mesh.oneRing);
+    
+    mesh.addNoise();
+
+    calcTriangleQuality();
+    calcUniformMeanCurvature();
+    calcMeanCurvature();
+    calcGaussCurvature();
 
     // A faire : normaliser les champs pour avoir une valeur flotante entre 0. et 1. dans current_field
     //***********************************************//
